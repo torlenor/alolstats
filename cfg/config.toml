@@ -1,0 +1,20 @@
+#
+# ALoLStats example configuration
+#
+
+[API]
+    Ip = "127.0.0.1" # IP to listen on for the REST API
+    Port = "8000" # Port to listen on for the REST API
+
+[RiotClient]
+    Key = "RGAPI-xxxxxxxxxxxxxxx" # Here goes your api key
+    APIVersion = "v3" # API version to use (v3, v4)
+    Region = "euw1" # Game region to use ("euw1", "eun1", ...)
+
+[LoLStorage] # LoLStorage holds the settings specific for the storage component
+	Backend = "sqlite" # Name of the storage backend to use (e.g., sqlite)
+	UseMatchFiles = true # Specifies if Riot provided Match Files should be read
+	MatchFIleDIr = "/tmp" # Specifies the directory holding the match files
+	MaxAgeChampion = 120 # Specified the maximum age for champion data in minutes until it's invalidated. 0 means it is always fetched newly.
+    MaxAgeChampionRotation = 120 # Specified the maximum age for free champion rotation data in minutes until it's invalidated. 0 means it is always fetched newly.
+	MaxAgeSummoner = 120 # Specified the maximum age for summoner data in minutes until it's invalidated. 0 means it is always fetched newly.
