@@ -18,8 +18,10 @@ Probably the easiest way to try out ALoLstats is using Docker. To pull the lates
 docker run --name ALoLstats -v /path/to/config/file.toml:/app/config/config.toml:ro hpsch/alolstats:latest
 ```
 
-where _/path/to/config/file.toml_ has to be replaced with the path to your config file. Specify
+where _/path/to/config/file.toml_ has to be replaced with the path to your config file. An example is provided in the cfg/ directory and it is enough to insert your API key to use this config.
+
+If you want to expose the http port for the REST API use
 ```
 -p 8000:8000
 ```
-if you want to expose the port you specified in the config file for the REST API.
+where 8000 should be exchanged with the port set in the config file.

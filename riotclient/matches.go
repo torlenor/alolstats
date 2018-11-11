@@ -1,4 +1,4 @@
-package matchfilereader
+package riotclient
 
 // Match contains the complete match data (excluding full time line)
 type Match struct {

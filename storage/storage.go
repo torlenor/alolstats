@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"path/filepath"
 	"sync/atomic"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/torlenor/alolstats/api"
 	"github.com/torlenor/alolstats/config"
 	"github.com/torlenor/alolstats/logging"
+	"github.com/torlenor/alolstats/matchfilereader"
 	"github.com/torlenor/alolstats/riotclient"
 )
 
@@ -20,6 +22,9 @@ type Backend interface {
 	GetFreeRotation() riotclient.FreeRotation
 	GetFreeRotationTimeStamp() time.Time
 	StoreFreeRotation(freeRotation riotclient.FreeRotation)
+
+	GetMatch(id uint64) (riotclient.Match, error)
+	StoreMatch(data *riotclient.Match) error
 }
 
 type stats struct {
@@ -51,11 +56,33 @@ func NewStorage(cfg config.LoLStorage, riotClient riotclient.Client, backend Bac
 func (s *Storage) RegisterAPI(api *api.API) {
 	api.AttachModuleGet("/champions", s.championsEndpoint)
 	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
+	api.AttachModuleGet("/match", s.getMatchEndpoint)
+
 }
 
 // Start starts the storage runners
 func (s *Storage) Start() {
-	s.log.Println("Starting Storage")
+	s.log.Info("Starting Storage")
+	if s.config.UseMatchFiles {
+		s.log.Println("Reading match data from json files")
+		files, err := filepath.Glob(s.config.MatchFileDir + "/*.json")
+		if err != nil {
+			s.log.Errorln("Error reading match files directory:", err)
+		}
+		for _, f := range files {
+			matches, err := matchfilereader.ReadMatchesFile(f)
+			if err != nil {
+				s.log.Errorf("Error reading matches json file %s: %s", f, err)
+			}
+			for _, match := range matches.Matches {
+				err = s.backend.StoreMatch(&match)
+				if err != nil {
+					s.log.Errorln("Error storing match data:", err)
+				}
+			}
+		}
+		s.log.Println("Finished reading match data from json files")
+	}
 	// TODO
 }
 

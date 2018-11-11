@@ -13,6 +13,7 @@ import (
 type Backend struct {
 	championList riotclient.ChampionList
 	freeRotation riotclient.FreeRotation
+	matches      map[uint64]riotclient.Match
 
 	log   *logrus.Entry
 	mutex sync.Mutex
@@ -21,7 +22,8 @@ type Backend struct {
 // NewBackend creates a new Memory Backend
 func NewBackend() (*Backend, error) {
 	b := &Backend{
-		log: logging.Get("Memory Storage Backend"),
+		log:     logging.Get("Memory Storage Backend"),
+		matches: make(map[uint64]riotclient.Match),
 	}
 	return b, nil
 }
