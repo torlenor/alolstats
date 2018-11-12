@@ -15,13 +15,13 @@ import (
 
 // Backend defines the interface for a storage backend like sqlite
 type Backend interface {
-	GetChampions() riotclient.ChampionList
+	GetChampions() (riotclient.ChampionList, error)
 	GetChampionsTimeStamp() time.Time
-	StoreChampions(championList riotclient.ChampionList)
+	StoreChampions(championList riotclient.ChampionList) error
 
-	GetFreeRotation() riotclient.FreeRotation
+	GetFreeRotation() (riotclient.FreeRotation, error)
 	GetFreeRotationTimeStamp() time.Time
-	StoreFreeRotation(freeRotation riotclient.FreeRotation)
+	StoreFreeRotation(freeRotation riotclient.FreeRotation) error
 
 	GetMatch(id uint64) (riotclient.Match, error)
 	StoreMatch(data *riotclient.Match) error

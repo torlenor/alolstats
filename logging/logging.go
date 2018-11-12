@@ -12,7 +12,7 @@ import (
 // Init the logging framework
 // has to be called only once
 func Init() {
-	logrus.SetFormatter(new(MyFormatter))
+	logrus.SetFormatter(new(myFormatter))
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetOutput(os.Stdout)
 }
@@ -25,19 +25,21 @@ func Get(name string) *logrus.Entry {
 // SetLoggingLevel takes one of the strings
 // panic, fatal, error, warn/warning, info or debug
 // and sets the log level accordingly
-func SetLoggingLevel(loggingLevel string) {
+func SetLoggingLevel(loggingLevel string) error {
 	level, err := logrus.ParseLevel(loggingLevel)
-	if err == nil {
-		logrus.SetLevel(level)
-		Get("logging").Infoln("Setting log level to ", loggingLevel)
-	} else {
+	if err != nil {
 		Get("logging").Warnln("Error setting log level to ", loggingLevel)
+		return err
 	}
+
+	logrus.SetLevel(level)
+	Get("logging").Infoln("Setting log level to ", loggingLevel)
+	return nil
 }
 
-type MyFormatter struct{}
+type myFormatter struct{}
 
-func (f *MyFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (f *myFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	b := &bytes.Buffer{}
 	name, ok := entry.Data["name"]
 	if !ok {

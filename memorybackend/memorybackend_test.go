@@ -4,12 +4,9 @@ import (
 	"testing"
 )
 
-func TestMemoryBackend(t *testing.T) {
-	// matches, err := ReadMatchesFile(dir + "/../test/testdata/matchfilereader_testdata.json")
-	// if err != nil {
-	// 	t.Error("Expected nil, got", err)
-	// }
-	// if len(matches.Matches) != 1 {
-	// 	t.Error("Expected one match in list, got", len(matches.Matches))
-	// }
+func TestCreatingNewMemoryBackend(t *testing.T) {
+	backend, err := NewBackend()
+	if err != nil || backend == nil {
+		t.Fatalf("Could not get a new Memory Backend: %s", err)
+	}
 }

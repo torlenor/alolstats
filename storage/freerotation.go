@@ -16,12 +16,23 @@ func (s *Storage) getFreeRotation() riotclient.FreeRotation {
 		freeRotation, err := s.riotClient.FreeRotation()
 		if err != nil {
 			s.log.Warnln(err)
-			return s.backend.GetFreeRotation()
+			freeRotation, err := s.backend.GetFreeRotation()
+			if err != nil {
+				s.log.Warnln(err)
+				return riotclient.FreeRotation{}
+			}
+			return freeRotation
 		}
 		s.backend.StoreFreeRotation(*freeRotation)
 		return *freeRotation
 	}
-	return s.backend.GetFreeRotation()
+
+	freeRotation, err := s.backend.GetFreeRotation()
+	if err != nil {
+		s.log.Warnln(err)
+		return riotclient.FreeRotation{}
+	}
+	return freeRotation
 }
 
 func (s *Storage) freeRotationEndpoint(w http.ResponseWriter, r *http.Request) {

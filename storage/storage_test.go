@@ -2,14 +2,21 @@ package storage
 
 import (
 	"testing"
+
+	"github.com/torlenor/alolstats/config"
 )
 
-func TestStorage(t *testing.T) {
-	// matches, err := ReadMatchesFile(dir + "/../test/testdata/matchfilereader_testdata.json")
-	// if err != nil {
-	// 	t.Error("Expected nil, got", err)
-	// }
-	// if len(matches.Matches) != 1 {
-	// 	t.Error("Expected one match in list, got", len(matches.Matches))
-	// }
+func TestCreatingNewStorage(t *testing.T) {
+	config := config.LoLStorage{}
+	riotClient := &mockClient{}
+	backend := &mockBackend{}
+
+	config.MaxAgeChampion = 120
+	config.MaxAgeChampionRotation = 120
+	config.MaxAgeSummoner = 120
+
+	storage, err := NewStorage(config, riotClient, backend)
+	if err != nil || storage == nil {
+		t.Fatalf("Could not get a new Storage: %s", err)
+	}
 }

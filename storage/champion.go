@@ -16,12 +16,22 @@ func (s *Storage) getChampions() riotclient.ChampionList {
 		champions, err := s.riotClient.Champions()
 		if err != nil {
 			s.log.Warnln(err)
-			return s.backend.GetChampions()
+			champions, err := s.backend.GetChampions()
+			if err != nil {
+				s.log.Warnln(err)
+				return riotclient.ChampionList{}
+			}
+			return champions
 		}
 		s.backend.StoreChampions(*champions)
 		return *champions
 	}
-	return s.backend.GetChampions()
+	champions, err := s.backend.GetChampions()
+	if err != nil {
+		s.log.Warnln(err)
+		return riotclient.ChampionList{}
+	}
+	return champions
 }
 
 func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
