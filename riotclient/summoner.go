@@ -34,6 +34,8 @@ func (c *RiotClient) SummonerByName(name string) (s *Summoner, err error) {
 		return nil, fmt.Errorf("User does not exist")
 	}
 
+	summoner.Timestamp = time.Now()
+
 	return &summoner, nil
 }
 
@@ -53,6 +55,8 @@ func (c *RiotClient) SummonerByAccountID(id uint64) (s *Summoner, err error) {
 		return nil, fmt.Errorf("User does not exist")
 	}
 
+	summoner.Timestamp = time.Now()
+
 	return &summoner, nil
 }
 
@@ -71,6 +75,8 @@ func (c *RiotClient) SummonerBySummonerID(id uint64) (s *Summoner, err error) {
 	} else if summoner.ID == "" {
 		return nil, fmt.Errorf("User does not exist")
 	}
+
+	summoner.Timestamp = time.Now()
 
 	return &summoner, nil
 }
