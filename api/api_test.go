@@ -2,14 +2,14 @@ package api
 
 import (
 	"testing"
+
+	"github.com/torlenor/alolstats/config"
 )
 
-func TestAPI(t *testing.T) {
-	// matches, err := ReadMatchesFile(dir + "/../test/testdata/matchfilereader_testdata.json")
-	// if err != nil {
-	// 	t.Error("Expected nil, got", err)
-	// }
-	// if len(matches.Matches) != 1 {
-	// 	t.Error("Expected one match in list, got", len(matches.Matches))
-	// }
+func TestCreatingNewAPI(t *testing.T) {
+	config := config.API{}
+	backend, err := NewAPI(config)
+	if err != nil || backend == nil {
+		t.Fatalf("Could not get a new Riot API: %s", err)
+	}
 }

@@ -13,6 +13,12 @@ type mockBackend struct {
 	championsRetrieved   bool
 	championsStored      riotclient.ChampionList
 	championsWhereStored bool
+
+	failFreeRotation        bool
+	freeRotation            riotclient.FreeRotation
+	freeRotationRetrieved   bool
+	freeRotationStored      riotclient.FreeRotation
+	freeRotationWhereStored bool
 }
 
 func (b *mockBackend) reset() {
@@ -21,7 +27,17 @@ func (b *mockBackend) reset() {
 	b.championsRetrieved = false
 	b.championsStored = riotclient.ChampionList{}
 	b.championsWhereStored = false
+
+	b.failFreeRotation = false
+	b.freeRotation = riotclient.FreeRotation{}
+	b.freeRotationRetrieved = false
+	b.freeRotationStored = riotclient.FreeRotation{}
+	b.freeRotationWhereStored = false
 }
+
+//
+// Champions
+//
 
 func (b *mockBackend) setChampions(champions riotclient.ChampionList) {
 	b.champions = champions
@@ -65,17 +81,55 @@ func (b *mockBackend) StoreChampions(championList riotclient.ChampionList) error
 	return nil
 }
 
+//
+// Free Rotation
+//
+
+func (b *mockBackend) setFreeRotation(freeRotation riotclient.FreeRotation) {
+	b.freeRotation = freeRotation
+}
+
+func (b *mockBackend) setFailFreeRotation(fail bool) {
+	b.failFreeRotation = fail
+}
+
+func (b *mockBackend) getFreeRotationRetrieved() bool {
+	return b.freeRotationRetrieved
+}
+
+func (b *mockBackend) getFreeRotationStored() bool {
+	return b.freeRotationWhereStored
+}
+
 func (b *mockBackend) GetFreeRotation() (riotclient.FreeRotation, error) {
-	return riotclient.FreeRotation{}, nil
+	b.freeRotationRetrieved = true
+
+	if b.failFreeRotation {
+		return riotclient.FreeRotation{}, fmt.Errorf("Error retreiving Free Rotation")
+	}
+
+	return b.freeRotation, nil
 }
 
 func (b *mockBackend) GetFreeRotationTimeStamp() time.Time {
-	return time.Now()
+	if b.failFreeRotation {
+		t1, _ := time.Parse(
+			time.RFC3339,
+			"2010-11-01T00:08:41+00:00")
+		return t1
+	}
+	return b.freeRotation.Timestamp
 }
 
 func (b *mockBackend) StoreFreeRotation(freeRotation riotclient.FreeRotation) error {
+	b.freeRotationStored = freeRotation
+	b.freeRotationWhereStored = true
 	return nil
 }
+
+//
+// Match
+//
 
 func (b *mockBackend) GetMatch(id uint64) (riotclient.Match, error) {
 	return riotclient.Match{}, nil

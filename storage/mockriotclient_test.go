@@ -10,9 +10,25 @@ type mockClient struct {
 	failChampions      bool
 	champions          riotclient.ChampionList
 	championsRetrieved bool
+
+	failFreeRotation      bool
+	freeRotation          riotclient.FreeRotation
+	freeRotationRetrieved bool
 }
 
 func (c *mockClient) SummonerByName(name string) (s *riotclient.Summoner, err error) {
+	return nil, nil
+}
+
+func (c *mockClient) SummonerByAccountID(id uint64) (s *riotclient.Summoner, err error) {
+	return nil, nil
+}
+
+func (c *mockClient) SummonerBySummonerID(id uint64) (s *riotclient.Summoner, err error) {
+	return nil, nil
+}
+
+func (c *mockClient) MatchByID(id uint64) (s *riotclient.Match, err error) {
 	return nil, nil
 }
 
@@ -20,6 +36,10 @@ func (c *mockClient) reset() {
 	c.failChampions = false
 	c.champions = riotclient.ChampionList{}
 	c.championsRetrieved = false
+
+	c.failFreeRotation = false
+	c.freeRotation = riotclient.FreeRotation{}
+	c.freeRotationRetrieved = false
 }
 
 func (c *mockClient) setChampions(champions riotclient.ChampionList) {
@@ -44,6 +64,24 @@ func (c *mockClient) Champions() (s *riotclient.ChampionList, err error) {
 	return &c.champions, nil
 }
 
+func (c *mockClient) setFreeRotation(freeRotation riotclient.FreeRotation) {
+	c.freeRotation = freeRotation
+}
+
+func (c *mockClient) setFailFreeRotation(fail bool) {
+	c.failFreeRotation = fail
+}
+
+func (c *mockClient) getFreeRotationRetrieved() bool {
+	return c.freeRotationRetrieved
+}
+
 func (c *mockClient) FreeRotation() (*riotclient.FreeRotation, error) {
-	return nil, nil
+	c.freeRotationRetrieved = true
+
+	if c.failFreeRotation {
+		return &riotclient.FreeRotation{}, fmt.Errorf("Error retreiving Free Rotation")
+	}
+
+	return &c.freeRotation, nil
 }

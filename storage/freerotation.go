@@ -41,8 +41,8 @@ func (s *Storage) freeRotationEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.Marshal(freeRotation)
 	if err != nil {
-		s.log.Warnln(err)
-		io.WriteString(w, `{"Error":"Error getting freeRotation data"}`)
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 

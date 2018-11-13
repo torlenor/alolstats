@@ -17,8 +17,14 @@ import (
 // Client defines the interface for a Riot API client
 type Client interface {
 	SummonerByName(name string) (s *Summoner, err error)
+	SummonerByAccountID(id uint64) (s *Summoner, err error)
+	SummonerBySummonerID(id uint64) (s *Summoner, err error)
+
 	Champions() (s *ChampionList, err error)
+
 	FreeRotation() (*FreeRotation, error)
+
+	MatchByID(id uint64) (s *Match, err error)
 }
 
 // RiotClient Riot LoL API client

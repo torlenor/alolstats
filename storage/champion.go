@@ -40,8 +40,8 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.Marshal(champions)
 	if err != nil {
-		s.log.Warnln(err)
-		io.WriteString(w, `{"Error":"Error getting champions data"}`)
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 

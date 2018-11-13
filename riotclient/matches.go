@@ -1,5 +1,11 @@
 package riotclient
 
+import (
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
+
 // Match contains the complete match data (excluding full time line)
 type Match struct {
 	GameID       int64  `json:"gameId"`
@@ -191,4 +197,61 @@ type Match struct {
 // Matches contains a collection of matches
 type Matches struct {
 	Matches []Match `json:"matches"`
+}
+
+// MatchList contains a list of matches which have been requested via the API
+type MatchList struct {
+	Matches []struct {
+		Lane       string `json:"lane"`
+		GameID     int64  `json:"gameId"`
+		Champion   int    `json:"champion"`
+		PlatformID string `json:"platformId"`
+		Timestamp  int64  `json:"timestamp"`
+		Queue      int    `json:"queue"`
+		Role       string `json:"role"`
+		Season     int    `json:"season"`
+	} `json:"matches"`
+	EndIndex   int `json:"endIndex"`
+	StartIndex int `json:"startIndex"`
+	TotalGames int `json:"totalGames"`
+}
+
+// MatchByID gets a match by its ID
+func (c *RiotClient) MatchByID(id uint64) (s *Match, err error) {
+	// Example: https://euw1.api.riotgames.com/lol/match/v3/matches/3827449823
+	idStr := strconv.FormatUint(id, 10)
+	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/v3/matches/"+idStr, "GET", "")
+	if err != nil {
+		return nil, fmt.Errorf("Error in API call: %s", err)
+	}
+
+	match := Match{}
+	err = json.Unmarshal(data, &match)
+	if err != nil {
+		return nil, err
+	} else if match.GameID == 0 {
+		return nil, fmt.Errorf("Match GameID invalid, probably empty data")
+	}
+
+	return &match, nil
+}
+
+// MatchByAccoundID gets a match by AccountID. Provide a start and end index to fetch matches.
+func (c *RiotClient) MatchByAccoundID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error) {
+	// Example: https://euw1.api.riotgames.com/lol/match/v3/matchlists/by-account/40722898?beginIndex=100&endIndex=100
+	idStr := strconv.FormatUint(id, 10)
+	startIndexStr := strconv.FormatUint(uint64(startIndex), 10)
+	endIndexStr := strconv.FormatUint(uint64(endIndex), 10)
+	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/v3/matchlists/by-account/"+idStr+"?beginIndex="+startIndexStr+"?endIndex="+endIndexStr, "GET", "")
+	if err != nil {
+		return nil, fmt.Errorf("Error in API call: %s", err)
+	}
+
+	matchList := MatchList{}
+	err = json.Unmarshal(data, &matchList)
+	if err != nil {
+		return nil, err
+	}
+
+	return &matchList, nil
 }
