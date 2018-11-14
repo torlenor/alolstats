@@ -14,8 +14,16 @@ func (s *Storage) getMatch(id uint64) (riotclient.Match, error) {
 	match, err := s.backend.GetMatch(id)
 	if err != nil {
 		s.log.Warnln(err)
-		return riotclient.Match{}, err
+		match, err := s.riotClient.MatchByID(id)
+		if err != nil {
+			s.log.Warnln(err)
+			return riotclient.Match{}, err
+		}
+		s.log.Debugf("Returned Match %d from Riot API", id)
+		s.backend.StoreMatch(match)
+		return *match, nil
 	}
+	s.log.Debugf("Returned Match %d from Storage", id)
 	return match, nil
 }
 

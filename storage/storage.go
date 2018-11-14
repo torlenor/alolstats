@@ -57,7 +57,6 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	api.AttachModuleGet("/champions", s.championsEndpoint)
 	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
 	api.AttachModuleGet("/match", s.getMatchEndpoint)
-
 }
 
 // Start starts the storage runners
