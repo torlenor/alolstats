@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 )
 
 type currentVersions struct {
@@ -38,11 +39,20 @@ func (c *RiotClient) downloadFile(url string) ([]byte, error) {
 	return ioutil.ReadAll(response.Body)
 }
 
+func (c *RiotClient) getRegion() string {
+	region := strings.ToLower(c.config.Region)
+
+	if len(region) > 0 {
+		return string(region[:len(region)-1])
+	}
+
+	c.log.Errorf("Could not get region from config. Defaulting to euw")
+	return "euw"
+}
+
 func (c *RiotClient) getVersions() (*currentVersions, error) {
 
-	// TODO Get Data Dragon data https://developer.riotgames.com/static-data.html
-
-	versionURL := "https://ddragon.leagueoflegends.com/realms/euw.json"
+	versionURL := "https://ddragon.leagueoflegends.com/realms/" + c.getRegion() + ".json"
 
 	versionData, err := c.downloadFile(versionURL)
 	if err != nil {
