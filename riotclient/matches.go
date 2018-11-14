@@ -137,7 +137,7 @@ type Match struct {
 				One020    float64 `json:"10-20"`
 				Zero10    float64 `json:"0-10"`
 				Three0End float64 `json:"30-end"`
-				Two030    int     `json:"20-30"`
+				Two030    float64 `json:"20-30"`
 			} `json:"creepsPerMinDeltas"`
 			XpPerMinDeltas struct {
 				One020    float64 `json:"10-20"`
@@ -155,7 +155,7 @@ type Match struct {
 				One020    float64 `json:"10-20"`
 				Zero10    float64 `json:"0-10"`
 				Three0End float64 `json:"30-end"`
-				Two030    int     `json:"20-30"`
+				Two030    float64 `json:"20-30"`
 			} `json:"csDiffPerMinDeltas"`
 			XpDiffPerMinDeltas struct {
 				One020    float64 `json:"10-20"`
@@ -170,7 +170,7 @@ type Match struct {
 				Two030    float64 `json:"20-30"`
 			} `json:"damageTakenPerMinDeltas"`
 			DamageTakenDiffPerMinDeltas struct {
-				One020    int     `json:"10-20"`
+				One020    float64 `json:"10-20"`
 				Zero10    float64 `json:"0-10"`
 				Three0End float64 `json:"30-end"`
 				Two030    float64 `json:"20-30"`
@@ -238,7 +238,7 @@ func (c *RiotClient) MatchByID(id uint64) (s *Match, err error) {
 
 // MatchByAccoundID gets a match by AccountID. Provide a start and end index to fetch matches.
 func (c *RiotClient) MatchByAccoundID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error) {
-	// Example: https://euw1.api.riotgames.com/lol/match/v3/matchlists/by-account/40722898?beginIndex=100&endIndex=100
+	// Example: https://euw1.api.riotgames.com/lol/match/v3/matchlists/by-account/40722898?beginIndex=0&endIndex=100
 	idStr := strconv.FormatUint(id, 10)
 	startIndexStr := strconv.FormatUint(uint64(startIndex), 10)
 	endIndexStr := strconv.FormatUint(uint64(endIndex), 10)
