@@ -1,4 +1,4 @@
-image: golang:1.9
+image: golang:1.11
 
 cache:
   paths:
@@ -9,8 +9,8 @@ cache:
     - /go/src/gopkg.in
 
 stages:
-  - test
   - build
+  - test
 
 before_script:
   - mkdir -p /go/src/github.com/torlenor /go/src/_/builds
@@ -18,13 +18,12 @@ before_script:
   - ln -s /go/src/github.com/torlenor /go/src/_/builds/pantomath-io
   - make dep
 
-unit_tests:
-  stage: test
-  script:
-    - make test
-
 build:
   stage: build
   script:
     - make
-    
+
+unit_tests:
+  stage: test
+  script:
+    - make test
