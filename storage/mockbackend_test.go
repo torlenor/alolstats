@@ -138,3 +138,7 @@ func (b *mockBackend) GetMatch(id uint64) (riotclient.Match, error) {
 func (b *mockBackend) StoreMatch(data *riotclient.Match) error {
 	return nil
 }
+
+func (b *mockBackend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
+	return riotclient.Matches{}, nil
+}

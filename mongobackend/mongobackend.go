@@ -1,3 +1,4 @@
+// Package mongobackend provides a MongoDB storage backend for use with the storage package.
 package mongobackend
 
 import (

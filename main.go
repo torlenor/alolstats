@@ -14,6 +14,7 @@ import (
 	"github.com/torlenor/alolstats/memorybackend"
 	"github.com/torlenor/alolstats/mongobackend"
 	"github.com/torlenor/alolstats/riotclient"
+	"github.com/torlenor/alolstats/statsrunner"
 	"github.com/torlenor/alolstats/storage"
 
 	"github.com/BurntSushi/toml"
@@ -104,10 +105,15 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error creating the Storage:" + err.Error())
 	}
-
 	storage.RegisterAPI(api)
-
 	storage.Start()
+
+	statsRunner, err := statsrunner.NewStatsRunner(storage)
+	if err != nil {
+		log.Fatalln("Error creating the StatsRunner:" + err.Error())
+	}
+	statsRunner.RegisterAPI(api)
+
 	api.Start()
 
 	log.Println("ALoLStats (" + version + ") is READY")
@@ -117,6 +123,7 @@ func main() {
 		case <-interrupt:
 			api.Stop()
 			storage.Stop()
+			client.Stop()
 			log.Printf("Storage handeled %d requests since startup", storage.GetHandeledRequests())
 			log.Println("ALoLStats gracefully shut down")
 			return

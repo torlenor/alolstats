@@ -1,3 +1,4 @@
+// Package logging provides logging facilities for ALoLStats
 package logging
 
 import (

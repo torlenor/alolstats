@@ -58,3 +58,36 @@ func (b *Backend) StoreMatch(data *riotclient.Match) error {
 
 	return nil
 }
+
+// GetMatchesByGameVersion returns all matches specific to a certain game version
+func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
+
+	c := b.client.Database(b.config.Database).Collection("matches")
+
+	cur, err := c.Find(
+		context.Background(),
+		bson.D{{Key: "gameversion", Value: gameVersion}},
+	)
+	if err != nil {
+		return riotclient.Matches{}, fmt.Errorf("No match found for GameVersion %s: %s", gameVersion, err)
+	}
+
+	defer cur.Close(context.Background())
+
+	matches := riotclient.Matches{}
+
+	for cur.Next(nil) {
+		match := riotclient.Match{}
+		err := cur.Decode(&match)
+		if err != nil {
+			b.log.Warnln("Decode error ", err)
+		}
+		matches.Matches = append(matches.Matches, match)
+	}
+
+	if err := cur.Err(); err != nil {
+		b.log.Warnln("Cursor error ", err)
+	}
+
+	return matches, nil
+}

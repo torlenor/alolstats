@@ -1,3 +1,4 @@
+// Package riotclient provides the Riot API client
 package riotclient
 
 import (

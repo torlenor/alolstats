@@ -27,6 +27,11 @@ func (s *Storage) getMatch(id uint64) (riotclient.Match, error) {
 	return match, nil
 }
 
+// GetStoredMatchesByGameVersion gets all matches for a specific game version
+func (s *Storage) GetStoredMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
+	return s.backend.GetMatchesByGameVersion(gameVersion)
+}
+
 func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API Match request from", r.RemoteAddr)
 	if val, ok := r.URL.Query()["id"]; ok {
@@ -50,6 +55,35 @@ func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
 		}
 
 		out, err := json.Marshal(match)
+		if err != nil {
+			s.log.Errorln(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		io.WriteString(w, string(out))
+	}
+
+	atomic.AddUint64(&s.stats.handledRequests, 1)
+}
+
+func (s *Storage) getMatchesEndpoint(w http.ResponseWriter, r *http.Request) {
+	s.log.Debugln("Received Rest API Matches request from", r.RemoteAddr)
+	if val, ok := r.URL.Query()["gameversion"]; ok {
+		if len(val) == 0 {
+			s.log.Warnf("gameversion parameter was empty in request")
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		matches, err := s.GetStoredMatchesByGameVersion(val[0])
+		if err != nil {
+			s.log.Warnf("Could not get matches for game version = %s", val[0])
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		out, err := json.Marshal(matches)
 		if err != nil {
 			s.log.Errorln(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

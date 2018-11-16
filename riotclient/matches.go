@@ -6,7 +6,8 @@ import (
 	"strconv"
 )
 
-type Participants struct {
+// MatchParticipant contains match data specific to one player
+type MatchParticipant struct {
 	ParticipantID int `json:"participantId"`
 	TeamID        int `json:"teamId"`
 	ChampionID    int `json:"championId"`
@@ -180,7 +181,7 @@ type Match struct {
 			PickTurn   int `json:"pickTurn"`
 		} `json:"bans"`
 	} `json:"teams"`
-	Participants          []Participants `json:"participants"`
+	Participants          []MatchParticipant `json:"participants" bson:"participants"`
 	ParticipantIdentities []struct {
 		ParticipantID int `json:"participantId"`
 		Player        struct {

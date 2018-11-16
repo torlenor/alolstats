@@ -1,3 +1,5 @@
+// Package matchfilereader is used to read the seed data provided from Riot
+// See https://developer.riotgames.com/getting-started.html for details
 package matchfilereader
 
 import (

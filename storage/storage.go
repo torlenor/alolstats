@@ -1,3 +1,5 @@
+// Package storage is a main component of ALoLStats as it provides the interface between Storage Backend, Riot Client and serves
+// as an interface for StatsRunner and FetchRunner
 package storage
 
 import (
@@ -25,6 +27,9 @@ type Backend interface {
 
 	GetMatch(id uint64) (riotclient.Match, error)
 	StoreMatch(data *riotclient.Match) error
+
+	// Specialized fetching functions
+	GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error)
 }
 
 type stats struct {
@@ -57,6 +62,7 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	api.AttachModuleGet("/champions", s.championsEndpoint)
 	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
 	api.AttachModuleGet("/match", s.getMatchEndpoint)
+	api.AttachModuleGet("/matches", s.getMatchesEndpoint)
 }
 
 // Start starts the storage runners
