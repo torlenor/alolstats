@@ -28,6 +28,7 @@ type StatsRunner struct {
 
 type championStats struct {
 	ChampionID      uint64 `json:"championid"`
+	ChampionName    string `json:"championname"`
 	SampleSize      uint64 `json:"samplesize"`
 	GameVersion     string `json:"gameversion"`
 	LanesPercentage struct {
@@ -83,9 +84,9 @@ func (sr *StatsRunner) championEndpoint(w http.ResponseWriter, r *http.Request) 
 	}
 
 	matches, err := sr.storage.GetStoredMatchesByGameVersion(gameVersion)
-	if len(gameVersion) == 0 {
+	if len(matches.Matches) == 0 {
 		sr.log.Warnf("Error in getting matches for game version = %s", gameVersion)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -93,7 +94,6 @@ func (sr *StatsRunner) championEndpoint(w http.ResponseWriter, r *http.Request) 
 	for _, match := range matches.Matches {
 		for _, participant := range match.Participants {
 			if uint64(participant.ChampionID) == champID {
-				total++
 				switch participant.Timeline.Lane {
 				case "MID":
 					fallthrough
@@ -107,7 +107,11 @@ func (sr *StatsRunner) championEndpoint(w http.ResponseWriter, r *http.Request) 
 					fallthrough
 				case "BOTTOM":
 					bot++
+				default:
+					// no data
+					continue
 				}
+				total++
 			}
 		}
 	}
@@ -120,6 +124,14 @@ func (sr *StatsRunner) championEndpoint(w http.ResponseWriter, r *http.Request) 
 	championStats.LanesPercentage.Top = float64(top) / float64(total)
 	championStats.LanesPercentage.Jungle = float64(jungle) / float64(total)
 	championStats.LanesPercentage.Bot = float64(bot) / float64(total)
+
+	champions := sr.storage.GetChampions()
+	for _, val := range champions.Champions {
+		if val.Key == strconv.FormatUint(champID, 10) {
+			championStats.ChampionName = val.Name
+			break
+		}
+	}
 
 	out, err := json.Marshal(championStats)
 	if err != nil {

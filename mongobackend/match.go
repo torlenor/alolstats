@@ -64,10 +64,14 @@ func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matche
 
 	c := b.client.Database(b.config.Database).Collection("matches")
 
+	query := bson.D{{"gameversion",
+		bson.D{
+			{"$regex", "^" + gameVersion + ""},
+		},
+	}}
+
 	cur, err := c.Find(
-		context.Background(),
-		bson.D{{Key: "gameversion", Value: gameVersion}},
-	)
+		context.Background(), query)
 	if err != nil {
 		return riotclient.Matches{}, fmt.Errorf("No match found for GameVersion %s: %s", gameVersion, err)
 	}

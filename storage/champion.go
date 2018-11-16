@@ -10,7 +10,8 @@ import (
 	"github.com/torlenor/alolstats/riotclient"
 )
 
-func (s *Storage) getChampions() riotclient.ChampionList {
+// GetChampions returns a list of all currently known champions
+func (s *Storage) GetChampions() riotclient.ChampionList {
 	duration := time.Since(s.backend.GetChampionsTimeStamp())
 	if duration.Minutes() > float64(s.config.MaxAgeChampion) {
 		champions, err := s.riotClient.Champions()
@@ -48,7 +49,7 @@ func (s *Storage) getChampions() riotclient.ChampionList {
 
 func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Println("Received Rest API Champions request from", r.RemoteAddr)
-	champions := s.getChampions()
+	champions := s.GetChampions()
 
 	out, err := json.Marshal(champions)
 	if err != nil {
