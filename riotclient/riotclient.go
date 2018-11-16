@@ -37,8 +37,26 @@ type RiotClient struct {
 	rateLimitMutex sync.Mutex
 }
 
+func checkConfig(cfg config.RiotClient) error {
+	if len(cfg.APIVersion) == 0 {
+		return fmt.Errorf("APIVersion is empty, check config file")
+	}
+	if len(cfg.Key) == 0 {
+		return fmt.Errorf("Key is empty, check config file")
+	}
+	if len(cfg.Region) == 0 {
+		return fmt.Errorf("Region is empty, check config file")
+	}
+	return nil
+}
+
 // NewClient creates a new Riot LoL API client
 func NewClient(httpClient *http.Client, cfg config.RiotClient) (*RiotClient, error) {
+	err := checkConfig(cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	c := &RiotClient{
 		config:     cfg,
 		httpClient: httpClient,

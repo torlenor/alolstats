@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/torlenor/alolstats/api"
 	"github.com/torlenor/alolstats/config"
 	"github.com/torlenor/alolstats/logging"
 	"github.com/torlenor/alolstats/memorybackend"
+	"github.com/torlenor/alolstats/mongobackend"
 	"github.com/torlenor/alolstats/riotclient"
 	"github.com/torlenor/alolstats/storage"
 
@@ -41,6 +43,31 @@ func init() {
 	flag.Parse()
 }
 
+func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
+	backendName := strings.ToLower(cfg.Backend)
+
+	switch backendName {
+	case "memory":
+		backend, err := memorybackend.NewBackend()
+		if err != nil {
+			log.Errorln("Error creating the Memory Storage Backend:" + err.Error())
+			return nil, err
+		}
+		return backend, nil
+	case "mongo":
+		fallthrough
+	case "mongodb":
+		backend, err := mongobackend.NewBackend(cfg.MongoBackend)
+		if err != nil {
+			log.Errorln("Error creating the Memory Storage Backend:" + err.Error())
+			return nil, err
+		}
+		return backend, nil
+	default:
+		return nil, fmt.Errorf("Unknown storage backend specified in config: %s", cfg.Backend)
+	}
+}
+
 func main() {
 	logging.Init()
 	logging.SetLoggingLevel(loggingLevel)
@@ -54,8 +81,7 @@ func main() {
 
 	var cfg config.Config
 	if _, err := toml.DecodeFile(configPath, &cfg); err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
 	api, err := api.NewAPI(cfg.API)
@@ -69,9 +95,9 @@ func main() {
 	}
 	client.Start()
 
-	backend, err := memorybackend.NewBackend()
+	backend, err := storageBackendCreator(cfg.StorageBackend)
 	if err != nil {
-		log.Fatalln("Error creating the Memory Storage Backend:" + err.Error())
+		log.Fatalln("Error creating the Storage Backend:" + err.Error())
 	}
 
 	storage, err := storage.NewStorage(cfg.LoLStorage, client, backend)

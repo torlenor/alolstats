@@ -19,6 +19,27 @@ type RiotClient struct {
 	Region string
 }
 
+// MemoryBackend holds the settings for the memory backend
+type MemoryBackend struct {
+}
+
+// MongoBackend holds the settings for the memory backend
+type MongoBackend struct {
+	// URL to connect to
+	URL string
+	// Database to use
+	Database string
+}
+
+// StorageBackend holds the settings for the used backend component
+type StorageBackend struct {
+	// Name of the storage backend to use (e.g., memory, mongo)
+	Backend string
+
+	MemoryBackend MemoryBackend
+	MongoBackend  MongoBackend
+}
+
 // LoLStorage holds the settings specific for the storage component
 type LoLStorage struct {
 	// Name of the storage backend to use (e.g., sqlite)
@@ -37,7 +58,8 @@ type LoLStorage struct {
 
 // Config holds the complete ALolStats config
 type Config struct {
-	API        API
-	RiotClient RiotClient
-	LoLStorage LoLStorage
+	API            API
+	RiotClient     RiotClient
+	LoLStorage     LoLStorage
+	StorageBackend StorageBackend
 }

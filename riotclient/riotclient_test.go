@@ -1,15 +1,27 @@
 package riotclient
 
 import (
+	"net/http"
 	"testing"
+
+	"github.com/torlenor/alolstats/config"
 )
 
 func TestRiotClient(t *testing.T) {
-	// matches, err := ReadMatchesFile(dir + "/../test/testdata/matchfilereader_testdata.json")
-	// if err != nil {
-	// 	t.Error("Expected nil, got", err)
-	// }
-	// if len(matches.Matches) != 1 {
-	// 	t.Error("Expected one match in list, got", len(matches.Matches))
-	// }
+	client, err := NewClient(&http.Client{}, config.RiotClient{})
+	if err == nil || client != nil {
+		t.Fatalf("Could get a new client even though APIVersion is missing from config")
+	}
+	client, err = NewClient(&http.Client{}, config.RiotClient{APIVersion: "v1"})
+	if err == nil || client != nil {
+		t.Fatalf("Could get a new client even though Key is missing from config")
+	}
+	client, err = NewClient(&http.Client{}, config.RiotClient{APIVersion: "v1", Key: "abcd"})
+	if err == nil || client != nil {
+		t.Fatalf("Could get a new client even though Region is missing from config")
+	}
+	client, err = NewClient(&http.Client{}, config.RiotClient{APIVersion: "v1", Key: "abcd", Region: "euw"})
+	if err != nil || client == nil {
+		t.Fatalf("Could not get a new client")
+	}
 }
