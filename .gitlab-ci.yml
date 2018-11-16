@@ -1,0 +1,30 @@
+image: golang:1.9
+
+cache:
+  paths:
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
+
+stages:
+  - test
+  - build
+
+before_script:
+  - mkdir -p /go/src/github.com/torlenor /go/src/_/builds
+  - cp -r $CI_PROJECT_DIR /go/src/github.com/torlenor/alolstats
+  - ln -s /go/src/github.com/torlenor /go/src/_/builds/pantomath-io
+  - make dep
+
+unit_tests:
+  stage: test
+  script:
+    - make test
+
+build:
+  stage: build
+  script:
+    - make
+    
