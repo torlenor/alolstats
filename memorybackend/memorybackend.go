@@ -4,7 +4,9 @@
 package memorybackend
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -41,4 +43,32 @@ func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matche
 	}
 
 	return matches, nil
+}
+
+func (b *Backend) GetSummonerByName(name string) (riotclient.Summoner, error) {
+	return riotclient.Summoner{}, nil
+}
+
+func (b *Backend) GetSummonerByNameTimeStamp(name string) time.Time {
+	return time.Now()
+}
+
+func (b *Backend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summoner, error) {
+	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time {
+	return time.Now()
+}
+
+func (b *Backend) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner, error) {
+	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
+	return time.Now()
+}
+
+func (b *Backend) StoreSummoner(data *riotclient.Summoner) error {
+	return nil
 }

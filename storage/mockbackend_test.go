@@ -128,6 +128,38 @@ func (b *mockBackend) StoreFreeRotation(freeRotation riotclient.FreeRotation) er
 }
 
 //
+// Summoner
+//
+
+func (b *mockBackend) GetSummonerByName(name string) (riotclient.Summoner, error) {
+	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetSummonerByNameTimeStamp(name string) time.Time {
+	return time.Now()
+}
+
+func (b *mockBackend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summoner, error) {
+	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time {
+	return time.Now()
+}
+
+func (b *mockBackend) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner, error) {
+	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
+	return time.Now()
+}
+
+func (b *mockBackend) StoreSummoner(data *riotclient.Summoner) error {
+	return nil
+}
+
+//
 // Match
 //
 

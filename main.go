@@ -125,6 +125,7 @@ func main() {
 			storage.Stop()
 			client.Stop()
 			log.Printf("Storage handeled %d requests since startup", storage.GetHandeledRequests())
+			log.Printf("StatsRunner handeled %d requests since startup", statsRunner.GetHandeledRequests())
 			log.Println("ALoLStats gracefully shut down")
 			return
 		}

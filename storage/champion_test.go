@@ -45,7 +45,7 @@ func TestGettingChampionList(t *testing.T) {
 	riotClient.setChampions(championsListClient)
 
 	// No stored list in backend should get it from client and store it
-	actualChampions := storage.getChampions()
+	actualChampions := storage.GetChampions()
 
 	if backend.getChampionsRetrieved() != false {
 		t.Errorf("Storage got Champions from backend even though it shouldn't")
@@ -89,7 +89,7 @@ func TestGettingChampionList(t *testing.T) {
 	backend.reset()
 	backend.setChampions(championsListBackend)
 
-	actualChampions = storage.getChampions()
+	actualChampions = storage.GetChampions()
 
 	if backend.getChampionsRetrieved() != true {
 		t.Errorf("Storage got did not get Champions from backend even though it should have")
@@ -134,7 +134,7 @@ func TestGettingChampionList(t *testing.T) {
 	championsListBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeChampion+1))
 	backend.setChampions(championsListBackend)
 
-	actualChampions = storage.getChampions()
+	actualChampions = storage.GetChampions()
 
 	if backend.getChampionsRetrieved() != false {
 		t.Errorf("Storage got Champions from backend even though it shouldn't")
@@ -180,7 +180,7 @@ func TestGettingChampionList(t *testing.T) {
 	backend.setChampions(championsListBackend)
 	riotClient.setFailChampions(true)
 
-	actualChampions = storage.getChampions()
+	actualChampions = storage.GetChampions()
 
 	if backend.getChampionsRetrieved() != true {
 		t.Errorf("Storage got did not get Champions from backend even though it should have")
@@ -226,7 +226,7 @@ func TestGettingChampionList(t *testing.T) {
 	backend.setChampions(championsListBackend)
 	backend.setFailChampions(true)
 
-	actualChampions = storage.getChampions()
+	actualChampions = storage.GetChampions()
 
 	if backend.getChampionsRetrieved() != false {
 		t.Errorf("Storage got Champions from backend even though it shouldn't")
@@ -273,7 +273,7 @@ func TestGettingChampionList(t *testing.T) {
 	backend.setFailChampions(true)
 	riotClient.setFailChampions(true)
 
-	actualChampions = storage.getChampions()
+	actualChampions = storage.GetChampions()
 
 	if backend.getChampionsRetrieved() != true {
 		t.Errorf("Storage should have tried to get Champions from backend")

@@ -28,6 +28,14 @@ type Backend interface {
 	GetMatch(id uint64) (riotclient.Match, error)
 	StoreMatch(data *riotclient.Match) error
 
+	GetSummonerByName(name string) (riotclient.Summoner, error)
+	GetSummonerByNameTimeStamp(name string) time.Time
+	GetSummonerBySummonerID(summonerID uint64) (riotclient.Summoner, error)
+	GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time
+	GetSummonerByAccountID(accountID uint64) (riotclient.Summoner, error)
+	GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time
+	StoreSummoner(data *riotclient.Summoner) error
+
 	// Specialized fetching functions
 	GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error)
 }
@@ -63,6 +71,9 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
 	api.AttachModuleGet("/match", s.getMatchEndpoint)
 	api.AttachModuleGet("/matches", s.getMatchesEndpoint)
+	api.AttachModuleGet("/summoner/byname", s.summonerByNameEndpoint)
+	api.AttachModuleGet("/summoner/bysummonerid", s.summonerBySummonerIDEndpoint)
+	api.AttachModuleGet("/summoner/byaccountid", s.summonerByAccountIDEndpoint)
 }
 
 // Start starts the storage runners
