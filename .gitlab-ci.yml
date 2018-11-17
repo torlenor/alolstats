@@ -15,8 +15,8 @@ stages:
 before_script:
   - mkdir -p /go/src/github.com/torlenor /go/src/_/builds
   - cp -r $CI_PROJECT_DIR /go/src/github.com/torlenor/alolstats
-  - ln -s /go/src/github.com/torlenor /go/src/_/builds/pantomath-io
-  - make dep
+  - ln -s /go/src/github.com/torlenor /go/src/_/builds/torlenor
+  - make deps
 
 build:
   stage: build

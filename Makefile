@@ -57,7 +57,8 @@ authors:
 # 	rm -rf ./vendor/pkg
 # 	rm -rf ./vendor/bin
 
-# deps: clean-deps
+deps:
+	go get -v ./...
 # 	go get -v github.com/gorilla/websocket
 # 	go get -v github.com/mitchellh/mapstructure
 # 	go get -v github.com/pkg/errors
