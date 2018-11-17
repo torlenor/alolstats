@@ -239,13 +239,17 @@ func (c *RiotClient) MatchByID(id uint64) (s *Match, err error) {
 	return &match, nil
 }
 
-// MatchByAccoundID gets a match by AccountID. Provide a start and end index to fetch matches.
-func (c *RiotClient) MatchByAccoundID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error) {
+// MatchesByAccountID gets a match by AccountID. Provide a start and end index to fetch matches.
+// The matches will be fetched as [beginIndex, endIndex) and the indices start at 0.
+//
+// For example to fetch the last match of an account enter startIndex=0, endIndex=1
+// and to fetch the first match of an account enter startIndex=(totalNumMatches-1), endIndex=totalNumMatches.
+func (c *RiotClient) MatchesByAccountID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error) {
 	// Example: https://euw1.api.riotgames.com/lol/match/v3/matchlists/by-account/40722898?beginIndex=0&endIndex=100
 	idStr := strconv.FormatUint(id, 10)
 	startIndexStr := strconv.FormatUint(uint64(startIndex), 10)
 	endIndexStr := strconv.FormatUint(uint64(endIndex), 10)
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/v3/matchlists/by-account/"+idStr+"?beginIndex="+startIndexStr+"?endIndex="+endIndexStr, "GET", "")
+	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/v3/matchlists/by-account/"+idStr+"?beginIndex="+startIndexStr+"&endIndex="+endIndexStr, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}

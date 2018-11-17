@@ -27,9 +27,31 @@ func (s *Storage) getMatch(id uint64) (riotclient.Match, error) {
 	return match, nil
 }
 
+// FetchAndStoreMatch gets a match from Riot Client and stores it in storage backend if it doesn't exist, yet
+func (s *Storage) FetchAndStoreMatch(id uint64) error {
+	_, err := s.backend.GetMatch(id)
+	if err != nil {
+		s.log.Warnln(err)
+		match, err := s.riotClient.MatchByID(id)
+		if err != nil {
+			s.log.Warnln(err)
+			return err
+		}
+		s.log.Debugf("Storing Match %d from Riot API in Backend", id)
+		s.backend.StoreMatch(match)
+		return nil
+	}
+	return nil
+}
+
 // GetStoredMatchesByGameVersion gets all matches for a specific game version
 func (s *Storage) GetStoredMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
 	return s.backend.GetMatchesByGameVersion(gameVersion)
+}
+
+// GetMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex
+func (s *Storage) GetMatchesByAccountID(accountID uint64, startIndex uint32, endIndex uint32) (*riotclient.MatchList, error) {
+	return s.riotClient.MatchesByAccountID(accountID, startIndex, endIndex)
 }
 
 func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +89,7 @@ func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 }
 
-func (s *Storage) getMatchesEndpoint(w http.ResponseWriter, r *http.Request) {
+func (s *Storage) storedMatchesByGameVersionEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API Matches request from", r.RemoteAddr)
 	if val, ok := r.URL.Query()["gameversion"]; ok {
 		if len(val) == 0 {

@@ -32,6 +32,10 @@ func (c *mockClient) MatchByID(id uint64) (s *riotclient.Match, err error) {
 	return nil, nil
 }
 
+func (c *mockClient) MatchesByAccountID(id uint64, startIndex uint32, endIndex uint32) (s *riotclient.MatchList, err error) {
+	return nil, nil
+}
+
 func (c *mockClient) reset() {
 	c.failChampions = false
 	c.champions = riotclient.ChampionList{}

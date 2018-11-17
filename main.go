@@ -10,6 +10,7 @@ import (
 
 	"github.com/torlenor/alolstats/api"
 	"github.com/torlenor/alolstats/config"
+	"github.com/torlenor/alolstats/fetchrunner"
 	"github.com/torlenor/alolstats/logging"
 	"github.com/torlenor/alolstats/memorybackend"
 	"github.com/torlenor/alolstats/mongobackend"
@@ -114,6 +115,13 @@ func main() {
 	}
 	statsRunner.RegisterAPI(api)
 
+	fetchRunner, err := fetchrunner.NewFetchRunner(cfg.FetchRunner, storage)
+	if err != nil {
+		log.Fatalln("Error creating the FetchRunner:" + err.Error())
+	}
+
+	fetchRunner.Start()
+
 	api.Start()
 
 	log.Println("ALoLStats (" + version + ") is READY")
@@ -122,6 +130,7 @@ func main() {
 		select {
 		case <-interrupt:
 			api.Stop()
+			fetchRunner.Stop()
 			storage.Stop()
 			client.Stop()
 			log.Printf("Storage handeled %d requests since startup", storage.GetHandeledRequests())

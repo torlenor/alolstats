@@ -26,7 +26,7 @@ type rateLimit struct {
 
 // updateRateLimits update the allowed rate limits
 func (c *RiotClient) updateAppRateLimits(limits string) {
-	c.log.Debugln("RateLimit: Updating App Rate Limits")
+	c.log.Debugln("RateLimit: Updating App Rate Limits:", limits)
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
@@ -36,47 +36,45 @@ func (c *RiotClient) updateAppRateLimits(limits string) {
 		for _, entry := range values {
 			rate := strings.Split(entry, ":")
 			if len(rate) == 2 {
-				period, err := strconv.ParseUint(rate[0], 10, 32)
+				period, err := strconv.ParseUint(rate[1], 10, 32)
 				if err != nil {
-					c.log.Warnf("Could not convert value %s to rate limit period", rate[0])
+					c.log.Warnf("Could not convert value %s to rate limit period", rate[1])
 					continue
 				}
-				calls, err := strconv.ParseUint(rate[1], 10, 32)
+				calls, err := strconv.ParseUint(rate[0], 10, 32)
 				if err != nil {
-					c.log.Warnf("Could not convert value %s to rate limit count", rate[1])
+					c.log.Warnf("Could not convert value %s to rate limit count", rate[0])
 					continue
 				}
 				c.rateLimit.appRateLimits[uint32(period)] = uint32(calls)
-				c.log.Debugf("Updated rate limit for time period %d to %d", uint32(period), uint32(calls))
 			}
 		}
 	}
 }
 
 // updateRateLimitsCount update the current rate limit counts
-func (c *RiotClient) updateAppRateLimitsCount(limits string) {
-	c.log.Debugln("RateLimit: Updating App Rate Limits Count")
+func (c *RiotClient) updateAppRateLimitsCount(counts string) {
+	c.log.Debugln("RateLimit: Updating App Rate Limits Count", counts)
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
-	if len(limits) > 0 {
-		values := strings.Split(limits, ",")
+	if len(counts) > 0 {
+		values := strings.Split(counts, ",")
 		c.rateLimit.appRateLimitsCount = make(map[uint32]uint32)
 		for _, entry := range values {
 			rate := strings.Split(entry, ":")
 			if len(rate) == 2 {
-				period, err := strconv.ParseUint(rate[0], 10, 32)
+				period, err := strconv.ParseUint(rate[1], 10, 32)
 				if err != nil {
-					c.log.Warnf("Could not convert value %s to rate limit period", rate[0])
+					c.log.Warnf("Could not convert value %s to rate limit period", rate[1])
 					continue
 				}
-				calls, err := strconv.ParseUint(rate[1], 10, 32)
+				calls, err := strconv.ParseUint(rate[0], 10, 32)
 				if err != nil {
-					c.log.Warnf("Could not convert value %s to rate limit count", rate[1])
+					c.log.Warnf("Could not convert value %s to rate limit count", rate[0])
 					continue
 				}
 				c.rateLimit.appRateLimitsCount[uint32(period)] = uint32(calls)
-				c.log.Debugf("Updated rate limit count for time period %d to %d", uint32(period), uint32(calls))
 			}
 		}
 	}
@@ -96,4 +94,22 @@ func (c *RiotClient) getRateLimitRetryAt() time.Time {
 	defer c.rateLimitMutex.Unlock()
 
 	return c.rateLimit.retryAt
+}
+
+func (c *RiotClient) getAdditionalWaitTime() time.Duration {
+	c.rateLimitMutex.Lock()
+	defer c.rateLimitMutex.Unlock()
+
+	var addWaitTime time.Duration
+	addWaitTime = 0
+
+	for key, val := range c.rateLimit.appRateLimitsCount {
+		maxSlots := c.rateLimit.appRateLimits[key]
+		emptySlots := int32(maxSlots) - int32(val)
+		if emptySlots < 1 {
+			addWaitTime += time.Second * time.Duration(key)
+		}
+	}
+
+	return addWaitTime
 }

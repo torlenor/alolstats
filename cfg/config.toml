@@ -21,6 +21,12 @@
 [StorageBackend]
 	Backend = "mongo" # Name of the storage backend to use (e.g., memory, mongo)
 
-    [StorageBackend.MongoBackend]
-        URL = "mongodb://user1:test@localhost/testdb"
-        Database = "testdb"
+    [StorageBackend.MongoBackend] # MongoBackend specific settings
+        URL = "mongodb://user1:test@localhost/testdb" # URL to connect to
+        Database = "testdb" # Database to use
+
+[FetchRunner] #FetchRunner holds the settings for the FetchRunner
+    UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0
+    MatchesForSummonerAccountIDs = [ 10000, 100001 ] # Specifies AccountIDs for Summoners where Matches shall be fetched
+
+[StatsRunner]

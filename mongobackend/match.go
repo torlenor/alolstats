@@ -64,9 +64,9 @@ func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matche
 
 	c := b.client.Database(b.config.Database).Collection("matches")
 
-	query := bson.D{{"gameversion",
-		bson.D{
-			{"$regex", "^" + gameVersion + ""},
+	query := bson.D{{Key: "gameversion",
+		Value: bson.D{
+			{Key: "$regex", Value: "^" + gameVersion + ""},
 		},
 	}}
 

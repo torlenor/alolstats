@@ -26,6 +26,8 @@ type Client interface {
 	FreeRotation() (*FreeRotation, error)
 
 	MatchByID(id uint64) (s *Match, err error)
+
+	MatchesByAccountID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error)
 }
 
 // RiotClient Riot LoL API client
@@ -36,6 +38,8 @@ type RiotClient struct {
 	rateLimit      rateLimit
 	isStarted      bool
 	rateLimitMutex sync.Mutex
+	workersWG      sync.WaitGroup
+	stopWorkers    chan struct{}
 }
 
 func checkConfig(cfg config.RiotClient) error {
@@ -59,10 +63,12 @@ func NewClient(httpClient *http.Client, cfg config.RiotClient) (*RiotClient, err
 	}
 
 	c := &RiotClient{
-		config:     cfg,
-		httpClient: httpClient,
-		log:        logging.Get("RiotClient"),
-		isStarted:  false,
+		config:      cfg,
+		httpClient:  httpClient,
+		log:         logging.Get("RiotClient"),
+		isStarted:   false,
+		workersWG:   sync.WaitGroup{},
+		stopWorkers: make(chan struct{}),
 	}
 
 	cfg.Region = strings.ToLower(cfg.Region)
@@ -74,6 +80,7 @@ func NewClient(httpClient *http.Client, cfg config.RiotClient) (*RiotClient, err
 func (c *RiotClient) Start() {
 	if !c.isStarted {
 		c.log.Println("Starting Riot Client")
+		c.stopWorkers = make(chan struct{})
 		go c.worker()
 		c.isStarted = true
 	} else {
@@ -85,11 +92,17 @@ func (c *RiotClient) Start() {
 func (c *RiotClient) Stop() {
 	if c.isStarted {
 		c.log.Println("Stopping Riot Client")
-		// TODO
+		close(c.stopWorkers)
+		c.workersWG.Wait()
 		c.isStarted = false
 	} else {
 		c.log.Println("Riot Client already stopped")
 	}
+}
+
+// IsRunning returns if the Riot Client is currently started
+func (c *RiotClient) IsRunning() bool {
+	return c.isStarted
 }
 
 func (c *RiotClient) checkResponseCodeOK(response *http.Response) error {
@@ -182,7 +195,7 @@ func (c *RiotClient) apiCall(path string, method string, body string) (r []byte,
 		}
 		c.log.Debugln("ApiCall: Succesfully finished Api Call")
 		return ioutil.ReadAll(res.response.Body)
-	case <-time.After(30 * time.Second):
+	case <-time.After(180 * time.Second):
 		c.log.Debugln("ApiCall: API call timed out")
 		return nil, fmt.Errorf("Worker timed out")
 	}

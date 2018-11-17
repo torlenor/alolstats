@@ -92,6 +92,9 @@ func (sr *StatsRunner) championEndpoint(w http.ResponseWriter, r *http.Request) 
 
 	var top, bot, mid, jungle, total uint64
 	for _, match := range matches.Matches {
+		if match.MapID != 11 {
+			continue
+		}
 		for _, participant := range match.Participants {
 			if uint64(participant.ChampionID) == champID {
 				switch participant.Timeline.Lane {

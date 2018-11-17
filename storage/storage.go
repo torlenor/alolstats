@@ -70,7 +70,7 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	api.AttachModuleGet("/champions", s.championsEndpoint)
 	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
 	api.AttachModuleGet("/match", s.getMatchEndpoint)
-	api.AttachModuleGet("/matches", s.getMatchesEndpoint)
+	api.AttachModuleGet("/matches/stored/bygameversion", s.storedMatchesByGameVersionEndpoint)
 	api.AttachModuleGet("/summoner/byname", s.summonerByNameEndpoint)
 	api.AttachModuleGet("/summoner/bysummonerid", s.summonerBySummonerIDEndpoint)
 	api.AttachModuleGet("/summoner/byaccountid", s.summonerByAccountIDEndpoint)

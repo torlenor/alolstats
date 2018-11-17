@@ -56,10 +56,24 @@ type LoLStorage struct {
 	MaxAgeSummoner uint32
 }
 
+// FetchRunner holds the settings for the FetchRunner
+type FetchRunner struct {
+	// Specified the update interval for fetching Summoner Matches in minutes > 0
+	UpdateIntervalSummonerMatches uint32
+	// Specifies AccountIDs for Summoners where Matches shall be fetched
+	MatchesForSummonerAccountIDs []uint64
+}
+
+// StatsRunner holds the settings for the StatsRunner
+type StatsRunner struct {
+}
+
 // Config holds the complete ALolStats config
 type Config struct {
 	API            API
 	RiotClient     RiotClient
 	LoLStorage     LoLStorage
 	StorageBackend StorageBackend
+	FetchRunner    FetchRunner
+	StatsRunner    StatsRunner
 }
