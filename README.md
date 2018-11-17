@@ -1,7 +1,7 @@
 # ALoLStats
 
-[![Build Status](https://travis-ci.org/torlenor/alolstats.svg?branch=master)](https://travis-ci.org/torlenor/alolstats)
-[![Coverage Status](https://coveralls.io/repos/github/torlenor/alolstats/badge.svg?branch=master)](https://coveralls.io/github/torlenor/alolstats?branch=master)
+[![Build status](https://git.abyle.org/hps/alolstats/badges/master/pipeline.svg)](https://git.abyle.org/hps/alolstats/commits/master)
+[![Coverage Status](https://git.abyle.org/hps/alolstats/badges/master/coverage.svg)](https://git.abyle.org/hps/alolstats/commits/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/torlenor/alolstats)](https://goreportcard.com/report/github.com/torlenor/alolstats)
 [![Docker](https://img.shields.io/docker/pulls/hpsch/alolstats.svg)](https://hub.docker.com/r/hpsch/alolstats/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
