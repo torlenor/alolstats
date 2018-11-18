@@ -62,6 +62,11 @@ type FetchRunner struct {
 	UpdateIntervalSummonerMatches uint32
 	// Specifies AccountIDs for Summoners where Matches shall be fetched
 	MatchesForSummonerAccountIDs []uint64
+	// How many of the last matches shall be checked/pulled. 0 means all of them
+	MatchesForSummonerLastNMatches uint64
+	// Specified the level of recursive match fetching, i.e., it will take the summoners from a fetched match and add fetch their matches also.
+	// Grows exponentially, be careful!
+	MatchesForSummonersRecursiveDepth uint64
 }
 
 // StatsRunner holds the settings for the StatsRunner

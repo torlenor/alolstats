@@ -26,7 +26,7 @@ type rateLimit struct {
 
 // updateRateLimits update the allowed rate limits
 func (c *RiotClient) updateAppRateLimits(limits string) {
-	c.log.Debugln("RateLimit: Updating App Rate Limits:", limits)
+	// c.log.Debugln("RateLimit: Updating App Rate Limits:", limits)
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
@@ -54,7 +54,7 @@ func (c *RiotClient) updateAppRateLimits(limits string) {
 
 // updateRateLimitsCount update the current rate limit counts
 func (c *RiotClient) updateAppRateLimitsCount(counts string) {
-	c.log.Debugln("RateLimit: Updating App Rate Limits Count", counts)
+	// c.log.Debugln("RateLimit: Updating App Rate Limits Count", counts)
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
@@ -82,7 +82,7 @@ func (c *RiotClient) updateAppRateLimitsCount(counts string) {
 
 // updateRateLimitRetryAt sets the retryAt time based on current time + seconds specified
 func (c *RiotClient) updateRateLimitRetryAt(seconds uint32) {
-	c.log.Debugln("RateLimit: Updating App Rate Limits Retry At")
+	// c.log.Debugln("RateLimit: Updating App Rate Limits Retry At")
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
@@ -106,8 +106,8 @@ func (c *RiotClient) getAdditionalWaitTime() time.Duration {
 	for key, val := range c.rateLimit.appRateLimitsCount {
 		maxSlots := c.rateLimit.appRateLimits[key]
 		emptySlots := int32(maxSlots) - int32(val)
-		if emptySlots < 1 {
-			addWaitTime += time.Second * time.Duration(key)
+		if emptySlots < 5 {
+			addWaitTime += time.Second * time.Duration(key) / 5
 		}
 	}
 

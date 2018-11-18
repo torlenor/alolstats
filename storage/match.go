@@ -10,7 +10,8 @@ import (
 	"github.com/torlenor/alolstats/riotclient"
 )
 
-func (s *Storage) getMatch(id uint64) (riotclient.Match, error) {
+// GetMatch gets a match from storage or riot client based on GameID
+func (s *Storage) GetMatch(id uint64) (riotclient.Match, error) {
 	match, err := s.backend.GetMatch(id)
 	if err != nil {
 		s.log.Warnln(err)
@@ -69,7 +70,7 @@ func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		match, err := s.getMatch(id)
+		match, err := s.GetMatch(id)
 		if err != nil {
 			s.log.Warnf("Could not get match for id=%d", id)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)

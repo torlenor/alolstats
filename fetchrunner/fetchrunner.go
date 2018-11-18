@@ -76,12 +76,15 @@ func (f *FetchRunner) fetchSummonerMatches(accountID uint64) {
 		matches, err := f.storage.GetMatchesByAccountID(accountID, startIndex, endIndex)
 		if err != nil {
 			f.log.Errorf("Error getting the current match list for Summoner: %s", err)
-			continue
+			break
 		}
 		for _, match := range matches.Matches {
 			f.storage.FetchAndStoreMatch(uint64(match.GameID))
 		}
 		if len(matches.Matches) == 0 || (endIndex+1) >= uint32(matches.TotalGames) {
+			stop = true
+		}
+		if uint64(endIndex+1) > f.config.MatchesForSummonerLastNMatches {
 			stop = true
 		}
 		startIndex += 100
