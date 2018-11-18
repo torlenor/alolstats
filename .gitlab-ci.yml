@@ -8,6 +8,9 @@ cache:
     - /go/src/google.golang.org
     - /go/src/gopkg.in
 
+services:
+  - mongo:latest
+
 stages:
   - build
   - test

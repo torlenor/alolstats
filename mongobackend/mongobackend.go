@@ -11,14 +11,14 @@ import (
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
-// Backend represents the Memory Backend
+// Backend represents the Mongo Backend
 type Backend struct {
 	config config.MongoBackend
 	log    *logrus.Entry
 	client *mongo.Client
 }
 
-// NewBackend creates a new Memory Backend
+// NewBackend creates a new Mongo Backend
 func NewBackend(cfg config.MongoBackend) (*Backend, error) {
 	b := &Backend{
 		log:    logging.Get("MongoDB Storage Backend"),
