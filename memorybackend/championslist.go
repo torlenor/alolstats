@@ -23,7 +23,15 @@ func (b *Backend) GetChampionsTimeStamp() time.Time {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	return b.championList.Timestamp
+	// Find oldest champ time
+	oldest := time.Now()
+	for _, champion := range b.championList.Champions {
+		if oldest.Sub(champion.Timestamp) > 0 {
+			oldest = champion.Timestamp
+		}
+	}
+
+	return oldest
 }
 
 // StoreChampions stores a new champions list

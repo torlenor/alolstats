@@ -10,6 +10,7 @@ import (
 type mockBackend struct {
 	failChampions        bool
 	champions            riotclient.ChampionList
+	championsTimeStamp   time.Time
 	championsRetrieved   bool
 	championsStored      riotclient.ChampionList
 	championsWhereStored bool
@@ -24,6 +25,7 @@ type mockBackend struct {
 func (b *mockBackend) reset() {
 	b.failChampions = false
 	b.champions = riotclient.ChampionList{}
+	b.championsTimeStamp = time.Time{}
 	b.championsRetrieved = false
 	b.championsStored = riotclient.ChampionList{}
 	b.championsWhereStored = false
@@ -41,6 +43,9 @@ func (b *mockBackend) reset() {
 
 func (b *mockBackend) setChampions(champions riotclient.ChampionList) {
 	b.champions = champions
+}
+func (b *mockBackend) setChampionsTimeStamp(time time.Time) {
+	b.championsTimeStamp = time
 }
 
 func (b *mockBackend) setFailChampions(fail bool) {
@@ -72,7 +77,7 @@ func (b *mockBackend) GetChampionsTimeStamp() time.Time {
 			"2010-11-01T00:08:41+00:00")
 		return t1
 	}
-	return b.champions.Timestamp
+	return b.championsTimeStamp
 }
 
 func (b *mockBackend) StoreChampions(championList riotclient.ChampionList) error {

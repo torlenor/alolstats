@@ -51,26 +51,23 @@ type ChampionStats struct {
 
 // Champion stores champion data
 type Champion struct {
-	Version string        `json:"version"`
-	ID      string        `json:"id"`
-	Key     string        `json:"key"`
-	Name    string        `json:"name"`
-	Title   string        `json:"title"`
-	Blurb   string        `json:"blurb"`
-	Info    ChampionInfo  `json:"info"`
-	Image   ChampionImage `json:"image"`
-	Tags    []string      `json:"tags"`
-	Partype string        `json:"partype"`
-	Stats   ChampionStats `json:"stats"`
+	Version   string        `json:"version"`
+	ID        string        `json:"id"`
+	Key       string        `json:"key"`
+	Name      string        `json:"name"`
+	Title     string        `json:"title"`
+	Blurb     string        `json:"blurb"`
+	Info      ChampionInfo  `json:"info"`
+	Image     ChampionImage `json:"image"`
+	Tags      []string      `json:"tags"`
+	Partype   string        `json:"partype"`
+	Stats     ChampionStats `json:"stats"`
+	Timestamp time.Time     `json:"timestamp"`
 }
 
 // ChampionList stores a list of Champion data
 type ChampionList struct {
-	Type      string              `json:"type"`
-	Format    string              `json:"format"`
-	Version   string              `json:"version"`
 	Champions map[string]Champion `json:"champions"`
-	Timestamp time.Time           `json:"timestamp"`
 }
 
 // Used for parsing the data coming from data dragon
@@ -95,11 +92,14 @@ func (c *RiotClient) Champions() (s *ChampionList, err error) {
 	}
 
 	champions := ChampionList{
-		Type:      championsDat.Type,
-		Format:    championsDat.Format,
-		Version:   championsDat.Version,
 		Champions: championsDat.Data,
-		Timestamp: time.Now(),
+	}
+
+	now := time.Now()
+
+	for id, champion := range champions.Champions {
+		champion.Timestamp = now
+		champions.Champions[id] = champion
 	}
 
 	return &champions, nil
