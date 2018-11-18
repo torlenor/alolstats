@@ -38,6 +38,7 @@ type Backend interface {
 
 	// Specialized fetching functions
 	GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error)
+	GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error)
 }
 
 type stats struct {

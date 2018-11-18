@@ -179,3 +179,7 @@ func (b *mockBackend) StoreMatch(data *riotclient.Match) error {
 func (b *mockBackend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
 	return riotclient.Matches{}, nil
 }
+
+func (b *mockBackend) GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
+	return riotclient.Matches{}, nil
+}

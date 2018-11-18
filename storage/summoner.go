@@ -167,7 +167,7 @@ func (s *Storage) summonerByNameEndpoint(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *Storage) summonerBySummonerIDEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API Match request from", r.RemoteAddr)
+	s.log.Debugln("Received Rest API summonerBySummonerID request from", r.RemoteAddr)
 	if val, ok := r.URL.Query()["id"]; ok {
 		if len(val) == 0 {
 			s.log.Warnf("id parameter was empty in request")
@@ -202,7 +202,7 @@ func (s *Storage) summonerBySummonerIDEndpoint(w http.ResponseWriter, r *http.Re
 }
 
 func (s *Storage) summonerByAccountIDEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API Match request from", r.RemoteAddr)
+	s.log.Debugln("Received Rest API summonerByAccountID request from", r.RemoteAddr)
 	if val, ok := r.URL.Query()["id"]; ok {
 		if len(val) == 0 {
 			s.log.Warnf("id parameter was empty in request")

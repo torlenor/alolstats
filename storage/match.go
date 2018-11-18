@@ -50,6 +50,11 @@ func (s *Storage) GetStoredMatchesByGameVersion(gameVersion string) (riotclient.
 	return s.backend.GetMatchesByGameVersion(gameVersion)
 }
 
+// GetStoredMatchesByGameVersionAndChampionID gets all matches for a specific game version and Champion ID
+func (s *Storage) GetStoredMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
+	return s.backend.GetMatchesByGameVersionAndChampionID(gameVersion, championID)
+}
+
 // GetMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex
 func (s *Storage) GetMatchesByAccountID(accountID uint64, startIndex uint32, endIndex uint32) (*riotclient.MatchList, error) {
 	return s.riotClient.MatchesByAccountID(accountID, startIndex, endIndex)

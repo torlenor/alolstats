@@ -45,12 +45,32 @@ func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matche
 	return matches, nil
 }
 
+// GetMatchesByGameVersionAndChampionID returns all matches specific to a certain game version and champion id
+func (b *Backend) GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
+	matches := riotclient.Matches{}
+	for _, match := range b.matches {
+		if match.GameVersion == gameVersion {
+			valid := false
+			for _, participant := range match.Participants {
+				if uint64(participant.ChampionID) == championID {
+					valid = true
+				}
+			}
+			if valid {
+				matches.Matches = append(matches.Matches, match)
+			}
+		}
+	}
+
+	return matches, nil
+}
+
 func (b *Backend) GetSummonerByName(name string) (riotclient.Summoner, error) {
-	return riotclient.Summoner{}, nil
+	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
 }
 
 func (b *Backend) GetSummonerByNameTimeStamp(name string) time.Time {
-	return time.Now()
+	return time.Time{}
 }
 
 func (b *Backend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summoner, error) {
@@ -58,7 +78,7 @@ func (b *Backend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summone
 }
 
 func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time {
-	return time.Now()
+	return time.Time{}
 }
 
 func (b *Backend) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner, error) {
@@ -66,7 +86,7 @@ func (b *Backend) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner,
 }
 
 func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
-	return time.Now()
+	return time.Time{}
 }
 
 func (b *Backend) StoreSummoner(data *riotclient.Summoner) error {

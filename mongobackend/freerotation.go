@@ -14,7 +14,7 @@ func (b *Backend) GetFreeRotation() (riotclient.FreeRotation, error) {
 
 // GetFreeRotationTimeStamp gets the timestamp of the stored free champions rotation
 func (b *Backend) GetFreeRotationTimeStamp() time.Time {
-	return time.Now()
+	return time.Time{}
 }
 
 // StoreFreeRotation stores a new free champions rotation list

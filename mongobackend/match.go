@@ -59,7 +59,7 @@ func (b *Backend) StoreMatch(data *riotclient.Match) error {
 	return nil
 }
 
-// GetMatchesByGameVersion returns all matches specific to a certain game version
+// GetMatchesByGameVersion returns all matches specific to a certain game version from Storage
 func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
 
 	c := b.client.Database(b.config.Database).Collection("matches")
@@ -74,6 +74,50 @@ func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matche
 		context.Background(), query)
 	if err != nil {
 		return riotclient.Matches{}, fmt.Errorf("No match found for GameVersion %s: %s", gameVersion, err)
+	}
+
+	defer cur.Close(context.Background())
+
+	matches := riotclient.Matches{}
+
+	for cur.Next(nil) {
+		match := riotclient.Match{}
+		err := cur.Decode(&match)
+		if err != nil {
+			b.log.Warnln("Decode error ", err)
+		}
+		matches.Matches = append(matches.Matches, match)
+	}
+
+	if err := cur.Err(); err != nil {
+		b.log.Warnln("Cursor error ", err)
+	}
+
+	return matches, nil
+}
+
+// GetMatchesByGameVersionAndChampionID returns all matches specific to a certain game version and champion id
+func (b *Backend) GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
+
+	c := b.client.Database(b.config.Database).Collection("matches")
+
+	query := bson.D{
+		{
+			Key: "gameversion",
+			Value: bson.D{
+				{Key: "$regex", Value: "^" + gameVersion + ""},
+			},
+		},
+		{
+			Key:   "participants.championid",
+			Value: championID,
+		},
+	}
+
+	cur, err := c.Find(
+		context.Background(), query)
+	if err != nil {
+		return riotclient.Matches{}, fmt.Errorf("No match found for GameVersion %s and Champion ID %d: %s", gameVersion, championID, err)
 	}
 
 	defer cur.Close(context.Background())

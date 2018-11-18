@@ -11,60 +11,35 @@ import (
 )
 
 type championStats struct {
-	ChampionID    uint64 `json:"championid"`
-	ChampionName  string `json:"championname"`
-	GameVersion   string `json:"gameversion"`
-	LaneRoleRatio struct {
-		Mid        float64 `json:"mid"`
-		Top        float64 `json:"top"`
-		Jungle     float64 `json:"jungle"`
-		BotAdc     float64 `json:"botadc"`
-		BotSup     float64 `json:"botsup"`
-		BotUnknown float64 `json:"botunknown"`
-		Unknown    float64 `json:"unknown"`
-		SampleSize uint64  `json:"samplesize"`
-	} `json:"laneroleratio"`
+	ChampionID                uint64             `json:"championid"`
+	ChampionName              string             `json:"championname"`
+	GameVersion               string             `json:"gameversion"`
+	SampleSize                uint64             `json:"samplesize"`
+	LaneRelativeFrequency     map[string]float64 `json:"lanerelativefrequency"`
+	RoleRelativeFrequency     map[string]float64 `json:"rolerelativefrequency"`
+	LaneRoleRelativeFrequency map[string]float64 `json:"lanerolerelativefrequency"`
 }
 
 func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
-	matches, err := sr.storage.GetStoredMatchesByGameVersion(gameVersion)
+	matches, err := sr.storage.GetStoredMatchesByGameVersionAndChampionID(gameVersion, champID)
 	if err != nil {
-		return nil, fmt.Errorf("Could not get GetStoredMatchesByGameVersion: %s", err)
+		return nil, fmt.Errorf("Could not get GetStoredMatchesByGameVersionAndChampionID: %s", err)
 	}
 	if len(matches.Matches) == 0 {
 		return nil, fmt.Errorf("Error in getting matches for game version = %s", gameVersion)
 	}
 
-	var top, botAdc, botSup, botUnknown, mid, jungle, unknown, total uint64
+	var total uint64
+	var laneObs, roleObs, laneRoleObs []string
 	for _, match := range matches.Matches {
 		if !(match.MapID == 11 && (match.QueueID == 420 || match.QueueID == 440)) {
 			continue
 		}
 		for _, participant := range match.Participants {
 			if uint64(participant.ChampionID) == champID {
-				switch participant.Timeline.Lane {
-				case "MID":
-					fallthrough
-				case "MIDDLE":
-					mid++
-				case "TOP":
-					top++
-				case "JUNGLE":
-					jungle++
-				case "BOT":
-					fallthrough
-				case "BOTTOM":
-					switch participant.Timeline.Role {
-					case "DUO_CARRY":
-						botAdc++
-					case "DUO_SUPPORT":
-						botSup++
-					default:
-						botUnknown++
-					}
-				default:
-					unknown++
-				}
+				laneObs = append(laneObs, participant.Timeline.Lane)
+				roleObs = append(roleObs, participant.Timeline.Role)
+				laneRoleObs = append(laneRoleObs, participant.Timeline.Lane+":"+participant.Timeline.Role)
 				total++
 			}
 		}
@@ -73,16 +48,10 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 	championStats := championStats{}
 	championStats.ChampionID = champID
 	championStats.GameVersion = gameVersion
-	if total > 0 {
-		championStats.LaneRoleRatio.Mid = float64(mid) / float64(total)
-		championStats.LaneRoleRatio.Top = float64(top) / float64(total)
-		championStats.LaneRoleRatio.Jungle = float64(jungle) / float64(total)
-		championStats.LaneRoleRatio.BotAdc = float64(botAdc) / float64(total)
-		championStats.LaneRoleRatio.BotSup = float64(botSup) / float64(total)
-		championStats.LaneRoleRatio.BotUnknown = float64(botUnknown) / float64(total)
-		championStats.LaneRoleRatio.Unknown = float64(unknown) / float64(total)
-	}
-	championStats.LaneRoleRatio.SampleSize = total
+	championStats.SampleSize = total
+	championStats.LaneRelativeFrequency = calcRelativeFrequency(laneObs)
+	championStats.RoleRelativeFrequency = calcRelativeFrequency(roleObs)
+	championStats.LaneRoleRelativeFrequency = calcRelativeFrequency(laneRoleObs)
 
 	champions := sr.storage.GetChampions()
 	for _, val := range champions.Champions {
@@ -96,7 +65,7 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 }
 
 func (sr *StatsRunner) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
-	sr.log.Debugln("Received Rest API Match request from", r.RemoteAddr)
+	sr.log.Debugln("Received Rest API championByID request from", r.RemoteAddr)
 	var champID uint64
 	var gameVersion string
 
@@ -144,7 +113,7 @@ func (sr *StatsRunner) championByIDEndpoint(w http.ResponseWriter, r *http.Reque
 }
 
 func (sr *StatsRunner) championByNameEndpoint(w http.ResponseWriter, r *http.Request) {
-	sr.log.Debugln("Received Rest API Match request from", r.RemoteAddr)
+	sr.log.Debugln("Received Rest API championByName request from", r.RemoteAddr)
 	var gameVersion string
 
 	var championName string
