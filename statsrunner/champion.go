@@ -11,13 +11,24 @@ import (
 )
 
 type championStats struct {
-	ChampionID                uint64             `json:"championid"`
-	ChampionName              string             `json:"championname"`
-	GameVersion               string             `json:"gameversion"`
-	SampleSize                uint64             `json:"samplesize"`
+	ChampionID   uint64 `json:"championid"`
+	ChampionName string `json:"championname"`
+	GameVersion  string `json:"gameversion"`
+
+	SampleSize uint64 `json:"samplesize"`
+
 	LaneRelativeFrequency     map[string]float64 `json:"lanerelativefrequency"`
 	RoleRelativeFrequency     map[string]float64 `json:"rolerelativefrequency"`
 	LaneRoleRelativeFrequency map[string]float64 `json:"lanerolerelativefrequency"`
+
+	AvgK    float64 `json:"averagekills"`
+	StdDevK float64 `json:"stddevkills"`
+
+	AvgD    float64 `json:"averagedeaths"`
+	StdDevD float64 `json:"stddevdeaths"`
+
+	AvgA    float64 `json:"averageassists"`
+	StdDevA float64 `json:"stddevassists"`
 }
 
 func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
@@ -31,6 +42,7 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 
 	var total uint64
 	var laneObs, roleObs, laneRoleObs []string
+	var kills, deaths, assists []float64
 	for _, match := range matches.Matches {
 		if !(match.MapID == 11 && (match.QueueID == 420 || match.QueueID == 440)) {
 			continue
@@ -40,6 +52,11 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 				laneObs = append(laneObs, participant.Timeline.Lane)
 				roleObs = append(roleObs, participant.Timeline.Role)
 				laneRoleObs = append(laneRoleObs, participant.Timeline.Lane+":"+participant.Timeline.Role)
+
+				kills = append(kills, float64(participant.Stats.Kills))
+				deaths = append(deaths, float64(participant.Stats.Deaths))
+				assists = append(assists, float64(participant.Stats.Assists))
+
 				total++
 			}
 		}
@@ -52,6 +69,10 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 	championStats.LaneRelativeFrequency = calcRelativeFrequency(laneObs)
 	championStats.RoleRelativeFrequency = calcRelativeFrequency(roleObs)
 	championStats.LaneRoleRelativeFrequency = calcRelativeFrequency(laneRoleObs)
+
+	championStats.AvgK, championStats.StdDevK = calcMeanStdDev(kills, nil)
+	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(deaths, nil)
+	championStats.AvgA, championStats.StdDevA = calcMeanStdDev(assists, nil)
 
 	champions := sr.storage.GetChampions()
 	for _, val := range champions.Champions {
