@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mongodb/mongo-go-driver/options"
-
 	"github.com/mongodb/mongo-go-driver/bson"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
+
 	"github.com/torlenor/alolstats/riotclient"
 )
 
