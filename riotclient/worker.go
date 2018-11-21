@@ -1,7 +1,6 @@
 package riotclient
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 )
@@ -30,42 +29,44 @@ func (c *RiotClient) worker() {
 	for {
 		select {
 		case work := <-workQueue:
-			// c.log.Debugln("Worker: Got new work order to process")
-			sleepUntil := time.Until(c.getRateLimitRetryAt())
-			if sleepUntil > 0 {
-				c.log.Debugln("Worker: Sleeping until", sleepUntil.String())
-				time.Sleep(sleepUntil)
-			}
-			additionalSleep := c.getAdditionalWaitTime()
-			if additionalSleep > 0 {
-				c.log.Debugln("Worker: Sleeping additional", additionalSleep.Seconds(), "seconds to make sure we are not getting rate limited")
-				time.Sleep(additionalSleep)
+			tryAgain := true
+			tries := 0
+			var response *http.Response
+			var err error
+			for tryAgain && tries <= 3 {
+				tryAgain = false
+				tries++
+
+				sleepFor := time.Until(c.getRateLimitRetryAt())
+				if sleepFor > 0 {
+					c.log.Debugln("Worker: Sleeping for", sleepFor.String(), "to adhere to rate limit")
+					time.Sleep(sleepFor)
+				}
+				sleepFor = c.getAdditionalWaitTime()
+				if sleepFor > 0 {
+					c.log.Debugln("Worker: Sleeping for", sleepFor.String(), "to avoid rate limit")
+					time.Sleep(sleepFor)
+				}
+
+				response, err = c.httpClient.Do(work.request)
+				if err != nil {
+					continue
+				}
+				err = c.checkRateLimited(response)
+				if err != nil {
+					tryAgain = true
+					c.log.Debugln("Worker: Repeating request")
+					continue
+				}
+				err = c.checkResponseCodeOK(response)
+				if err != nil {
+					continue
+				}
 			}
 
-			// c.log.Debugln("Worker: Performing http request")
-			response, err := c.httpClient.Do(work.request)
-			if err != nil {
-				work.responseChan <- workResponseData{response: nil,
-					err: err}
-				continue
-			}
-			// c.log.Debugln("Worker: Checking for rate limit")
-			err = c.checkRateLimited(response)
-			if err != nil {
-				work.responseChan <- workResponseData{response: nil,
-					err: fmt.Errorf("Got rate limited from API: %s", err)}
-				continue
-			}
-			// c.log.Debugln("Worker: Checking response")
-			err = c.checkResponseCodeOK(response)
-			if err != nil {
-				work.responseChan <- workResponseData{response: nil,
-					err: fmt.Errorf("Got an invalid response code from API: %s", err)}
-				continue
-			}
-			// c.log.Debugln("Worker: Send back result")
 			work.responseChan <- workResponseData{response: response,
-				err: nil}
+				err: err}
+
 			c.log.Debugln("Worker: Done processing work order")
 		case <-c.stopWorkers:
 			c.log.Printf("Stopping worker")

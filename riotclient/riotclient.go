@@ -184,7 +184,6 @@ func (c *RiotClient) apiCall(path string, method string, body string) (r []byte,
 	work := workOrder{request: req,
 		responseChan: make(workResponseChan)}
 
-	// c.log.Debugln("ApiCall: Pushing request into work queue")
 	workQueue <- work
 
 	c.log.Debugln("ApiCall: Waiting for request to finish processing")
