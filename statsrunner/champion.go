@@ -29,6 +29,8 @@ type championStats struct {
 
 	AvgA    float64 `json:"averageassists"`
 	StdDevA float64 `json:"stddevassists"`
+
+	WinLossRatio float64 `json:"winlossratio"`
 }
 
 func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
@@ -43,6 +45,7 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 	var total uint64
 	var laneObs, roleObs, laneRoleObs []string
 	var kills, deaths, assists []float64
+	var wins, losses uint64
 	for _, match := range matches.Matches {
 		if !(match.MapID == 11 && (match.QueueID == 420 || match.QueueID == 440)) {
 			continue
@@ -56,6 +59,12 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 				kills = append(kills, float64(participant.Stats.Kills))
 				deaths = append(deaths, float64(participant.Stats.Deaths))
 				assists = append(assists, float64(participant.Stats.Assists))
+
+				if participant.Stats.Win {
+					wins++
+				} else {
+					losses++
+				}
 
 				total++
 			}
@@ -73,6 +82,8 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 	championStats.AvgK, championStats.StdDevK = calcMeanStdDev(kills, nil)
 	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(deaths, nil)
 	championStats.AvgA, championStats.StdDevA = calcMeanStdDev(assists, nil)
+
+	championStats.WinLossRatio = float64(wins) / float64(losses)
 
 	champions := sr.storage.GetChampions()
 	for _, val := range champions.Champions {

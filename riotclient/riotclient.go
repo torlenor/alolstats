@@ -159,6 +159,7 @@ func (c *RiotClient) checkRateLimited(response *http.Response) error {
 		} else {
 			c.updateRateLimitRetryAt(10)
 		}
+		c.log.Warnf("Rate limited with header: %s", response.Header)
 		return fmt.Errorf("Status code 429 (Rate Limited)")
 	}
 
