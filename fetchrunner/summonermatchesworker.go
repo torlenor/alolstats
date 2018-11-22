@@ -43,7 +43,7 @@ func (f *FetchRunner) summonerMatchesWorker() {
 				nextUpdate -= 1 * time.Second
 				continue
 			}
-			f.log.Debugf("Starting SummonerMatchesWorker run")
+			f.log.Infof("Performing SummonerMatchesWorker run")
 
 			start := time.Now()
 
@@ -54,7 +54,7 @@ func (f *FetchRunner) summonerMatchesWorker() {
 			nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
 
 			elapsed := time.Since(start)
-			f.log.Debugf("Finished SummonerMatchesWorker run. Took %s", elapsed)
+			f.log.Infof("Finished SummonerMatchesWorker run. Took %s", elapsed)
 		}
 	}
 }
