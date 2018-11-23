@@ -36,6 +36,14 @@ func (c *mockClient) MatchesByAccountID(id uint64, startIndex uint32, endIndex u
 	return nil, nil
 }
 
+func (c *mockClient) ChallengerLeagueByQueue(queue string) (*riotclient.LeagueData, error) {
+	return nil, nil
+}
+
+func (c *mockClient) MasterLeagueByQueue(queue string) (*riotclient.LeagueData, error) {
+	return nil, nil
+}
+
 func (c *mockClient) reset() {
 	c.failChampions = false
 	c.champions = riotclient.ChampionList{}

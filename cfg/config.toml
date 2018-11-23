@@ -28,6 +28,8 @@
 [FetchRunner] #FetchRunner holds the settings for the FetchRunner
     UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0
     MatchesForSummonerAccountIDs = [ 10000, 100001 ] # Specifies AccountIDs for Summoners where Matches shall be fetched
+    MatchesForChallengerLeagueSummonerQueues = [ "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"] # Specified for which Challenger League queues Matches shall be fetched. Allowed are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
+    MatchesForMasterLeagueSummonerQueues = [ "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"] # Specified for which Master League queues Matches shall be fetched. Allowed are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
     MatchesForSummonerLastNMatches = 100 # How many of the last matches shall be checked/pulled. 0 means all of them
     MatchesForSummonersRecursiveDepth = 1 # Specified the level of recursive match fetching, i.e., it will take the summoners from a fetched match and add fetch their matches also. Grows exponentially, be careful!
 

@@ -38,7 +38,7 @@ func (s *Storage) GetSummonerByName(name string) (riotclient.Summoner, error) {
 		summoner, errClient := s.riotClient.SummonerByName(name)
 		if errClient != nil {
 			s.log.Warnln("Could not get data from either Storage nor Client:", errClient)
-			return riotclient.Summoner{}, err
+			return riotclient.Summoner{}, errClient
 		}
 		s.log.Warnln("Could not get Summoner from storage backend, returning from Client instead:", err)
 		err = s.backend.StoreSummoner(summoner)
@@ -79,7 +79,7 @@ func (s *Storage) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summone
 		summoner, errClient := s.riotClient.SummonerBySummonerID(summonerID)
 		if errClient != nil {
 			s.log.Warnln("Could not get data from either Storage nor Client:", errClient)
-			return riotclient.Summoner{}, err
+			return riotclient.Summoner{}, errClient
 		}
 		s.log.Warnln("Could not get Summoner from storage backend, returning from Client instead:", err)
 		err = s.backend.StoreSummoner(summoner)
@@ -120,7 +120,7 @@ func (s *Storage) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner,
 		summoner, errClient := s.riotClient.SummonerByAccountID(accountID)
 		if errClient != nil {
 			s.log.Warnln("Could not get data from either Storage nor Client:", errClient)
-			return riotclient.Summoner{}, err
+			return riotclient.Summoner{}, errClient
 		}
 		s.log.Warnln("Could not get Summoner from storage backend, returning from Client instead:", err)
 		err = s.backend.StoreSummoner(summoner)

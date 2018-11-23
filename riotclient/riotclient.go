@@ -28,6 +28,9 @@ type Client interface {
 	MatchByID(id uint64) (s *Match, err error)
 
 	MatchesByAccountID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error)
+
+	ChallengerLeagueByQueue(queue string) (*LeagueData, error)
+	MasterLeagueByQueue(queue string) (*LeagueData, error)
 }
 
 // RiotClient Riot LoL API client
@@ -157,7 +160,13 @@ func (c *RiotClient) checkRateLimited(response *http.Response) error {
 				c.updateRateLimitRetryAt(uint32(seconds))
 			}
 		} else {
-			c.updateRateLimitRetryAt(10)
+			// https://developer.riotgames.com/rate-limiting.html
+			// If the rate limit was enforced by the underlying service to which the request was proxied,
+			// rather than the API edge, then the above headers will not be included. In that case, your
+			// code cannot use the same mechanism to handle these responses. Instead, your code would simply
+			// need to back off for a reasonable amount of time (e.g., 1 second) before trying again the
+			// same request.
+			c.updateRateLimitRetryAt(2)
 		}
 		c.log.Warnf("Rate limited with header: %s", response.Header)
 		return fmt.Errorf("Status code 429 (Rate Limited)")

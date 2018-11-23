@@ -62,6 +62,10 @@ type FetchRunner struct {
 	UpdateIntervalSummonerMatches uint32
 	// Specifies AccountIDs for Summoners where Matches shall be fetched
 	MatchesForSummonerAccountIDs []uint64
+	// Specified for which Challenger League queues Matches shall be fetched. Allowed are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
+	MatchesForChallengerLeagueSummonerQueues []string
+	// Specified for which Master League queues Matches shall be fetched. Allowed are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
+	MatchesForMasterLeagueSummonerQueues []string
 	// How many of the last matches shall be checked/pulled. 0 means all of them
 	MatchesForSummonerLastNMatches uint64
 	// Specified the level of recursive match fetching, i.e., it will take the summoners from a fetched match and add fetch their matches also.

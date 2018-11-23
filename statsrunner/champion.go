@@ -39,7 +39,7 @@ func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) 
 		return nil, fmt.Errorf("Could not get GetStoredMatchesByGameVersionAndChampionID: %s", err)
 	}
 	if len(matches.Matches) == 0 {
-		return nil, fmt.Errorf("Error in getting matches for game version = %s", gameVersion)
+		return nil, fmt.Errorf("Error in getting matches for game version = %s and Champion ID %d", gameVersion, champID)
 	}
 
 	var total uint64
