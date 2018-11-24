@@ -1,7 +1,6 @@
 package api
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -28,19 +27,7 @@ func NewAPI(cfg config.API) (*API, error) {
 		prefix: "/v1",
 	}
 
-	a.attachPublic()
-
 	return a, nil
-}
-
-func handlePing(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	io.WriteString(w, `{"alive": true}`)
-}
-
-func (a *API) attachPublic() {
-	a.AttachModuleGet("/ping", handlePing)
 }
 
 // AttachModuleGet registers a new GET handler for the API

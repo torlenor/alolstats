@@ -33,9 +33,17 @@ func TestRiotClient(t *testing.T) {
 	if client.IsRunning() != true {
 		t.Fatalf("Client is not running even though we started it")
 	}
+	client.Start()
+	if client.IsRunning() != true {
+		t.Fatalf("Client should still be running if we start it again")
+	}
 
 	client.Stop()
 	if client.IsRunning() != false {
 		t.Fatalf("Client not stopped even though we stopped it")
+	}
+	client.Stop()
+	if client.IsRunning() != false {
+		t.Fatalf("Client should still be stopped if we stop it again")
 	}
 }

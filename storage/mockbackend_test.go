@@ -20,6 +20,12 @@ type mockBackend struct {
 	freeRotationRetrieved   bool
 	freeRotationStored      riotclient.FreeRotation
 	freeRotationWhereStored bool
+
+	failSummoner         bool
+	summoner             riotclient.Summoner
+	wasSummonerRetrieved bool
+	storedSummoner       riotclient.Summoner
+	wasSummonerStored    bool
 }
 
 func (b *mockBackend) reset() {
@@ -35,6 +41,12 @@ func (b *mockBackend) reset() {
 	b.freeRotationRetrieved = false
 	b.freeRotationStored = riotclient.FreeRotation{}
 	b.freeRotationWhereStored = false
+
+	b.failSummoner = false
+	b.summoner = riotclient.Summoner{}
+	b.wasSummonerRetrieved = false
+	b.storedSummoner = riotclient.Summoner{}
+	b.wasSummonerStored = false
 }
 
 //
@@ -136,31 +148,86 @@ func (b *mockBackend) StoreFreeRotation(freeRotation riotclient.FreeRotation) er
 // Summoner
 //
 
+func (b *mockBackend) setSummoner(data riotclient.Summoner) {
+	b.summoner = data
+}
+
+func (b *mockBackend) setFailSummoner(fail bool) {
+	b.failSummoner = fail
+}
+
+func (b *mockBackend) getWasSummonerRetrieved() bool {
+	return b.wasSummonerRetrieved
+}
+
+func (b *mockBackend) getWasSummonerStored() bool {
+	return b.wasSummonerStored
+}
+
 func (b *mockBackend) GetSummonerByName(name string) (riotclient.Summoner, error) {
-	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+	b.wasSummonerRetrieved = true
+
+	if b.failSummoner {
+		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
+	}
+
+	return b.summoner, nil
+
 }
 
 func (b *mockBackend) GetSummonerByNameTimeStamp(name string) time.Time {
-	return time.Now()
+	if b.failSummoner {
+		t1, _ := time.Parse(
+			time.RFC3339,
+			"2010-11-01T00:08:41+00:00")
+		return t1
+	}
+	return b.summoner.Timestamp
 }
 
 func (b *mockBackend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summoner, error) {
-	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+	b.wasSummonerRetrieved = true
+
+	if b.failSummoner {
+		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
+	}
+
+	return b.summoner, nil
 }
 
 func (b *mockBackend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time {
-	return time.Now()
+	if b.failSummoner {
+		t1, _ := time.Parse(
+			time.RFC3339,
+			"2010-11-01T00:08:41+00:00")
+		return t1
+	}
+	return b.summoner.Timestamp
 }
 
 func (b *mockBackend) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner, error) {
-	return riotclient.Summoner{}, fmt.Errorf("Not implemented")
+	b.wasSummonerRetrieved = true
+
+	if b.failSummoner {
+		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
+	}
+
+	return b.summoner, nil
 }
 
 func (b *mockBackend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
-	return time.Now()
+	if b.failSummoner {
+		t1, _ := time.Parse(
+			time.RFC3339,
+			"2010-11-01T00:08:41+00:00")
+		return t1
+	}
+	return b.summoner.Timestamp
 }
 
 func (b *mockBackend) StoreSummoner(data *riotclient.Summoner) error {
+	b.summoner = *data
+	b.wasSummonerStored = true
 	return nil
 }
 
