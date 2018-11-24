@@ -4,7 +4,7 @@
 # Initial concept for Makefile stolen from https://github.com/yyyar/gobetween/tree/master/dist (thanks!)
 #
 
-.PHONY: update clean build build-all test authors dist
+.PHONY: update clean build build-all test authors dist vendor
 
 # export GOPATH := ${PWD}/vendor:${PWD}
 # export GOBIN := ${PWD}/vendor/bin
@@ -76,6 +76,11 @@ deps:
 # 	go get -v github.com/BurntSushi/toml
 # 	go get -v github.com/sirupsen/logrus
 # 	go get -v github.com/gorilla/mux
+
+vendor:
+	go get github.com/LK4D4/vndr
+	go install github.com/LK4D4/vndr
+	${GOPATH}/bin/vndr
 
 clean-dist:
 	rm -rf ./dist/${VERSION}
