@@ -6,9 +6,20 @@
 [![Docker](https://img.shields.io/docker/pulls/hpsch/alolstats.svg)](https://hub.docker.com/r/hpsch/alolstats/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
-## Description
+## Short Description
 
-This is ALoLstats, a League of Legends Statistics aggregation and calculation server.
+ALoLstats, a League of Legends Statistics aggregation and calculation server.
+
+## Abstract
+
+For players which want to be competitive in League of Legends it is essential to study various game metrics. Usually players use one of the various
+websites which exist solely for the purpose to present statistics about League of Legends and to give you informations like the lanes a
+certain champion should be played in or its win/loss and ban rates.
+
+Most of those websites do not describe their methods how those informations are obtained, how statistics is calculated and on which dataset
+the calculations are based on. In every scientific setting this would be a strict no-go.
+
+In this project we aim to improve on that by implementing a completely open source (MIT license) solution.
 
 ## How to run it
 
