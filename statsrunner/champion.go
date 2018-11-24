@@ -33,7 +33,7 @@ type championStats struct {
 	WinLossRatio float64 `json:"winlossratio"`
 }
 
-func (sr *StatsRunner) getCHampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
+func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
 	matches, err := sr.storage.GetStoredMatchesByGameVersionAndChampionID(gameVersion, champID)
 	if err != nil {
 		return nil, fmt.Errorf("Could not get GetStoredMatchesByGameVersionAndChampionID: %s", err)
@@ -125,7 +125,7 @@ func (sr *StatsRunner) championByIDEndpoint(w http.ResponseWriter, r *http.Reque
 		gameVersion = val[0]
 	}
 
-	championStats, err := sr.getCHampionStatsByID(champID, gameVersion)
+	championStats, err := sr.getChampionStatsByID(champID, gameVersion)
 	if err != nil {
 		sr.log.Errorln(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -182,14 +182,14 @@ func (sr *StatsRunner) championByNameEndpoint(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	championStats, err := sr.getCHampionStatsByID(champID, gameVersion)
+	stats, err := sr.getChampionStatsByID(champID, gameVersion)
 	if err != nil {
-		sr.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		sr.log.Errorf("Error in getting stats for champion: %s", err)
+		io.WriteString(w, `{"Error": "Could not get data, check request"}`)
 		return
 	}
 
-	out, err := json.Marshal(championStats)
+	out, err := json.Marshal(stats)
 	if err != nil {
 		sr.log.Errorln(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
