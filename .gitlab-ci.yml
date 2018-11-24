@@ -20,7 +20,6 @@ before_script:
   - cp -r $CI_PROJECT_DIR /go/src/github.com/torlenor/alolstats
   - ln -s /go/src/github.com/torlenor /go/src/_/builds/torlenor
   - cd /go/src/github.com/torlenor/alolstats
-  - make deps
 
 build:
   stage: build
