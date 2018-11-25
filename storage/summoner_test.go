@@ -43,7 +43,7 @@ func TestGettingSummonerByName(t *testing.T) {
 	riotClient.setSummoner(summonerClient)
 
 	// No stored list in backend should get it from client and store it
-	actualSummoner, err := storage.GetSummonerByName("Test")
+	actualSummoner, err := storage.GetSummonerByName("Backend Summoner")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -70,7 +70,7 @@ func TestGettingSummonerByName(t *testing.T) {
 	summonerBackend.Timestamp = time.Now()
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerByName("Test")
+	actualSummoner, err = storage.GetSummonerByName("Backend Summoner")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -90,6 +90,34 @@ func TestGettingSummonerByName(t *testing.T) {
 		t.Error("Data does not match")
 	}
 
+	// When stored list with valid TImeStamp in backend fails it should get it from client
+	riotClient.reset()
+	riotClient.setSummoner(summonerClient)
+	backend.reset()
+	summonerBackend.Timestamp = time.Now()
+	backend.setSummoner(summonerBackend)
+	backend.setFailSummoner(true)
+
+	actualSummoner, err = storage.GetSummonerByName("Backend Summoner")
+	if err != nil {
+		t.Errorf("There was an error: %s", err)
+	}
+
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did not get it from backend even though it should have")
+	}
+	if backend.getWasSummonerStored() != true {
+		t.Errorf("Storage not stored data in backend even though it should have tried")
+	}
+
+	if riotClient.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did get the data from client")
+	}
+
+	if summonerClient != actualSummoner {
+		t.Error("Data does not match")
+	}
+
 	// Stored list with invalid TImeStamp in backend should get it from client
 	riotClient.reset()
 	riotClient.setSummoner(summonerClient)
@@ -97,7 +125,7 @@ func TestGettingSummonerByName(t *testing.T) {
 	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerByName("Test")
+	actualSummoner, err = storage.GetSummonerByName("Backend Summoner")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -125,7 +153,7 @@ func TestGettingSummonerByName(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByName("Test")
+	actualSummoner, err = storage.GetSummonerByName("Backend Summoner")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -153,13 +181,13 @@ func TestGettingSummonerByName(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	backend.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByName("Test")
+	actualSummoner, err = storage.GetSummonerByName("Backend Summoner")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
 
-	if backend.getWasSummonerRetrieved() != false {
-		t.Errorf("Storage got it from backend even though it shouldn't")
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage should have tried to get it from backend")
 	}
 	if backend.getWasSummonerStored() != true {
 		t.Errorf("Received data where not stored in backend")
@@ -173,7 +201,7 @@ func TestGettingSummonerByName(t *testing.T) {
 		t.Error("Data does not match")
 	}
 
-	// Should return empty list if everything fails
+	// Should return empty list if everything fails (vailid backend time stamp)
 	riotClient.reset()
 	riotClient.setSummoner(summonerClient)
 	backend.reset()
@@ -182,7 +210,7 @@ func TestGettingSummonerByName(t *testing.T) {
 	backend.setFailSummoner(true)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByName("Test")
+	actualSummoner, err = storage.GetSummonerByName("Backend Summoner")
 	if err == nil {
 		t.Errorf("There should have been an error, but wasn't")
 	}
@@ -199,6 +227,37 @@ func TestGettingSummonerByName(t *testing.T) {
 	}
 
 	empty := riotclient.Summoner{}
+
+	if empty != actualSummoner {
+		t.Error("Data not equal empty data")
+	}
+
+	// Should return empty list if everything fails (invailid backend time stamp)
+	riotClient.reset()
+	riotClient.setSummoner(summonerClient)
+	backend.reset()
+	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
+	backend.setSummoner(summonerBackend)
+	backend.setFailSummoner(true)
+	riotClient.setFailSummoner(true)
+
+	actualSummoner, err = storage.GetSummonerByName("Backend Summoner")
+	if err == nil {
+		t.Errorf("There should have been an error, but wasn't")
+	}
+
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage should have tried to get data from backend")
+	}
+	if backend.getWasSummonerStored() != false {
+		t.Errorf("Even though client failed it stored data in Backend")
+	}
+
+	if riotClient.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did not get the data from client")
+	}
+
+	empty = riotclient.Summoner{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")
@@ -229,8 +288,8 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	}
 
 	summonerClient := riotclient.Summoner{
-		AccountID:    412345,
-		ID:           512345,
+		AccountID:    112345,
+		ID:           212345,
 		Name:         "Client Summoner",
 		Level:        20,
 		RevisionDate: 612345,
@@ -240,7 +299,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	riotClient.setSummoner(summonerClient)
 
 	// No stored list in backend should get it from client and store it
-	actualSummoner, err := storage.GetSummonerBySummonerID(1234)
+	actualSummoner, err := storage.GetSummonerBySummonerID(212345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -267,7 +326,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now()
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(1234)
+	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -287,6 +346,34 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 		t.Error("Data does not match")
 	}
 
+	// When stored list with valid TImeStamp in backend fails it should get it from client
+	riotClient.reset()
+	riotClient.setSummoner(summonerClient)
+	backend.reset()
+	summonerBackend.Timestamp = time.Now()
+	backend.setSummoner(summonerBackend)
+	backend.setFailSummoner(true)
+
+	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
+	if err != nil {
+		t.Errorf("There was an error: %s", err)
+	}
+
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did not get it from backend even though it should have")
+	}
+	if backend.getWasSummonerStored() != true {
+		t.Errorf("Storage not stored data in backend even though it should have tried")
+	}
+
+	if riotClient.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did get the data from client")
+	}
+
+	if summonerClient != actualSummoner {
+		t.Error("Data does not match")
+	}
+
 	// Stored list with invalid TImeStamp in backend should get it from client
 	riotClient.reset()
 	riotClient.setSummoner(summonerClient)
@@ -294,7 +381,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(1234)
+	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -322,7 +409,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(1234)
+	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -350,13 +437,13 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	backend.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(1234)
+	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
 
-	if backend.getWasSummonerRetrieved() != false {
-		t.Errorf("Storage got it from backend even though it shouldn't")
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage should have tried to get it from backend")
 	}
 	if backend.getWasSummonerStored() != true {
 		t.Errorf("Received data where not stored in backend")
@@ -370,7 +457,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 		t.Error("Data does not match")
 	}
 
-	// Should return empty list if everything fails
+	// Should return empty list if everything fails (valid backend timestamp)
 	riotClient.reset()
 	riotClient.setSummoner(summonerClient)
 	backend.reset()
@@ -396,6 +483,37 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	}
 
 	empty := riotclient.Summoner{}
+
+	if empty != actualSummoner {
+		t.Error("Data not equal empty data")
+	}
+
+	// Should return empty list if everything fails (invalid backend timestamp)
+	riotClient.reset()
+	riotClient.setSummoner(summonerClient)
+	backend.reset()
+	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
+	backend.setSummoner(summonerBackend)
+	backend.setFailSummoner(true)
+	riotClient.setFailSummoner(true)
+
+	actualSummoner, err = storage.GetSummonerBySummonerID(1234)
+	if err == nil {
+		t.Errorf("There should have been an error, but wasn't")
+	}
+
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage should have tried to get data from backend")
+	}
+	if backend.getWasSummonerStored() != false {
+		t.Errorf("Even though client failed it stored data in Backend")
+	}
+
+	if riotClient.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did not get the data from client")
+	}
+
+	empty = riotclient.Summoner{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")
@@ -426,8 +544,8 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	}
 
 	summonerClient := riotclient.Summoner{
-		AccountID:    412345,
-		ID:           512345,
+		AccountID:    112345,
+		ID:           212345,
 		Name:         "Client Summoner",
 		Level:        20,
 		RevisionDate: 612345,
@@ -437,7 +555,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	riotClient.setSummoner(summonerClient)
 
 	// No stored list in backend should get it from client and store it
-	actualSummoner, err := storage.GetSummonerByAccountID(1234)
+	actualSummoner, err := storage.GetSummonerByAccountID(112345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -464,7 +582,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now()
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(1234)
+	actualSummoner, err = storage.GetSummonerByAccountID(112345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -484,6 +602,34 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 		t.Error("Data does not match")
 	}
 
+	// When stored list with valid TImeStamp in backend fails it should get it from client
+	riotClient.reset()
+	riotClient.setSummoner(summonerClient)
+	backend.reset()
+	summonerBackend.Timestamp = time.Now()
+	backend.setSummoner(summonerBackend)
+	backend.setFailSummoner(true)
+
+	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	if err != nil {
+		t.Errorf("There was an error: %s", err)
+	}
+
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did not get it from backend even though it should have")
+	}
+	if backend.getWasSummonerStored() != true {
+		t.Errorf("Storage not stored data in backend even though it should have tried")
+	}
+
+	if riotClient.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did get the data from client")
+	}
+
+	if summonerClient != actualSummoner {
+		t.Error("Data does not match")
+	}
+
 	// Stored list with invalid TImeStamp in backend should get it from client
 	riotClient.reset()
 	riotClient.setSummoner(summonerClient)
@@ -491,7 +637,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(1234)
+	actualSummoner, err = storage.GetSummonerByAccountID(112345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -519,7 +665,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(1234)
+	actualSummoner, err = storage.GetSummonerByAccountID(112345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -547,13 +693,13 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	backend.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(1234)
+	actualSummoner, err = storage.GetSummonerByAccountID(112345)
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
 
-	if backend.getWasSummonerRetrieved() != false {
-		t.Errorf("Storage got it from backend even though it shouldn't")
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage should hae tried to get it from backend")
 	}
 	if backend.getWasSummonerStored() != true {
 		t.Errorf("Received data where not stored in backend")
@@ -567,7 +713,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 		t.Error("Data does not match")
 	}
 
-	// Should return empty list if everything fails
+	// Should return empty list if everything fails (valid backend timestamp)
 	riotClient.reset()
 	riotClient.setSummoner(summonerClient)
 	backend.reset()
@@ -576,7 +722,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setFailSummoner(true)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(1234)
+	actualSummoner, err = storage.GetSummonerByAccountID(112345)
 	if err == nil {
 		t.Errorf("There should have been an error, but wasn't")
 	}
@@ -593,6 +739,37 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	}
 
 	empty := riotclient.Summoner{}
+
+	if empty != actualSummoner {
+		t.Error("Data not equal empty data")
+	}
+
+	// Should return empty list if everything fails (invalid backend timestamp)
+	riotClient.reset()
+	riotClient.setSummoner(summonerClient)
+	backend.reset()
+	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
+	backend.setSummoner(summonerBackend)
+	backend.setFailSummoner(true)
+	riotClient.setFailSummoner(true)
+
+	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	if err == nil {
+		t.Errorf("There should have been an error, but wasn't")
+	}
+
+	if backend.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage should have tried to get data from backend")
+	}
+	if backend.getWasSummonerStored() != false {
+		t.Errorf("Even though client failed it stored data in Backend")
+	}
+
+	if riotClient.getWasSummonerRetrieved() != true {
+		t.Errorf("Storage did not get the data from client")
+	}
+
+	empty = riotclient.Summoner{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")

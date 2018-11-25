@@ -171,17 +171,14 @@ func (b *mockBackend) GetSummonerByName(name string) (riotclient.Summoner, error
 		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
 	}
 
-	return b.summoner, nil
+	if name == b.summoner.Name {
+		return b.summoner, nil
+	}
 
+	return riotclient.Summoner{}, fmt.Errorf("Summoner not found")
 }
 
 func (b *mockBackend) GetSummonerByNameTimeStamp(name string) time.Time {
-	if b.failSummoner {
-		t1, _ := time.Parse(
-			time.RFC3339,
-			"2010-11-01T00:08:41+00:00")
-		return t1
-	}
 	return b.summoner.Timestamp
 }
 
@@ -192,16 +189,14 @@ func (b *mockBackend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Sum
 		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
 	}
 
-	return b.summoner, nil
+	if summonerID == b.summoner.ID {
+		return b.summoner, nil
+	}
+
+	return riotclient.Summoner{}, fmt.Errorf("Summoner not found")
 }
 
 func (b *mockBackend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time {
-	if b.failSummoner {
-		t1, _ := time.Parse(
-			time.RFC3339,
-			"2010-11-01T00:08:41+00:00")
-		return t1
-	}
 	return b.summoner.Timestamp
 }
 
@@ -212,16 +207,14 @@ func (b *mockBackend) GetSummonerByAccountID(accountID uint64) (riotclient.Summo
 		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
 	}
 
-	return b.summoner, nil
+	if accountID == b.summoner.AccountID {
+		return b.summoner, nil
+	}
+
+	return riotclient.Summoner{}, fmt.Errorf("Summoner not found")
 }
 
 func (b *mockBackend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
-	if b.failSummoner {
-		t1, _ := time.Parse(
-			time.RFC3339,
-			"2010-11-01T00:08:41+00:00")
-		return t1
-	}
 	return b.summoner.Timestamp
 }
 

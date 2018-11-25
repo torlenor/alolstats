@@ -139,18 +139,22 @@ func (s *Storage) summonerByNameEndpoint(w http.ResponseWriter, r *http.Request)
 
 	var summonerName string
 	if val, ok := r.URL.Query()["name"]; ok {
-		if len(val) == 0 {
+		if len(val[0]) == 0 {
 			s.log.Warnf("name parameter was empty in request")
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
 		summonerName = val[0]
+	} else {
+		s.log.Warnf("There was no name parameter in request")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
 	}
 
 	summoner, err := s.GetSummonerByName(summonerName)
 	if err != nil {
 		s.log.Warnf("Error getting SummonerByName data")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
@@ -168,70 +172,84 @@ func (s *Storage) summonerByNameEndpoint(w http.ResponseWriter, r *http.Request)
 
 func (s *Storage) summonerBySummonerIDEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API summonerBySummonerID request from", r.RemoteAddr)
+
+	var summonerID uint64
 	if val, ok := r.URL.Query()["id"]; ok {
-		if len(val) == 0 {
+		if len(val[0]) == 0 {
 			s.log.Warnf("id parameter was empty in request")
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
-		id, err := strconv.ParseUint(val[0], 10, 32)
+		var err error
+		summonerID, err = strconv.ParseUint(val[0], 10, 32)
 		if err != nil {
 			s.log.Warnf("Could not convert value %s to SummonerID", val)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
-
-		summoner, err := s.GetSummonerBySummonerID(id)
-		if err != nil {
-			s.log.Warnf("Error getting SummonerBySummonerID data")
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		out, err := json.Marshal(summoner)
-		if err != nil {
-			s.log.Errorln(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		io.WriteString(w, string(out))
+	} else {
+		s.log.Warnf("There was no id parameter in request")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
 	}
+
+	summoner, err := s.GetSummonerBySummonerID(summonerID)
+	if err != nil {
+		s.log.Warnf("Error getting SummonerBySummonerID data")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	out, err := json.Marshal(summoner)
+	if err != nil {
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 }
 
 func (s *Storage) summonerByAccountIDEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API summonerByAccountID request from", r.RemoteAddr)
+
+	var accountID uint64
 	if val, ok := r.URL.Query()["id"]; ok {
-		if len(val) == 0 {
+		if len(val[0]) == 0 {
 			s.log.Warnf("id parameter was empty in request")
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
-		id, err := strconv.ParseUint(val[0], 10, 32)
+		var err error
+		accountID, err = strconv.ParseUint(val[0], 10, 32)
 		if err != nil {
 			s.log.Warnf("Could not convert value %s to AccountID", val)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
-
-		summoner, err := s.GetSummonerByAccountID(id)
-		if err != nil {
-			s.log.Warnf("Error getting SummonerByAccountID data")
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		out, err := json.Marshal(summoner)
-		if err != nil {
-			s.log.Errorln(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		io.WriteString(w, string(out))
+	} else {
+		s.log.Warnf("There was no id parameter in request")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
 	}
+
+	summoner, err := s.GetSummonerByAccountID(accountID)
+	if err != nil {
+		s.log.Warnf("Error getting SummonerByAccountID data")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	out, err := json.Marshal(summoner)
+	if err != nil {
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 }
