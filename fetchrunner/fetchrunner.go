@@ -17,13 +17,14 @@ type stats struct {
 
 // FetchRunner automatically fetches summoner and match data based on specified criteras
 type FetchRunner struct {
-	config      config.FetchRunner
-	storage     *storage.Storage
-	log         *logrus.Entry
-	stats       stats
-	isStarted   bool
-	workersWG   sync.WaitGroup
-	stopWorkers chan struct{}
+	config            config.FetchRunner
+	storage           *storage.Storage
+	log               *logrus.Entry
+	stats             stats
+	isStarted         bool
+	workersWG         sync.WaitGroup
+	stopWorkers       chan struct{}
+	shouldWorkersStop bool
 }
 
 // NewFetchRunner creates a new FetchRunner
@@ -46,6 +47,7 @@ func NewFetchRunner(cfg config.FetchRunner, storage *storage.Storage) (*FetchRun
 func (f *FetchRunner) Start() {
 	if !f.isStarted {
 		f.log.Println("Starting FetchRunner")
+		f.shouldWorkersStop = false
 		f.stopWorkers = make(chan struct{})
 		go f.summonerMatchesWorker()
 		f.isStarted = true
@@ -58,6 +60,7 @@ func (f *FetchRunner) Start() {
 func (f *FetchRunner) Stop() {
 	if f.isStarted {
 		f.log.Println("Stopping FetchRunner")
+		f.shouldWorkersStop = true
 		close(f.stopWorkers)
 		f.workersWG.Wait()
 		f.isStarted = false

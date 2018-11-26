@@ -82,6 +82,7 @@ func (f *FetchRunner) summonerMatchesWorker() {
 
 	var nextUpdate time.Duration
 
+WaitLoop:
 	for {
 		select {
 		case <-f.stopWorkers:
@@ -101,6 +102,12 @@ func (f *FetchRunner) summonerMatchesWorker() {
 				f.log.Infof("Fetching matches for specified Account IDs...")
 				for _, accountID := range f.config.MatchesForSummonerAccountIDs {
 					f.fetchSummonerMatches(accountID)
+					if f.shouldWorkersStop {
+						elapsed := time.Since(start)
+						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+						continue WaitLoop
+					}
 				}
 			}
 
@@ -114,11 +121,23 @@ func (f *FetchRunner) summonerMatchesWorker() {
 						f.log.Errorf("Error fetching Account IDs for Challenger League queue %s: %s", queue, err)
 						continue
 					}
+					if f.shouldWorkersStop {
+						elapsed := time.Since(start)
+						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+						continue WaitLoop
+					}
 				}
 
 				f.log.Infof("Found %d unique Account IDs in specified Challenger Leagues. Fetching matches...", len(accountIDs))
 				for accountID := range accountIDs {
 					f.fetchSummonerMatches(accountID)
+					if f.shouldWorkersStop {
+						elapsed := time.Since(start)
+						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+						continue WaitLoop
+					}
 				}
 			}
 
@@ -132,11 +151,23 @@ func (f *FetchRunner) summonerMatchesWorker() {
 						f.log.Errorf("Error fetching Account IDs for Master League queue %s: %s", queue, err)
 						continue
 					}
+					if f.shouldWorkersStop {
+						elapsed := time.Since(start)
+						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+						continue WaitLoop
+					}
 				}
 
 				f.log.Infof("Found %d unique Account IDs in specified Master Leagues. Fetching matches...", len(accountIDs))
 				for accountID := range accountIDs {
 					f.fetchSummonerMatches(accountID)
+					if f.shouldWorkersStop {
+						elapsed := time.Since(start)
+						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+						continue WaitLoop
+					}
 				}
 			}
 

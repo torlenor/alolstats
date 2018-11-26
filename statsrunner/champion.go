@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+
+	"github.com/torlenor/alolstats/utils"
 )
 
 type championStats struct {
@@ -185,7 +187,8 @@ func (sr *StatsRunner) championByNameEndpoint(w http.ResponseWriter, r *http.Req
 	stats, err := sr.getChampionStatsByID(champID, gameVersion)
 	if err != nil {
 		sr.log.Errorf("Error in getting stats for champion: %s", err)
-		io.WriteString(w, `{"Error": "Could not get data, check request"}`)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, "Bad Request - Could not get data for the gameversion and champion id specified"),
+			http.StatusBadRequest)
 		return
 	}
 
