@@ -75,3 +75,28 @@ func TestCalcRelativeFrequency(t *testing.T) {
 		t.Errorf("There should be a result for 'AAAAA'")
 	}
 }
+
+func TestCalcMeanStdDev(t *testing.T) {
+	values := []float64{2, 2, 6, 6, 6, 6, 8, 10}
+	actualMean, actualStdDev := calcMeanStdDev(values, nil)
+	if !almostEqual(actualMean, 5.75) {
+		t.Errorf("Result for mean is wrong, was = %f, should be = %f", actualMean, 5.75)
+	}
+	if !almostEqual(actualStdDev, 2.71240536372107) {
+		t.Errorf("Result for standard deviation is wrong")
+	}
+}
+
+func TestCalcMedian(t *testing.T) {
+	values := []float64{2, 2, 6, 6, 6, 6, 8, 10}
+	actualMedian := calcMedian(values, nil)
+	if !almostEqual(actualMedian, 6) {
+		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 6.0)
+	}
+
+	values = []float64{3, 6, 7, 8, 8, 9, 10, 13, 15, 16, 20}
+	actualMedian = calcMedian(values, nil)
+	if !almostEqual(actualMedian, 9) {
+		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 9.0)
+	}
+}

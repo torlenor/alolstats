@@ -25,12 +25,15 @@ type championStats struct {
 
 	AvgK    float64 `json:"averagekills"`
 	StdDevK float64 `json:"stddevkills"`
+	MedianK float64 `json:"mediankills"`
 
 	AvgD    float64 `json:"averagedeaths"`
 	StdDevD float64 `json:"stddevdeaths"`
+	MedianD float64 `json:"mediandeaths"`
 
 	AvgA    float64 `json:"averageassists"`
 	StdDevA float64 `json:"stddevassists"`
+	MedianA float64 `json:"medianassists"`
 
 	WinLossRatio float64 `json:"winlossratio"`
 }
@@ -84,6 +87,10 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	championStats.AvgK, championStats.StdDevK = calcMeanStdDev(kills, nil)
 	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(deaths, nil)
 	championStats.AvgA, championStats.StdDevA = calcMeanStdDev(assists, nil)
+
+	championStats.MedianK = calcMedian(kills, nil)
+	championStats.MedianD = calcMedian(deaths, nil)
+	championStats.MedianA = calcMedian(assists, nil)
 
 	championStats.WinLossRatio = float64(wins) / float64(losses)
 

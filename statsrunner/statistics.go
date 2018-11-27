@@ -1,6 +1,8 @@
 package statsrunner
 
 import (
+	"sort"
+
 	"gonum.org/v1/gonum/stat"
 )
 
@@ -25,4 +27,9 @@ func calcRelativeFrequency(obs []string) map[string]float64 {
 
 func calcMeanStdDev(x, weights []float64) (mean, std float64) {
 	return stat.MeanStdDev(x, weights)
+}
+
+func calcMedian(x, weights []float64) (median float64) {
+	sort.Float64s(x)
+	return stat.Quantile(0.5, stat.Empirical, x, weights)
 }
