@@ -8,20 +8,29 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/torlenor/alolstats/utils"
 )
 
+type laneRolePercentage struct {
+	Lane string `json:"lane"`
+	Role string `json:"role"`
+
+	Percentage float64 `json:"percentage"`
+	Wins       uint32  `json:"wins"`
+	NGames     uint32  `json:"ngames"`
+}
+
 type championStats struct {
-	ChampionID   uint64 `json:"championid"`
-	ChampionName string `json:"championname"`
-	GameVersion  string `json:"gameversion"`
+	ChampionID     uint64 `json:"championid"`
+	ChampionRealID string `json:"championrealid"`
+	ChampionName   string `json:"championname"`
+	GameVersion    string `json:"gameversion"`
+
+	Timestamp time.Time `json:"timestamp"`
 
 	SampleSize uint64 `json:"samplesize"`
-
-	LaneRelativeFrequency     map[string]float64 `json:"lanerelativefrequency"`
-	RoleRelativeFrequency     map[string]float64 `json:"rolerelativefrequency"`
-	LaneRoleRelativeFrequency map[string]float64 `json:"lanerolerelativefrequency"`
 
 	AvgK    float64 `json:"averagekills"`
 	StdDevK float64 `json:"stddevkills"`
@@ -36,9 +45,14 @@ type championStats struct {
 	MedianA float64 `json:"medianassists"`
 
 	WinLossRatio float64 `json:"winlossratio"`
+
+	LaneRolePercentage []laneRolePercentage `json:"lanerolepercentage"`
 }
 
 func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
+
+	start := time.Now()
+
 	matches, err := sr.storage.GetStoredMatchesByGameVersionAndChampionID(gameVersion, champID)
 	if err != nil {
 		return nil, fmt.Errorf("Could not get GetStoredMatchesByGameVersionAndChampionID: %s", err)
@@ -47,19 +61,34 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 		return nil, fmt.Errorf("Error in getting matches for game version = %s and Champion ID %d", gameVersion, champID)
 	}
 
+	elapsed := time.Since(start)
+	sr.log.Debugf("Got Matches from storage for Champion Stats calculation. Took %s", elapsed)
+
 	var total uint64
-	var laneObs, roleObs, laneRoleObs []string
 	var kills, deaths, assists []float64
 	var wins, losses uint64
+
+	var topWins uint32
+	var topLosses uint32
+	var jungleWins uint32
+	var jungleLosses uint32
+	var midWins uint32
+	var midLosses uint32
+	var botCarryWins uint32
+	var botCarryLosses uint32
+	var botSupWins uint32
+	var botSupLosses uint32
+	var botUnknownWins uint32
+	var botUnknownLosses uint32
+	var unknownWins uint32
+	var unknownLosses uint32
+
 	for _, match := range matches.Matches {
-		if !(match.MapID == 11 && (match.QueueID == 420 || match.QueueID == 440)) {
+		if !(match.MapID == 11 && (match.QueueID >= 400 && match.QueueID < 450)) {
 			continue
 		}
 		for _, participant := range match.Participants {
 			if uint64(participant.ChampionID) == champID {
-				laneObs = append(laneObs, participant.Timeline.Lane)
-				roleObs = append(roleObs, participant.Timeline.Role)
-				laneRoleObs = append(laneRoleObs, participant.Timeline.Lane+":"+participant.Timeline.Role)
 
 				kills = append(kills, float64(participant.Stats.Kills))
 				deaths = append(deaths, float64(participant.Stats.Deaths))
@@ -72,6 +101,53 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 				}
 
 				total++
+
+				if participant.Timeline.Lane == "TOP" {
+					if participant.Stats.Win == true {
+						topWins = topWins + 1
+					} else {
+						topLosses = topLosses + 1
+					}
+				} else if participant.Timeline.Lane == "JUNGLE" {
+					if participant.Stats.Win == true {
+						jungleWins = jungleWins + 1
+					} else {
+						jungleLosses = jungleLosses + 1
+					}
+				} else if participant.Timeline.Lane == "MIDDLE" {
+					if participant.Stats.Win == true {
+						midWins = midWins + 1
+					} else {
+						midLosses = midLosses + 1
+					}
+				} else if participant.Timeline.Lane == "BOTTOM" {
+					if participant.Timeline.Role == "DUO_CARRY" {
+						if participant.Stats.Win == true {
+							botCarryWins = botCarryWins + 1
+						} else {
+							botCarryLosses = botCarryLosses + 1
+						}
+					} else if participant.Timeline.Role == "DUO_SUPPORT" {
+						if participant.Stats.Win == true {
+							botSupWins = botSupWins + 1
+						} else {
+							botSupLosses = botSupLosses + 1
+						}
+					} else {
+						if participant.Stats.Win == true {
+							botUnknownWins = botUnknownWins + 1
+						} else {
+							botUnknownLosses = botUnknownLosses + 1
+						}
+					}
+				} else {
+					if participant.Stats.Win == true {
+						unknownWins = unknownWins + 1
+					} else {
+						unknownLosses = unknownLosses + 1
+					}
+				}
+
 			}
 		}
 	}
@@ -80,9 +156,6 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	championStats.ChampionID = champID
 	championStats.GameVersion = gameVersion
 	championStats.SampleSize = total
-	championStats.LaneRelativeFrequency = calcRelativeFrequency(laneObs)
-	championStats.RoleRelativeFrequency = calcRelativeFrequency(roleObs)
-	championStats.LaneRoleRelativeFrequency = calcRelativeFrequency(laneRoleObs)
 
 	championStats.AvgK, championStats.StdDevK = calcMeanStdDev(kills, nil)
 	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(deaths, nil)
@@ -94,13 +167,96 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 
 	championStats.WinLossRatio = float64(wins) / float64(losses)
 
+	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
+		laneRolePercentage{
+			Lane: "TOP",
+			Role: "Solo",
+
+			Percentage: float64(topWins+topLosses) / float64(total) * 100.0,
+			Wins:       topWins,
+			NGames:     topWins + topLosses,
+		},
+	)
+
+	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
+		laneRolePercentage{
+			Lane: "MIDDLE",
+			Role: "Solo",
+
+			Percentage: float64(midWins+midLosses) / float64(total) * 100.0,
+			Wins:       midWins,
+			NGames:     midWins + midLosses,
+		},
+	)
+
+	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
+		laneRolePercentage{
+			Lane: "JUNGLE",
+			Role: "Solo",
+
+			Percentage: float64(jungleWins+jungleLosses) / float64(total) * 100.0,
+			Wins:       jungleWins,
+			NGames:     jungleWins + jungleLosses,
+		},
+	)
+
+	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
+		laneRolePercentage{
+			Lane: "BOT",
+			Role: "Carry",
+
+			Percentage: float64(botCarryWins+botCarryLosses) / float64(total) * 100.0,
+			Wins:       botCarryWins,
+			NGames:     botCarryWins + botCarryLosses,
+		},
+	)
+
+	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
+		laneRolePercentage{
+			Lane: "BOT",
+			Role: "Support",
+
+			Percentage: float64(botSupWins+botSupLosses) / float64(total) * 100.0,
+			Wins:       botSupWins,
+			NGames:     botSupWins + botSupLosses,
+		},
+	)
+
+	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
+		laneRolePercentage{
+			Lane: "BOT",
+			Role: "Unknown",
+
+			Percentage: float64(botUnknownWins+botUnknownLosses) / float64(total) * 100.0,
+			Wins:       botUnknownWins,
+			NGames:     botUnknownWins + botUnknownLosses,
+		},
+	)
+
+	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
+		laneRolePercentage{
+			Lane: "UNKNOWN",
+			Role: "Unknown",
+
+			Percentage: float64(unknownWins+unknownLosses) / float64(total) * 100.0,
+			Wins:       unknownWins,
+			NGames:     unknownWins + unknownLosses,
+		},
+	)
+
 	champions := sr.storage.GetChampions()
 	for _, val := range champions.Champions {
 		if val.Key == strconv.FormatUint(champID, 10) {
 			championStats.ChampionName = val.Name
+			championStats.ChampionRealID = val.ID
 			break
 		}
 	}
+
+	championStats.Timestamp = time.Now()
+
+	elapsed = time.Since(start)
+	sr.log.Debugf("Finished Champion Stats calculation. Took %s", elapsed)
 
 	return &championStats, nil
 }
