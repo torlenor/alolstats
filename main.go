@@ -109,7 +109,7 @@ func main() {
 	storage.RegisterAPI(api)
 	storage.Start()
 
-	statsRunner, err := statsrunner.NewStatsRunner(storage)
+	statsRunner, err := statsrunner.NewStatsRunner(cfg.StatsRunner, storage)
 	if err != nil {
 		log.Fatalln("Error creating the StatsRunner:" + err.Error())
 	}
@@ -122,6 +122,8 @@ func main() {
 
 	fetchRunner.Start()
 
+	statsRunner.Start()
+
 	api.Start()
 
 	log.Println("ALoLStats (" + version + ") is READY")
@@ -130,6 +132,7 @@ func main() {
 		select {
 		case <-interrupt:
 			api.Stop()
+			statsRunner.Stop()
 			fetchRunner.Stop()
 			storage.Stop()
 			client.Stop()

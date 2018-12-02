@@ -34,3 +34,8 @@
     MatchesForSummonersRecursiveDepth = 1 # Specified the level of recursive match fetching, i.e., it will take the summoners from a fetched match and add fetch their matches also. Grows exponentially, be careful!
 
 [StatsRunner]
+	RunRScripts = true # Specifies if R scripts shall be used (needs a running R installation)
+	RScriptPath = "./R" # Path to the R scripts (distributed with alolstats)
+	RPlotsOutputPath = "/tmp" # Path where the generated plots shall be stored
+	RScriptsUpdateInterval = 2160 # Update Interval for running the R scripts in minutes > 0
+    

@@ -75,6 +75,12 @@ type FetchRunner struct {
 
 // StatsRunner holds the settings for the StatsRunner
 type StatsRunner struct {
+	RunRScripts      bool   // Specifies if R scripts shall be used (needs a running R installation)
+	RScriptPath      string // Path to the R scripts (distributed with alolstats)
+	RPlotsOutputPath string // Path where the generated plots shall be stored
+
+	RScriptsUpdateInterval uint32 // Update Interval for running the R scripts in minutes > 0
+
 }
 
 // Config holds the complete ALolStats config
