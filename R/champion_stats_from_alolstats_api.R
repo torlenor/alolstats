@@ -3,26 +3,52 @@ library(jsonlite)
 library(grid)
 library(reshape2)
 library(ggplot2)
+library(optparse)
+
+message( paste("ALoLStats R Script - Champion Stats - v0.0.1") )
+ 
+option_list = list(
+    make_option(c("-u", "--url"), type="character", default=NULL, 
+                help="url to the ALoLStats server", metavar="character"),
+    make_option(c("-o", "--outdir"), type="character", default="/tmp", 
+                help="output directory [default= %default]", metavar="character"),
+    make_option(c("-v", "--gameversion"), type="character", default="8.23", 
+                help="gameversion to run the analysis for [default= %default]", metavar="character")
+); 
+ 
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
+
+if (is.null(opt$url)){
+  print_help(opt_parser)
+  stop("The URL to the ALoLStats server must be supplied", call.=FALSE)
+}
+
+message( paste("Used ALoLStats server:", opt$url) )
+message( paste("Used output directory:", opt$outdir) )
+message( paste("Used game version:", opt$gameversion) )
 
 options(width=200)
 
 championids <- c()
-gameversion = "8.23"
+gameversion <- opt$gameversion
 
-base <- "http://localhost:8000/"
+base <- opt$url
 
-endpoint <- "v1/champions"
+endpoint <- "/v1/champions"
 call1 <- paste(base,endpoint, sep="")
 
 champions_json <- fromJSON(content(GET(call1), "text"), simplifyMatrix = FALSE, flatten = FALSE)
-# print(champions_json)
 for (champion in champions_json) {
     for (content in champion) {
         championids <- c(championids, content$key)
     }
 }
 
-endpoint <- "v1/stats/champion/byid"
+message( paste("Starting analysis for", length(championids), "champions...") )
+
+endpoint <- "/v1/stats/champion/byid"
+
 for (championid in championids) {
     call1 <- paste(base,endpoint,"?","id","=", championid, "&gameversion=", gameversion, sep="")
     get_champion_stats_json <- fromJSON(content(GET(call1), "text"), flatten = TRUE)
@@ -59,12 +85,14 @@ for (championid in championids) {
             annotation_custom(grid::textGrob(sprintf("(%s)", timestamp), gp=gpar(col="darkgrey", fontsize=8, fontface="italic")), 
                         xmin = 0, xmax = 2.3, ymin = -7.5, ymax = 0) 
 
-    cairo_pdf(paste('champion_role_',champrealid,'_',championid,'.pdf', sep=""), width = 10, height = 10/1.2)
+    cairo_pdf(paste(opt$outdir, '/champion_role_',champrealid,'_',championid,'_',gameversion,'.pdf', sep=""), width = 10, height = 10/1.2)
         print(p)
     dev.off()
 
-    png(paste('champion_role_',champrealid,'_',championid,'.png', sep=""), width = 10, height = 10/1.2, units = "in", res=300)
+    png(paste(opt$outdir, '/champion_role_',champrealid,'_',championid,'_',gameversion,'.png', sep=""), width = 10, height = 10/1.2, units = "in", res=300)
         print(p)
     dev.off()
 
 }
+
+message( paste("Successfully finished analysis!") )

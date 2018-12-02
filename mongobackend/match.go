@@ -98,7 +98,6 @@ func (b *Backend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matche
 
 // GetMatchesByGameVersionAndChampionID returns all matches specific to a certain game version and champion id
 func (b *Backend) GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
-
 	c := b.client.Database(b.config.Database).Collection("matches")
 
 	query := bson.D{
@@ -106,6 +105,111 @@ func (b *Backend) GetMatchesByGameVersionAndChampionID(gameVersion string, champ
 			Key: "gameversion",
 			Value: bson.D{
 				{Key: "$regex", Value: "^" + gameVersion + ""},
+			},
+		},
+		{
+			Key:   "participants.championid",
+			Value: championID,
+		},
+	}
+
+	cur, err := c.Find(
+		context.Background(), query)
+	if err != nil {
+		return riotclient.Matches{}, fmt.Errorf("No match found for GameVersion %s and Champion ID %d: %s", gameVersion, championID, err)
+	}
+
+	defer cur.Close(context.Background())
+
+	matches := riotclient.Matches{}
+
+	for cur.Next(nil) {
+		match := riotclient.Match{}
+		err := cur.Decode(&match)
+		if err != nil {
+			b.log.Warnln("Decode error ", err)
+		}
+		matches.Matches = append(matches.Matches, match)
+	}
+
+	if err := cur.Err(); err != nil {
+		b.log.Warnln("Cursor error ", err)
+	}
+
+	return matches, nil
+}
+
+// GetMatchesByGameVersionChampionIDMapQueue returns all matches specific to a certain game version, champion id, map id and queue id
+func (b *Backend) GetMatchesByGameVersionChampionIDMapQueue(gameVersion string, championID uint64, mapID uint64, queueID uint64) (riotclient.Matches, error) {
+	c := b.client.Database(b.config.Database).Collection("matches")
+
+	query := bson.D{
+		{
+			Key: "gameversion",
+			Value: bson.D{
+				{Key: "$regex", Value: "^" + gameVersion + ""},
+			},
+		},
+		{
+			Key:   "mapid",
+			Value: mapID,
+		},
+		{
+			Key:   "queueid",
+			Value: queueID,
+		},
+		{
+			Key:   "participants.championid",
+			Value: championID,
+		},
+	}
+
+	cur, err := c.Find(
+		context.Background(), query)
+	if err != nil {
+		return riotclient.Matches{}, fmt.Errorf("No match found for GameVersion %s and Champion ID %d: %s", gameVersion, championID, err)
+	}
+
+	defer cur.Close(context.Background())
+
+	matches := riotclient.Matches{}
+
+	for cur.Next(nil) {
+		match := riotclient.Match{}
+		err := cur.Decode(&match)
+		if err != nil {
+			b.log.Warnln("Decode error ", err)
+		}
+		matches.Matches = append(matches.Matches, match)
+	}
+
+	if err := cur.Err(); err != nil {
+		b.log.Warnln("Cursor error ", err)
+	}
+
+	return matches, nil
+}
+
+// GetMatchesByGameVersionChampionIDMapBetweenQueueIDs returns all matches specific to a certain game version, champion id, map id and queue ids between and equal to ltequeue <= queueid <= gtequeue
+func (b *Backend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (riotclient.Matches, error) {
+	c := b.client.Database(b.config.Database).Collection("matches")
+
+	query := bson.D{
+		{
+			Key: "gameversion",
+			Value: bson.D{
+				{Key: "$regex", Value: "^" + gameVersion + ""},
+			},
+		},
+		{
+			Key:   "mapid",
+			Value: mapID,
+		},
+		{
+			Key: "queueid",
+			Value: bson.D{
+				{Key: "$lte", Value: ltequeue},
+				{Key: "$gte", Value: gtequeue},
 			},
 		},
 		{

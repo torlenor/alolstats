@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -53,7 +54,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 
 	start := time.Now()
 
-	matches, err := sr.storage.GetStoredMatchesByGameVersionAndChampionID(gameVersion, champID)
+	matches, err := sr.storage.GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion, champID, 11, 440, 400)
 	if err != nil {
 		return nil, fmt.Errorf("Could not get GetStoredMatchesByGameVersionAndChampionID: %s", err)
 	}
@@ -363,6 +364,68 @@ func (sr *StatsRunner) championByNameEndpoint(w http.ResponseWriter, r *http.Req
 	}
 
 	io.WriteString(w, string(out))
+
+	atomic.AddUint64(&sr.stats.handledRequests, 1)
+}
+
+func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http.Request) {
+	sr.log.Debugln("Received Rest API championByName request from", r.RemoteAddr)
+	var gameVersion string
+
+	var championName string
+	if val, ok := r.URL.Query()["name"]; ok {
+		if len(val) == 0 {
+			sr.log.Warnf("name parameter was empty in request")
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+		championName = val[0]
+	}
+
+	if val, ok := r.URL.Query()["gameversion"]; ok {
+		if len(val) == 0 {
+			sr.log.Warnf("gameversion parameter was empty in request.")
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+		gameVersion = val[0]
+	}
+
+	champions := sr.storage.GetChampions()
+	champID := uint64(0)
+	var champRealID string
+	for _, val := range champions.Champions {
+		if strings.ToLower(val.ID) == strings.ToLower(championName) {
+			id, err := strconv.ParseUint(val.Key, 10, 32)
+			if err != nil {
+				sr.log.Warnf("Could not convert value %s to Champion ID", val.Key)
+				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				return
+			}
+			champID = id
+			champRealID = val.ID
+			continue
+		}
+	}
+
+	if len(champRealID) == 0 {
+		sr.log.Warnf("Could not convert provided champ name %s to Champion ID", championName)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	var path = "/home/hps/git/go/src/github.com/torlenor/alolstats/R/out/"
+	var imageName = fmt.Sprintf("champion_role_%s_%d_%s.png", champRealID, champID, gameVersion)
+
+	img, err := os.Open(path + imageName)
+	if err != nil {
+		sr.log.Warnf("Could not get plot for requested Champion %s and game version %s: %s", champRealID, gameVersion, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	defer img.Close()
+	w.Header().Set("Content-Type", "image/png") // <-- set the content-type header
+	io.Copy(w, img)
 
 	atomic.AddUint64(&sr.stats.handledRequests, 1)
 }

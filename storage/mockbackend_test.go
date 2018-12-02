@@ -243,3 +243,11 @@ func (b *mockBackend) GetMatchesByGameVersion(gameVersion string) (riotclient.Ma
 func (b *mockBackend) GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
 	return riotclient.Matches{}, nil
 }
+
+func (b *mockBackend) GetMatchesByGameVersionChampionIDMapQueue(gameVersion string, championID uint64, mapID uint64, queue uint64) (riotclient.Matches, error) {
+	return riotclient.Matches{}, nil
+}
+
+func (b *mockBackend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (riotclient.Matches, error) {
+	return riotclient.Matches{}, nil
+}

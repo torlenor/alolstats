@@ -55,6 +55,11 @@ func (s *Storage) GetStoredMatchesByGameVersionAndChampionID(gameVersion string,
 	return s.backend.GetMatchesByGameVersionAndChampionID(gameVersion, championID)
 }
 
+// GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs gets all matches for a specific game version, Champion ID, map id and gtequeue <= queue id <= ltequeue
+func (s *Storage) GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (riotclient.Matches, error) {
+	return s.backend.GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion, championID, mapID, ltequeue, gtequeue)
+}
+
 // GetMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex
 func (s *Storage) GetMatchesByAccountID(accountID uint64, startIndex uint32, endIndex uint32) (*riotclient.MatchList, error) {
 	return s.riotClient.MatchesByAccountID(accountID, startIndex, endIndex)
