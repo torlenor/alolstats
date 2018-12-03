@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -414,17 +415,18 @@ func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http
 		return
 	}
 
-	var path = "/home/hps/git/go/src/github.com/torlenor/alolstats/R/out/"
+	var path = sr.config.RPlotsOutputPath
 	var imageName = fmt.Sprintf("champion_role_%s_%d_%s.png", champRealID, champID, gameVersion)
+	filePath := path + string(filepath.Separator) + imageName
 
-	img, err := os.Open(path + imageName)
+	img, err := os.Open(filePath)
 	if err != nil {
 		sr.log.Warnf("Could not get plot for requested Champion %s and game version %s: %s", champRealID, gameVersion, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	defer img.Close()
-	w.Header().Set("Content-Type", "image/png") // <-- set the content-type header
+	w.Header().Set("Content-Type", "image/png")
 	io.Copy(w, img)
 
 	atomic.AddUint64(&sr.stats.handledRequests, 1)
