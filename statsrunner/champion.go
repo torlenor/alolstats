@@ -3,6 +3,7 @@ package statsrunner
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -430,4 +431,24 @@ func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http
 	io.Copy(w, img)
 
 	atomic.AddUint64(&sr.stats.handledRequests, 1)
+}
+
+func (sr *StatsRunner) championStatsListingEndpoint(w http.ResponseWriter, r *http.Request) {
+	t := template.New("champions list")
+	t, _ = t.Parse(`
+			<h1>Champion Stats</h1>
+			<ul>
+			<body>
+			{{range .Champions}}
+					<a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.23">{{.Name}} Champion Role Distribution Path 8.23</a><br>
+			{{end}}
+			</body>
+			`)
+
+	champions := sr.storage.GetChampions()
+
+	err := t.Execute(w, champions)
+	if err != nil {
+		sr.log.Errorf("Error in using the Template for building the Stats overview: %s", err)
+	}
 }

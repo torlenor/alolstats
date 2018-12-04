@@ -55,6 +55,8 @@ func (sr *StatsRunner) RegisterAPI(api *api.API) {
 
 	api.AttachModuleGet("/stats/plots/champion/byname", sr.championByNamePlotEndpoint)
 
+	api.AttachModuleGet("/stats/overview", sr.championStatsListingEndpoint)
+
 }
 
 // GetHandeledRequests gets the total number of api requests handeled by the StatsRunner since creating it
