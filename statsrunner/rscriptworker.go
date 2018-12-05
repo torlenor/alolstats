@@ -36,6 +36,13 @@ func (sr *StatsRunner) rScriptWorker() {
 				sr.log.Warnf("Command finished with error: %v", err)
 			}
 
+			cmd = exec.Command("Rscript", script, "-u", "http://localhost:8000", "-o", sr.config.RPlotsOutputPath, "-v", "8.23")
+			sr.log.Printf("Running command and waiting for it to finish...")
+			err = cmd.Run()
+			if err != nil {
+				sr.log.Warnf("Command finished with error: %v", err)
+			}
+
 			nextUpdate = time.Minute * time.Duration(sr.config.RScriptsUpdateInterval)
 
 			elapsed := time.Since(start)

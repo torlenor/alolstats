@@ -51,7 +51,13 @@ endpoint <- "/v1/stats/champion/byid"
 
 for (championid in championids) {
     call1 <- paste(base,endpoint,"?","id","=", championid, "&gameversion=", gameversion, sep="")
-    get_champion_stats_json <- fromJSON(content(GET(call1), "text"), flatten = TRUE)
+    call1_result <- GET(call1)
+    if (status_code(call1_result) != 200) {
+        message(sprintf("Skipped Champion with ID = %s because of invalid response from Server", championid ))
+        next
+    }
+
+    get_champion_stats_json <- fromJSON(content(call1_result, "text"), flatten = TRUE)
 
     get_champion_base.data <- as.data.frame(get_champion_stats_json)
     get_champion_stats.data <- as.data.frame(get_champion_stats_json$lanerolepercentage)

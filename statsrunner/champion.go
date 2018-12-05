@@ -168,7 +168,13 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	championStats.MedianD = calcMedian(deaths, nil)
 	championStats.MedianA = calcMedian(assists, nil)
 
-	championStats.WinLossRatio = float64(wins) / float64(losses)
+	if losses > 0 {
+		championStats.WinLossRatio = float64(wins) / float64(losses)
+	} else if losses == 0 && wins > 0 {
+		championStats.WinLossRatio = 1.0
+	} else {
+		championStats.WinLossRatio = 0
+	}
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
 		laneRolePercentage{
@@ -436,12 +442,46 @@ func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http
 func (sr *StatsRunner) championStatsListingEndpoint(w http.ResponseWriter, r *http.Request) {
 	t := template.New("champions list")
 	t, _ = t.Parse(`
+			<head>
 			<h1>Champion Stats</h1>
-			<ul>
+			<style>
+			// table {
+			// 	width:100%;
+			// }
+			table, th, td {
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
+			th, td {
+				padding: 15px;
+				text-align: left;
+			}
+			table#t01 tr:nth-child(even) {
+				background-color: #eee;
+			}
+			table#t01 tr:nth-child(odd) {
+			   background-color: #fff;
+			}
+			table#t01 th {
+				background-color: black;
+				color: white;
+			}
+			</style>
+			</head>
 			<body>
+			<table id="t01">
+			<tr>
+			  <th>Champion</th>
+			  <th>Role Distribution</th> 
+			</tr>
 			{{range .Champions}}
-					<a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.24">{{.Name}} Champion Role Distribution Path 8.24</a><br>
+			<tr>
+			  <td>{{.Name}}</td>
+			  <td><a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.23">Path 8.23</a> <a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.24">Path 8.24</a> </td>
+			</tr>
 			{{end}}
+		  </table>
+
 			</body>
 			`)
 
