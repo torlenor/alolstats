@@ -12,7 +12,7 @@ option_list = list(
                 help="url to the ALoLStats server", metavar="character"),
     make_option(c("-o", "--outdir"), type="character", default="/tmp", 
                 help="output directory [default= %default]", metavar="character"),
-    make_option(c("-v", "--gameversion"), type="character", default="8.23", 
+    make_option(c("-v", "--gameversion"), type="character", default="8.24", 
                 help="gameversion to run the analysis for [default= %default]", metavar="character")
 ); 
  

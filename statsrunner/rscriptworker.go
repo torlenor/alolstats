@@ -29,7 +29,7 @@ func (sr *StatsRunner) rScriptWorker() {
 
 			script := sr.config.RScriptPath + string(filepath.Separator) + "champion_stats_from_alolstats_api.R"
 
-			cmd := exec.Command("Rscript", script, "-u", "http://localhost:8000", "-o", sr.config.RPlotsOutputPath, "-v", "8.23")
+			cmd := exec.Command("Rscript", script, "-u", "http://localhost:8000", "-o", sr.config.RPlotsOutputPath, "-v", "8.24")
 			sr.log.Printf("Running command and waiting for it to finish...")
 			err := cmd.Run()
 			if err != nil {

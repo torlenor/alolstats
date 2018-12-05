@@ -440,7 +440,7 @@ func (sr *StatsRunner) championStatsListingEndpoint(w http.ResponseWriter, r *ht
 			<ul>
 			<body>
 			{{range .Champions}}
-					<a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.23">{{.Name}} Champion Role Distribution Path 8.23</a><br>
+					<a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.24">{{.Name}} Champion Role Distribution Path 8.24</a><br>
 			{{end}}
 			</body>
 			`)
