@@ -477,7 +477,7 @@ func (sr *StatsRunner) championStatsListingEndpoint(w http.ResponseWriter, r *ht
 			{{range .Champions}}
 			<tr>
 			  <td>{{.Name}}</td>
-			  <td><a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.23">Path 8.23</a> <a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.24">Path 8.24</a> </td>
+			  <td><a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.23">Patch 8.23</a> <a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.24">Patch 8.24</a> </td>
 			</tr>
 			{{end}}
 		  </table>
