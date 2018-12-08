@@ -7,10 +7,10 @@ RUN apk update && apk add ca-certificates
 RUN apk update && apk add g++ R R-dev R-doc libc-dev
 RUN apk update && apk add ttf-liberation
 
-COPY bin/alolstats /usr/bin/
 COPY R/*.R /app/R/
-
 RUN Rscript /app/R/install_packages.R
+
+COPY bin/alolstats /usr/bin/
 
 CMD ["/usr/bin/alolstats", "-c", "/app/config/config.toml"]
 
