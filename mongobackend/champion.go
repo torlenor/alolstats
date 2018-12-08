@@ -45,6 +45,22 @@ func (b *Backend) GetChampions() (riotclient.ChampionList, error) {
 	return championsList, nil
 }
 
+// GetChampionsCount gets the number of champions from storage
+func (b *Backend) GetChampionsCount() (uint64, error) {
+
+	c := b.client.Database(b.config.Database).Collection("champions")
+
+	championsCount, err := c.Count(
+		context.Background(),
+		nil,
+	)
+	if err != nil {
+		return 0, fmt.Errorf("Find error: %s", err)
+	}
+
+	return uint64(championsCount), nil
+}
+
 // GetChampionsTimeStamp gets the timestamp of the stored champions list
 func (b *Backend) GetChampionsTimeStamp() time.Time {
 	championList, err := b.GetChampions()

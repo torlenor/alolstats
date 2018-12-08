@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/torlenor/alolstats/config"
 	"github.com/torlenor/alolstats/logging"
+	"github.com/torlenor/alolstats/storage"
 
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
@@ -43,4 +44,14 @@ func NewBackend(cfg config.MongoBackend) (*Backend, error) {
 	}
 
 	return b, nil
+}
+
+// GetStorageSummary returns stats about the stored elements in the Backend
+func (b *Backend) GetStorageSummary() (storage.Summary, error) {
+	summary := storage.Summary{}
+	summary.NumberOfMatches, _ = b.GetMatchesCount()
+	summary.NumberOfChampions, _ = b.GetChampionsCount()
+	summary.NumberOfSummoners, _ = b.GetSummonersCount()
+
+	return summary, nil
 }

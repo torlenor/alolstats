@@ -32,4 +32,6 @@ type Backend interface {
 	GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error)
 	GetMatchesByGameVersionChampionIDMapQueue(gameVersion string, championID uint64, mapID uint64, queue uint64) (riotclient.Matches, error)
 	GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (riotclient.Matches, error)
+
+	GetStorageSummary() (Summary, error)
 }

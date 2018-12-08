@@ -3,6 +3,9 @@
 package storage
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
 	"path/filepath"
 	"sync/atomic"
 
@@ -27,6 +30,13 @@ type Storage struct {
 	backend    Backend
 }
 
+// Summary gives an overview of the stored data in Storage/Backend
+type Summary struct {
+	NumberOfMatches   uint64 `json:"numberofmatches"`
+	NumberOfSummoners uint64 `json:"numberofsummoners"`
+	NumberOfChampions uint64 `json:"numberofchampions"`
+}
+
 // NewStorage creates a new Riot LoL API client
 func NewStorage(cfg config.LoLStorage, riotClient riotclient.Client, backend Backend) (*Storage, error) {
 	s := &Storage{
@@ -48,6 +58,8 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	api.AttachModuleGet("/summoner/byname", s.summonerByNameEndpoint)
 	api.AttachModuleGet("/summoner/bysummonerid", s.summonerBySummonerIDEndpoint)
 	api.AttachModuleGet("/summoner/byaccountid", s.summonerByAccountIDEndpoint)
+
+	api.AttachModuleGet("/storage/summary", s.storageSummaryEndpoint)
 }
 
 // Start starts the storage runners
@@ -85,4 +97,26 @@ func (s *Storage) Stop() {
 // GetHandeledRequests gets the total number of api requests handeled by the storage since creating it
 func (s *Storage) GetHandeledRequests() uint64 {
 	return atomic.LoadUint64(&s.stats.handledRequests)
+}
+
+func (s *Storage) storageSummaryEndpoint(w http.ResponseWriter, r *http.Request) {
+	s.log.Debugln("Received Rest API StorageSummary request from", r.RemoteAddr)
+
+	storageSummary, err := s.backend.GetStorageSummary()
+	if err != nil {
+		s.log.Warn("Could not get Storage Summary")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	out, err := json.Marshal(storageSummary)
+	if err != nil {
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	io.WriteString(w, string(out))
+
+	atomic.AddUint64(&s.stats.handledRequests, 1)
 }

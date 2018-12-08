@@ -49,6 +49,22 @@ func (b *Backend) summonerQuery(query *bson.D) (riotclient.Summoner, error) {
 	return riotclient.Summoner{}, fmt.Errorf("Summoner not found in storage backend")
 }
 
+// GetSummonersCount returns the number of stored Summoners in the Backend
+func (b *Backend) GetSummonersCount() (uint64, error) {
+	c := b.client.Database(b.config.Database).Collection("summoners")
+
+	summonersCount, err := c.Count(
+		context.Background(),
+		nil,
+	)
+	if err != nil {
+		b.log.Errorf("Count error: %s", err)
+		return 0, fmt.Errorf("Count error: %s", err)
+	}
+
+	return uint64(summonersCount), nil
+}
+
 // GetSummonerByNameTimeStamp gets the Timestamp when the data was stored for the Summoner specified by name
 func (b *Backend) GetSummonerByNameTimeStamp(name string) time.Time {
 	summoner, err := b.GetSummonerByName(name)

@@ -46,6 +46,21 @@ func (b *Backend) GetMatch(id uint64) (riotclient.Match, error) {
 	return riotclient.Match{}, fmt.Errorf("Match with id=%d not found in storage backend", id)
 }
 
+// GetMatchesCount returns the number of stored Matches in the Backend
+func (b *Backend) GetMatchesCount() (uint64, error) {
+	c := b.client.Database(b.config.Database).Collection("matches")
+
+	matchesCount, err := c.Count(
+		context.Background(),
+		nil,
+	)
+	if err != nil {
+		return uint64(0), fmt.Errorf("Find error: %s", err)
+	}
+
+	return uint64(matchesCount), nil
+}
+
 // StoreMatch stores new match data
 func (b *Backend) StoreMatch(data *riotclient.Match) error {
 	b.log.Debugf("Storing Match id=%d in storage", data.GameID)

@@ -70,7 +70,11 @@ func (sr *StatsRunner) Start() {
 		sr.log.Println("Starting StatsRunner")
 		sr.shouldWorkersStop = false
 		sr.stopWorkers = make(chan struct{})
-		go sr.rScriptWorker()
+		if sr.config.RunRScripts {
+			go sr.rScriptWorker()
+		} else {
+			sr.log.Info("Not running R scripts (deactivated in config)")
+		}
 		sr.isStarted = true
 	} else {
 		sr.log.Println("StatsRunner already running")

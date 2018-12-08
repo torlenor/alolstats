@@ -12,6 +12,7 @@ import (
 
 	"github.com/torlenor/alolstats/logging"
 	"github.com/torlenor/alolstats/riotclient"
+	"github.com/torlenor/alolstats/storage"
 )
 
 // Backend represents the Memory Backend
@@ -131,4 +132,14 @@ func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
 
 func (b *Backend) StoreSummoner(data *riotclient.Summoner) error {
 	return nil
+}
+
+// GetStorageSummary returns stats about the stored elements in the Backend
+func (b *Backend) GetStorageSummary() (storage.Summary, error) {
+	summary := storage.Summary{}
+	summary.NumberOfMatches = uint64(len(b.matches))
+	summary.NumberOfChampions = uint64(len(b.championList.Champions))
+	summary.NumberOfSummoners = 0 // not implemented
+
+	return summary, nil
 }

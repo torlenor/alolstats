@@ -251,3 +251,7 @@ func (b *mockBackend) GetMatchesByGameVersionChampionIDMapQueue(gameVersion stri
 func (b *mockBackend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (riotclient.Matches, error) {
 	return riotclient.Matches{}, nil
 }
+
+func (b *mockBackend) GetStorageSummary() (Summary, error) {
+	return Summary{}, nil
+}
