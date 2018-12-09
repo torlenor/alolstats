@@ -35,6 +35,7 @@ var compTime string
 
 var configPath string
 var loggingLevel string
+var logFile string
 
 var interrupt chan os.Signal
 
@@ -43,6 +44,7 @@ var log *logrus.Entry
 func init() {
 	flag.StringVar(&configPath, "c", defaultConfigPath, "Path to toml config file")
 	flag.StringVar(&loggingLevel, "l", defaultLoggingLevel, "Logging level (panic, fatal, error, warn/warning, info or debug)")
+	flag.StringVar(&logFile, "L", "", "Log file to use")
 	flag.Parse()
 }
 
@@ -73,6 +75,11 @@ func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
 
 func main() {
 	logging.Init()
+
+	if len(logFile) > 0 {
+		logging.SetLogFile(logFile)
+	}
+
 	logging.SetLoggingLevel(loggingLevel)
 
 	log = logging.Get("main")

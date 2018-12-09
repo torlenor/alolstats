@@ -4,6 +4,7 @@ package logging
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -29,13 +30,28 @@ func Get(name string) *logrus.Entry {
 func SetLoggingLevel(loggingLevel string) error {
 	level, err := logrus.ParseLevel(loggingLevel)
 	if err != nil {
-		Get("logging").Warnln("Error setting log level to ", loggingLevel)
+		Get("logging").Warnln("Error setting log level to", loggingLevel)
 		return err
 	}
 
 	logrus.SetLevel(level)
-	Get("logging").Infoln("Setting log level to ", loggingLevel)
+	Get("logging").Infoln("Setting log level to", loggingLevel)
 	return nil
+}
+
+// SetLogFile enables logging to a log file in addition to stdout
+func SetLogFile(logFile string) error {
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		mw := io.MultiWriter(os.Stdout, file)
+		logrus.SetOutput(mw)
+		Get("logging").Infoln("Setting log file to", logFile)
+		return nil
+	} else {
+		Get("logging").Warnln("Failed to log to file, using stdout only")
+		logrus.SetOutput(os.Stdout)
+		return err
+	}
 }
 
 type myFormatter struct{}
