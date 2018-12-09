@@ -31,6 +31,7 @@ const (
  * Version should be set while build using ldflags (see Makefile)
  */
 var version string
+var compTime string
 
 var configPath string
 var loggingLevel string
@@ -76,7 +77,7 @@ func main() {
 
 	log = logging.Get("main")
 
-	log.Println("ALoLStats (" + version + ") is STARTING")
+	log.Println("ALoLStats " + version + " (" + compTime + ") is STARTING")
 
 	interrupt = make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)

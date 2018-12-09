@@ -11,7 +11,8 @@
 
 NAME := alolstats
 VERSION := $(shell cat VERSION)
-LDFLAGS := -X main.version=${VERSION}
+COMPTIME := $(shell date -Is)
+LDFLAGS := -X main.version=${VERSION} -X main.compTime=${COMPTIME}
 SRCPATH := .
 DOCKERBASETAG := hpsch/alolstats
 CURRENTGITCOMMIT := $(shell git log -1 --format=%h)
