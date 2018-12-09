@@ -2,3 +2,4 @@ alolstats
 bin/
 dist/
 coverage.out
+*.log
