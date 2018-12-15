@@ -20,6 +20,14 @@ type mockClient struct {
 	wasSummonerRetrieved bool
 }
 
+func (c *mockClient) Start() {
+	// nothing
+}
+
+func (c *mockClient) Stop() {
+	// nothing
+}
+
 func (c *mockClient) setSummoner(summoner riotclient.Summoner) {
 	c.summoner = summoner
 }
