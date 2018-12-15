@@ -14,6 +14,7 @@ import (
 	"github.com/torlenor/alolstats/logging"
 	"github.com/torlenor/alolstats/memorybackend"
 	"github.com/torlenor/alolstats/mongobackend"
+	"github.com/torlenor/alolstats/riotclient"
 	"github.com/torlenor/alolstats/riotclientv3"
 	"github.com/torlenor/alolstats/statsrunner"
 	"github.com/torlenor/alolstats/storage"
@@ -73,6 +74,26 @@ func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
 	}
 }
 
+func riotClientCreator(cfg config.RiotClient) (riotclient.Client, error) {
+	version := strings.ToLower(cfg.APIVersion)
+
+	switch version {
+	case "v3":
+		riotClient, err := riotclientv3.NewClient(&http.Client{}, cfg)
+		if err != nil {
+			log.Errorln("Error creating RiotClient APIVersion V3:" + err.Error())
+			return nil, err
+		}
+		return riotClient, nil
+	case "v4":
+		err := fmt.Errorf("NOT IMPLEMENTED, YET")
+		log.Errorln("Error creating RiotClient APIVersion V4:" + err.Error())
+		return nil, err
+	default:
+		return nil, fmt.Errorf("Unknown RiotClient APIVersion specified in config: %s", cfg.APIVersion)
+	}
+}
+
 func main() {
 	logging.Init()
 
@@ -99,7 +120,7 @@ func main() {
 		log.Fatalln("Error creating the API:" + err.Error())
 	}
 
-	client, err := riotclientv3.NewClient(&http.Client{}, cfg.RiotClient)
+	client, err := riotClientCreator(cfg.RiotClient)
 	if err != nil {
 		log.Fatalln("Error creating the Riot Client:" + err.Error())
 	}

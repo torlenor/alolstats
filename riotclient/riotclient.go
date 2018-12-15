@@ -3,6 +3,9 @@ package riotclient
 
 // Client defines the interface for a Riot API client
 type Client interface {
+	Start()
+	Stop()
+
 	SummonerByName(name string) (s *Summoner, err error)
 	SummonerByAccountID(id uint64) (s *Summoner, err error)
 	SummonerBySummonerID(id uint64) (s *Summoner, err error)
