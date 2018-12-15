@@ -1,4 +1,4 @@
-package riotclient
+package riotclientv3
 
 import (
 	"encoding/json"
@@ -29,7 +29,7 @@ type currentVersions struct {
 	Store          interface{} `json:"store"`
 }
 
-func (c *RiotClient) downloadFile(url string) ([]byte, error) {
+func (c *RiotClientV3) downloadFile(url string) ([]byte, error) {
 	response, err := c.httpClient.Get(url)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (c *RiotClient) downloadFile(url string) ([]byte, error) {
 	return ioutil.ReadAll(response.Body)
 }
 
-func (c *RiotClient) getRegion() string {
+func (c *RiotClientV3) getRegion() string {
 	region := strings.ToLower(c.config.Region)
 
 	if len(region) > 0 {
@@ -50,7 +50,7 @@ func (c *RiotClient) getRegion() string {
 	return "euw"
 }
 
-func (c *RiotClient) getVersions() (*currentVersions, error) {
+func (c *RiotClientV3) getVersions() (*currentVersions, error) {
 
 	versionURL := "https://ddragon.leagueoflegends.com/realms/" + c.getRegion() + ".json"
 
@@ -68,7 +68,7 @@ func (c *RiotClient) getVersions() (*currentVersions, error) {
 	return &versions, nil
 }
 
-func (c *RiotClient) getDataDragonChampions() ([]byte, error) {
+func (c *RiotClientV3) getDataDragonChampions() ([]byte, error) {
 	versions, err := c.getVersions()
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package riotclient
+package riotclientv3
 
 import (
 	"net/http"
@@ -20,7 +20,7 @@ type workOrder struct {
 // A buffered channel that we can send work requests on.
 var workQueue = make(chan workOrder)
 
-func (c *RiotClient) worker() {
+func (c *RiotClientV3) worker() {
 	c.log.Debugln("Worker: Starting")
 
 	c.workersWG.Add(1)

@@ -1,8 +1,6 @@
 package riotclient
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -68,39 +66,4 @@ type Champion struct {
 // ChampionList stores a list of Champion data
 type ChampionList struct {
 	Champions map[string]Champion `json:"champions"`
-}
-
-// Used for parsing the data coming from data dragon
-type championData struct {
-	Type    string              `json:"type"`
-	Format  string              `json:"format"`
-	Version string              `json:"version"`
-	Data    map[string]Champion `json:"data"`
-}
-
-// Champions gets all champions
-func (c *RiotClient) Champions() (s *ChampionList, err error) {
-	championsData, err := c.getDataDragonChampions()
-	if err != nil {
-		return nil, fmt.Errorf("Error getting champions from Data Dragon: %s", err)
-	}
-
-	championsDat := championData{}
-	err = json.Unmarshal(championsData, &championsDat)
-	if err != nil {
-		return nil, err
-	}
-
-	champions := ChampionList{
-		Champions: championsDat.Data,
-	}
-
-	now := time.Now()
-
-	for id, champion := range champions.Champions {
-		champion.Timestamp = now
-		champions.Champions[id] = champion
-	}
-
-	return &champions, nil
 }

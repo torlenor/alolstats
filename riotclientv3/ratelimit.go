@@ -1,4 +1,4 @@
-package riotclient
+package riotclientv3
 
 import (
 	"strconv"
@@ -25,7 +25,7 @@ type rateLimit struct {
 // Retry-After: 3 // seconds
 
 // updateRateLimits update the allowed rate limits
-func (c *RiotClient) updateAppRateLimits(limits string) {
+func (c *RiotClientV3) updateAppRateLimits(limits string) {
 	// c.log.Debugln("RateLimit: Updating App Rate Limits:", limits)
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
@@ -53,7 +53,7 @@ func (c *RiotClient) updateAppRateLimits(limits string) {
 }
 
 // updateRateLimitsCount update the current rate limit counts
-func (c *RiotClient) updateAppRateLimitsCount(counts string) {
+func (c *RiotClientV3) updateAppRateLimitsCount(counts string) {
 	// c.log.Debugln("RateLimit: Updating App Rate Limits Count", counts)
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
@@ -81,7 +81,7 @@ func (c *RiotClient) updateAppRateLimitsCount(counts string) {
 }
 
 // updateRateLimitRetryAt sets the retryAt time based on current time + seconds specified
-func (c *RiotClient) updateRateLimitRetryAt(seconds uint32) {
+func (c *RiotClientV3) updateRateLimitRetryAt(seconds uint32) {
 	// c.log.Debugln("RateLimit: Updating App Rate Limits Retry At")
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
@@ -89,14 +89,14 @@ func (c *RiotClient) updateRateLimitRetryAt(seconds uint32) {
 	c.rateLimit.retryAt = time.Now().Add(time.Second * time.Duration(seconds))
 }
 
-func (c *RiotClient) getRateLimitRetryAt() time.Time {
+func (c *RiotClientV3) getRateLimitRetryAt() time.Time {
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
 	return c.rateLimit.retryAt
 }
 
-func (c *RiotClient) getAdditionalWaitTime() time.Duration {
+func (c *RiotClientV3) getAdditionalWaitTime() time.Duration {
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 

@@ -14,7 +14,7 @@ import (
 	"github.com/torlenor/alolstats/logging"
 	"github.com/torlenor/alolstats/memorybackend"
 	"github.com/torlenor/alolstats/mongobackend"
-	"github.com/torlenor/alolstats/riotclient"
+	"github.com/torlenor/alolstats/riotclientv3"
 	"github.com/torlenor/alolstats/statsrunner"
 	"github.com/torlenor/alolstats/storage"
 
@@ -99,7 +99,7 @@ func main() {
 		log.Fatalln("Error creating the API:" + err.Error())
 	}
 
-	client, err := riotclient.NewClient(&http.Client{}, cfg.RiotClient)
+	client, err := riotclientv3.NewClient(&http.Client{}, cfg.RiotClient)
 	if err != nil {
 		log.Fatalln("Error creating the Riot Client:" + err.Error())
 	}

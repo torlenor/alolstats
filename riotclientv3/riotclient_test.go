@@ -1,4 +1,4 @@
-package riotclient
+package riotclientv3
 
 import (
 	"net/http"
