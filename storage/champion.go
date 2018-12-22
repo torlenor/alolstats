@@ -65,3 +65,36 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 }
+
+func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) {
+	s.log.Println("Received Rest API Champions request from", r.RemoteAddr)
+
+	if val, ok := r.URL.Query()["key"]; ok {
+		if len(val[0]) == 0 {
+			s.log.Warnf("key parameter was empty in request")
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		champions := s.GetChampions()
+
+		champion := riotclient.Champion{}
+
+		for _, champion = range champions.Champions {
+			if val[0] == champion.Key {
+				break
+			}
+		}
+
+		out, err := json.Marshal(champion)
+		if err != nil {
+			s.log.Errorln(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		io.WriteString(w, string(out))
+	}
+
+	atomic.AddUint64(&s.stats.handledRequests, 1)
+}

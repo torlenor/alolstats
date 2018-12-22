@@ -52,6 +52,9 @@ func NewStorage(cfg config.LoLStorage, riotClient riotclient.Client, backend Bac
 // RegisterAPI registers all endpoints from storage to the RestAPI
 func (s *Storage) RegisterAPI(api *api.API) {
 	api.AttachModuleGet("/champions", s.championsEndpoint)
+
+	api.AttachModuleGet("/champion/bykey", s.championByKeyEndpoint)
+
 	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
 	api.AttachModuleGet("/match", s.getMatchEndpoint)
 	api.AttachModuleGet("/matches/stored/bygameversion", s.storedMatchesByGameVersionEndpoint)
