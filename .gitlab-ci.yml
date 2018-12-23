@@ -1,5 +1,3 @@
-image: golang:1.11
-
 cache:
   paths:
     - /apt-cache
@@ -8,26 +6,103 @@ cache:
     - /go/src/google.golang.org
     - /go/src/gopkg.in
 
+variables:
+  CONTAINER_IMAGE: git.abyle.org:5000/$CI_PROJECT_PATH
+
 services:
   - mongo:latest
 
 stages:
   - build
   - test
+  - build_static
+  - build_image
+  - release
+  - deploy
 
 before_script:
-  - mkdir -p /go/src/github.com/torlenor /go/src/_/builds
-  - cp -r $CI_PROJECT_DIR /go/src/github.com/torlenor/alolstats
-  - ln -s /go/src/github.com/torlenor /go/src/_/builds/torlenor
+  - mkdir -p /go/src/github.com/torlenor
+  - ln -s $CI_PROJECT_DIR /go/src/github.com/torlenor/alolstats
   - cd /go/src/github.com/torlenor/alolstats
 
 build:
+  image: golang:1.11
   stage: build
   script:
     - make
 
 unit_tests:
+  image: golang:1.11
   stage: test
   script:
     - make test
     - go tool cover -func coverage.out
+
+build_static:
+  image: golang:1.11
+  stage: build_static
+  artifacts:
+    paths:
+    - ./bin/
+  script:
+    - make build-static
+
+create_docker_image:
+  stage: build_image
+  dependencies: 
+    - build_static
+  tags:
+    - docker-from-docker
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.abyle.org:5000
+    - docker pull $CONTAINER_IMAGE:latest || true
+    - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CONTAINER_IMAGE:$CI_COMMIT_SHA
+
+deploy_testing:
+  stage: deploy
+  dependencies:
+    - create_docker_image
+  tags:
+    - docker-from-docker
+  script:
+    # We need to login somewhere...
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.abyle.org:5000
+    - docker pull $CONTAINER_IMAGE:$CI_COMMIT_SHA
+    - echo deploying to test server... $CONTAINER_IMAGE:$CI_COMMIT_SHA
+    - echo FAKE FAKE FAKE ... done
+
+release:
+  stage: release
+  dependencies:
+    - create_docker_image
+  tags:
+    - docker-from-docker
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.abyle.org:5000
+    - docker pull $CONTAINER_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CONTAINER_IMAGE:$CI_COMMIT_SHA $CONTAINER_IMAGE:$CI_COMMIT_TAG
+    - docker tag $CONTAINER_IMAGE:$CI_COMMIT_SHA $CONTAINER_IMAGE:latest
+    - docker push $CONTAINER_IMAGE:$CI_COMMIT_TAG
+    - docker push $CONTAINER_IMAGE:latest
+  only:
+    - tags
+  except:
+    - branches
+
+deploy_production:
+  stage: deploy
+  dependencies:
+    - release
+  tags:
+    - docker-from-docker
+  script:
+    # We need to login somewhere...
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.abyle.org:5000
+    - docker pull $CONTAINER_IMAGE:$CI_COMMIT_TAG
+    - echo deploying to production server... $CONTAINER_IMAGE:$CI_COMMIT_TAG
+    - echo FAKE FAKE FAKE ... done
+  only:
+    - tags
+  except:
+    - branches
