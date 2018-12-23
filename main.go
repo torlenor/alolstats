@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,6 +19,9 @@ import (
 	"github.com/torlenor/alolstats/riotclientv3"
 	"github.com/torlenor/alolstats/statsrunner"
 	"github.com/torlenor/alolstats/storage"
+
+	"github.com/torlenor/alolstats/riotclient/datadragon"
+	"github.com/torlenor/alolstats/riotclient/ratelimit"
 
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
@@ -47,6 +51,13 @@ func init() {
 	flag.StringVar(&loggingLevel, "l", defaultLoggingLevel, "Logging level (panic, fatal, error, warn/warning, info or debug)")
 	flag.StringVar(&logFile, "L", "", "Log file to use")
 	flag.Parse()
+}
+
+func statusEndpoint(w http.ResponseWriter, r *http.Request) {
+
+	status := fmt.Sprintf(`{"status":"OK", "version":"%f", "compiled_at":"%s"}`, version, compTime)
+
+	io.WriteString(w, string(status))
 }
 
 func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
@@ -79,11 +90,24 @@ func riotClientCreator(cfg config.RiotClient) (riotclient.Client, error) {
 
 	switch version {
 	case "v3":
-		riotClient, err := riotclientv3.NewClient(&http.Client{}, cfg)
+		httpClient := &http.Client{}
+		ddragon, err := riotclientdd.New(httpClient, cfg)
+		if err != nil {
+			log.Errorln("Error creating Riot Client Data Dragon:" + err.Error())
+			return nil, err
+		}
+		rateLimit, err := riotclientrl.New()
+		if err != nil {
+			log.Errorln("Error creating Riot Client Rate Limit Checker:" + err.Error())
+			return nil, err
+		}
+
+		riotClient, err := riotclientv3.NewClient(httpClient, cfg, ddragon, rateLimit)
 		if err != nil {
 			log.Errorln("Error creating RiotClient APIVersion V3:" + err.Error())
 			return nil, err
 		}
+
 		return riotClient, nil
 	case "v4":
 		err := fmt.Errorf("NOT IMPLEMENTED, YET")
@@ -119,6 +143,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error creating the API:" + err.Error())
 	}
+	api.AttachModuleGet("/status", statusEndpoint)
 
 	client, err := riotClientCreator(cfg.RiotClient)
 	if err != nil {

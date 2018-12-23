@@ -13,7 +13,7 @@ import (
 func (s *Storage) getFreeRotation() riotclient.FreeRotation {
 	duration := time.Since(s.backend.GetFreeRotationTimeStamp())
 	if duration.Minutes() > float64(s.config.MaxAgeChampionRotation) {
-		freeRotation, err := s.riotClient.FreeRotation()
+		freeRotation, err := s.riotClient.ChampionRotations()
 		if err != nil {
 			s.log.Warnln(err)
 			freeRotation, err := s.backend.GetFreeRotation()

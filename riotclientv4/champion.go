@@ -1,4 +1,4 @@
-package riotclientv3
+package riotclientv4
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 )
 
 // ChampionRotations returns the current free champions rotation from Riot API
-func (c *RiotClientV3) ChampionRotations() (*riotclient.FreeRotation, error) {
+func (c *RiotClientV4) ChampionRotations() (*riotclient.FreeRotation, error) {
 	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/platform/"+c.config.APIVersion+"/champion-rotations", "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)

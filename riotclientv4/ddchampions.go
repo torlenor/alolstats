@@ -1,4 +1,4 @@
-package riotclientv3
+package riotclientv4
 
 import (
 	"encoding/json"
@@ -16,8 +16,8 @@ type championData struct {
 	Data    map[string]riotclient.Champion `json:"data"`
 }
 
-// Champions gets all champions
-func (c *RiotClientV3) Champions() (s *riotclient.ChampionList, err error) {
+// Champions gets all champions from Data Dragon
+func (c *RiotClientV4) Champions() (s *riotclient.ChampionList, err error) {
 	championsData, err := c.ddragon.GetDataDragonChampions()
 	if err != nil {
 		return nil, fmt.Errorf("Error getting champions from Data Dragon: %s", err)

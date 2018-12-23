@@ -134,7 +134,7 @@ func (c *mockClient) getFreeRotationRetrieved() bool {
 	return c.freeRotationRetrieved
 }
 
-func (c *mockClient) FreeRotation() (*riotclient.FreeRotation, error) {
+func (c *mockClient) ChampionRotations() (*riotclient.FreeRotation, error) {
 	c.freeRotationRetrieved = true
 
 	if c.failFreeRotation {

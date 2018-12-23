@@ -18,9 +18,9 @@ type workOrder struct {
 }
 
 // A buffered channel that we can send work requests on.
-var workQueue = make(chan workOrder)
+type workQueue = chan workOrder
 
-func (c *RiotClientV3) worker() {
+func (c *RiotClientV3) worker(workQueue workQueue) {
 	c.log.Debugln("Worker: Starting")
 
 	c.workersWG.Add(1)
@@ -37,14 +37,9 @@ func (c *RiotClientV3) worker() {
 				tryAgain = false
 				tries++
 
-				sleepFor := time.Until(c.getRateLimitRetryAt())
+				sleepFor := time.Until(c.rateLimit.GetRateLimitRetryAt("")) // TODO add method
 				if sleepFor > 0 {
 					c.log.Debugln("Worker: Sleeping for", sleepFor.String(), "to adhere to rate limit")
-					time.Sleep(sleepFor)
-				}
-				sleepFor = c.getAdditionalWaitTime()
-				if sleepFor > 0 {
-					c.log.Debugln("Worker: Sleeping for", sleepFor.String(), "to avoid rate limit")
 					time.Sleep(sleepFor)
 				}
 
@@ -52,7 +47,7 @@ func (c *RiotClientV3) worker() {
 				if err != nil {
 					continue
 				}
-				err = c.checkRateLimited(response)
+				err = c.checkRateLimited(response, "") // TODO add method
 				if err != nil {
 					tryAgain = true
 					c.log.Debugln("Worker: Repeating request")

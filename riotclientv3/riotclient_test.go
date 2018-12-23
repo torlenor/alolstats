@@ -8,7 +8,7 @@ import (
 )
 
 func TestRiotClient(t *testing.T) {
-	client, err := NewClient(&http.Client{}, config.RiotClient{})
+	client, err := NewClient(httpClient, config.RiotClient{}, ddragon, rateLimit)
 	if err == nil || client != nil {
 		t.Fatalf("Could get a new client even though APIVersion is missing from config")
 	}

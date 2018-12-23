@@ -1,5 +1,5 @@
-// Package riotclientv3 provides the Riot API client for API version v3
-package riotclientv3
+// Package riotclientv4 provides the Riot API client for API version v4
+package riotclientv4
 
 import (
 	"fmt"
@@ -18,8 +18,8 @@ import (
 	"github.com/torlenor/alolstats/riotclient/ratelimit"
 )
 
-// RiotClientV3 Riot LoL API client
-type RiotClientV3 struct {
+// RiotClientV4 Riot LoL API client
+type RiotClientV4 struct {
 	config         config.RiotClient
 	httpClient     *http.Client
 	log            *logrus.Entry
@@ -49,16 +49,16 @@ func checkConfig(cfg config.RiotClient) error {
 // NewClient creates a new Riot LoL API client
 func NewClient(httpClient *http.Client, cfg config.RiotClient,
 	ddragon *riotclientdd.RiotClientDD,
-	rateLimit *riotclientrl.RiotClientRL) (*RiotClientV3, error) {
+	rateLimit *riotclientrl.RiotClientRL) (*RiotClientV4, error) {
 	err := checkConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	c := &RiotClientV3{
+	c := &RiotClientV4{
 		config:      cfg,
 		httpClient:  httpClient,
-		log:         logging.Get("RiotClientV3"),
+		log:         logging.Get("RiotClientV4"),
 		isStarted:   false,
 		workersWG:   sync.WaitGroup{},
 		stopWorkers: make(chan struct{}),
@@ -74,7 +74,7 @@ func NewClient(httpClient *http.Client, cfg config.RiotClient,
 }
 
 // Start starts the riot client and its workers
-func (c *RiotClientV3) Start() {
+func (c *RiotClientV4) Start() {
 	if !c.isStarted {
 		c.log.Println("Starting Riot Client")
 		c.stopWorkers = make(chan struct{})
@@ -87,7 +87,7 @@ func (c *RiotClientV3) Start() {
 }
 
 // Stop stops the riot client and its workers
-func (c *RiotClientV3) Stop() {
+func (c *RiotClientV4) Stop() {
 	if c.isStarted {
 		c.log.Println("Stopping Riot Client")
 		close(c.stopWorkers)
@@ -99,11 +99,11 @@ func (c *RiotClientV3) Stop() {
 }
 
 // IsRunning returns if the Riot Client is currently started
-func (c *RiotClientV3) IsRunning() bool {
+func (c *RiotClientV4) IsRunning() bool {
 	return c.isStarted
 }
 
-func (c *RiotClientV3) checkResponseCodeOK(response *http.Response) error {
+func (c *RiotClientV4) checkResponseCodeOK(response *http.Response) error {
 	// Rate limit 429 is handeled in separate check function
 	switch response.StatusCode {
 	case 200:
@@ -127,7 +127,7 @@ func (c *RiotClientV3) checkResponseCodeOK(response *http.Response) error {
 	}
 }
 
-func (c *RiotClientV3) checkRateLimited(response *http.Response, method string) error {
+func (c *RiotClientV4) checkRateLimited(response *http.Response, method string) error {
 	c.rateLimit.UpdateRateLimits(response.Header, method)
 
 	if response.StatusCode == 429 {
@@ -142,7 +142,7 @@ func (c *RiotClientV3) checkRateLimited(response *http.Response, method string) 
 	return nil
 }
 
-func (c *RiotClientV3) apiCall(path string, method string, body string) (r []byte, e error) {
+func (c *RiotClientV4) apiCall(path string, method string, body string) (r []byte, e error) {
 	if !c.isStarted {
 		return nil, fmt.Errorf("Riot Client not started. Start by calling the Start() function")
 	}
