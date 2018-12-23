@@ -55,7 +55,7 @@ func init() {
 
 func statusEndpoint(w http.ResponseWriter, r *http.Request) {
 
-	status := fmt.Sprintf(`{"status":"OK", "version":"%f", "compiled_at":"%s"}`, version, compTime)
+	status := fmt.Sprintf(`{"status":"OK", "version":"%s", "compiled_at":"%s"}`, version, compTime)
 
 	io.WriteString(w, string(status))
 }
