@@ -112,13 +112,18 @@ dist:
 	done
 
 build-container-latest: build-static
-	@echo Building docker container ${DOCKERBASETAG}:latest
+	@echo Building docker image ${DOCKERBASETAG}:latest
 	docker build -t ${DOCKERBASETAG}:latest .
 
 build-container-tagged: build-static
-	@echo Building docker container ${DOCKERBASETAG}:${VERSION}
+	@echo Building docker image ${DOCKERBASETAG}:${VERSION}
 	docker build -t ${DOCKERBASETAG}:${VERSION} .
 
 build-container-gitcommit: build-static
-	@echo Building docker container ${DOCKERBASETAG}:${VERSION}
+	@echo Building docker image ${DOCKERBASETAG}:${CURRENTGITCOMMIT}${CURRENTGITUNTRACKED}
 	docker build -t ${DOCKERBASETAG}:${CURRENTGITCOMMIT}${CURRENTGITUNTRACKED} .
+
+release-container: build-container-tagged
+	@echo Pushing docker image ${DOCKERBASETAG}:${VERSION}
+	docker push ${DOCKERBASETAG}:${VERSION}
+
