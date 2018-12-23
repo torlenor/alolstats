@@ -5,11 +5,9 @@ package riotclientrl
 import (
 	"net/http"
 	"reflect"
-	"sync"
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/torlenor/alolstats/logging"
 )
 
@@ -104,6 +102,72 @@ func TestRiotClientRL_UpdateRateLimits(t *testing.T) {
 				},
 			},
 		},
+		{name: "Test 2 - Update MethodRateLimit",
+			fields: fields{
+				appRateLimit: newLimit(),
+				methodRateLimits: map[string]limit{
+					"champions": {
+						rateLimits: map[uint32]uint32{
+							1:    100,
+							10:   1000,
+							600:  60000,
+							3600: 360000,
+						},
+						rateLimitsCount: map[uint32]uint32{
+							1:    1,
+							10:   2,
+							600:  2,
+							3600: 2,
+						},
+					},
+				},
+				retryAfter: time.Time{},
+			},
+			args: args{
+				header: http.Header{
+					"X-Method-Rate-Limit":       []string{"100:1,1000:10,60000:600,360000:3600"},
+					"X-Method-Rate-Limit-Count": []string{"1:1,2:10,2:600,2:3600"},
+				},
+				method: "champions",
+			},
+		},
+		{name: "Test 3 - Update RetryAfter",
+			fields: fields{
+				appRateLimit:     newLimit(),
+				methodRateLimits: make(map[string]limit),
+				retryAfter:       now().Add(time.Second * time.Duration(7)),
+			},
+			args: args{
+				header: http.Header{
+					"Retry-After": []string{"7"},
+				},
+			},
+		},
+		{name: "Test 4 - Update RetryAfter - Header corrupt",
+			fields: fields{
+				appRateLimit:     newLimit(),
+				methodRateLimits: make(map[string]limit),
+				retryAfter:       now().Add(time.Second * time.Duration(10)),
+			},
+			args: args{
+				header: http.Header{
+					"Retry-After": []string{"sdsdsdsd"},
+				},
+			},
+		},
+		{name: "Test 5 - Update AppRateLimit - Header corrupt",
+			fields: fields{
+				appRateLimit:     newLimit(),
+				methodRateLimits: make(map[string]limit),
+				retryAfter:       time.Time{},
+			},
+			args: args{
+				header: http.Header{
+					"X-App-Rate-Limit":       []string{"134:df"},
+					"X-App-Rate-Limit-Count": []string{"1:fff"},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -122,175 +186,11 @@ func TestRiotClientRL_UpdateRateLimits(t *testing.T) {
 	}
 }
 
-func TestRiotClientRL_updateAppRateLimits(t *testing.T) {
-	type fields struct {
-		log              *logrus.Entry
-		appRateLimit     limit
-		methodRateLimits map[string]limit
-		retryAfter       time.Time
-		rateLimitMutex   sync.Mutex
-	}
-	type args struct {
-		limits string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &RiotClientRL{
-				log:              tt.fields.log,
-				appRateLimit:     tt.fields.appRateLimit,
-				methodRateLimits: tt.fields.methodRateLimits,
-				retryAfter:       tt.fields.retryAfter,
-				rateLimitMutex:   tt.fields.rateLimitMutex,
-			}
-			c.updateAppRateLimits(tt.args.limits)
-		})
-	}
-}
-
-func TestRiotClientRL_updateAppRateLimitsCount(t *testing.T) {
-	type fields struct {
-		log              *logrus.Entry
-		appRateLimit     limit
-		methodRateLimits map[string]limit
-		retryAfter       time.Time
-		rateLimitMutex   sync.Mutex
-	}
-	type args struct {
-		counts string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &RiotClientRL{
-				log:              tt.fields.log,
-				appRateLimit:     tt.fields.appRateLimit,
-				methodRateLimits: tt.fields.methodRateLimits,
-				retryAfter:       tt.fields.retryAfter,
-				rateLimitMutex:   tt.fields.rateLimitMutex,
-			}
-			c.updateAppRateLimitsCount(tt.args.counts)
-		})
-	}
-}
-
-func TestRiotClientRL_updateMethodRateLimits(t *testing.T) {
-	type fields struct {
-		log              *logrus.Entry
-		appRateLimit     limit
-		methodRateLimits map[string]limit
-		retryAfter       time.Time
-		rateLimitMutex   sync.Mutex
-	}
-	type args struct {
-		limits string
-		method string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &RiotClientRL{
-				log:              tt.fields.log,
-				appRateLimit:     tt.fields.appRateLimit,
-				methodRateLimits: tt.fields.methodRateLimits,
-				retryAfter:       tt.fields.retryAfter,
-				rateLimitMutex:   tt.fields.rateLimitMutex,
-			}
-			c.updateMethodRateLimits(tt.args.limits, tt.args.method)
-		})
-	}
-}
-
-func TestRiotClientRL_updateMethodRateLimitsCount(t *testing.T) {
-	type fields struct {
-		log              *logrus.Entry
-		appRateLimit     limit
-		methodRateLimits map[string]limit
-		retryAfter       time.Time
-		rateLimitMutex   sync.Mutex
-	}
-	type args struct {
-		counts string
-		method string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &RiotClientRL{
-				log:              tt.fields.log,
-				appRateLimit:     tt.fields.appRateLimit,
-				methodRateLimits: tt.fields.methodRateLimits,
-				retryAfter:       tt.fields.retryAfter,
-				rateLimitMutex:   tt.fields.rateLimitMutex,
-			}
-			c.updateMethodRateLimitsCount(tt.args.counts, tt.args.method)
-		})
-	}
-}
-
-func TestRiotClientRL_updateRateLimitRetryAt(t *testing.T) {
-	type fields struct {
-		log              *logrus.Entry
-		appRateLimit     limit
-		methodRateLimits map[string]limit
-		retryAfter       time.Time
-		rateLimitMutex   sync.Mutex
-	}
-	type args struct {
-		seconds uint32
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &RiotClientRL{
-				log:              tt.fields.log,
-				appRateLimit:     tt.fields.appRateLimit,
-				methodRateLimits: tt.fields.methodRateLimits,
-				retryAfter:       tt.fields.retryAfter,
-				rateLimitMutex:   tt.fields.rateLimitMutex,
-			}
-			c.updateRateLimitRetryAt(tt.args.seconds)
-		})
-	}
-}
-
 func TestRiotClientRL_GetRateLimitRetryAt(t *testing.T) {
 	type fields struct {
-		log              *logrus.Entry
 		appRateLimit     limit
 		methodRateLimits map[string]limit
 		retryAfter       time.Time
-		rateLimitMutex   sync.Mutex
 	}
 	type args struct {
 		method string
@@ -301,50 +201,126 @@ func TestRiotClientRL_GetRateLimitRetryAt(t *testing.T) {
 		args   args
 		want   time.Time
 	}{
-		// TODO: Add test cases.
+		{name: "Test 1 - Plain RetryAfter",
+			fields: fields{
+				appRateLimit:     newLimit(),
+				methodRateLimits: make(map[string]limit),
+				retryAfter:       now().Add(time.Second * time.Duration(43)),
+			},
+			args: args{
+				method: "summoners",
+			},
+			want: now().Add(time.Second * time.Duration(43)),
+		},
+		{name: "Test 2 - Close to getting rate limited due to AppRateLimit",
+			fields: fields{
+				appRateLimit: limit{
+					rateLimits: map[uint32]uint32{
+						1:    100,
+						10:   1000,
+						600:  60000,
+						3600: 360000,
+					},
+					rateLimitsCount: map[uint32]uint32{
+						1:    1,
+						10:   2,
+						600:  60000 - 5,
+						3600: 2,
+					},
+				},
+				methodRateLimits: make(map[string]limit),
+				retryAfter:       now().Add(time.Second * time.Duration(0)),
+			},
+			args: args{
+				method: "summoners",
+			},
+			want: now().Add(time.Second * time.Duration(600/5)),
+		},
+		{name: "Test 3 - Close to getting rate limited due to AppRateLimit - still close",
+			fields: fields{
+				appRateLimit: limit{
+					rateLimits: map[uint32]uint32{
+						1:    100,
+						10:   1000,
+						600:  60000,
+						3600: 360000,
+					},
+					rateLimitsCount: map[uint32]uint32{
+						1:    1,
+						10:   2,
+						600:  60000 - 1,
+						3600: 2,
+					},
+				},
+				methodRateLimits: make(map[string]limit),
+				retryAfter:       now().Add(time.Second * time.Duration(0)),
+			},
+			args: args{
+				method: "summoners",
+			},
+			want: now().Add(time.Second * time.Duration(600/5)),
+		},
+		{name: "Test 4 - Close to getting rate limited due to MethodRateLimit",
+			fields: fields{
+				appRateLimit: newLimit(),
+				methodRateLimits: map[string]limit{
+					"champions": {
+						rateLimits: map[uint32]uint32{
+							1:    100,
+							10:   1000,
+							600:  60000,
+							3600: 360000,
+						},
+						rateLimitsCount: map[uint32]uint32{
+							1:    1,
+							10:   1000 - 2,
+							600:  2,
+							3600: 2,
+						},
+					},
+				},
+				retryAfter: now().Add(time.Second * time.Duration(13)),
+			},
+			args: args{
+				method: "champions",
+			},
+			want: now().Add(time.Second * time.Duration(13+10/5)),
+		},
+		{name: "Test 4 - Close to getting rate limited for a certain Method, but not the one we requested",
+			fields: fields{
+				appRateLimit: newLimit(),
+				methodRateLimits: map[string]limit{
+					"champions": {
+						rateLimits: map[uint32]uint32{
+							1:    100,
+							10:   1000,
+							600:  60000,
+							3600: 360000,
+						},
+						rateLimitsCount: map[uint32]uint32{
+							1:    1,
+							10:   1000 - 2,
+							600:  2,
+							3600: 2,
+						},
+					},
+				},
+				retryAfter: now().Add(time.Second * time.Duration(23)),
+			},
+			args: args{
+				method: "summoners",
+			},
+			want: now().Add(time.Second * time.Duration(23)),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &RiotClientRL{
-				log:              tt.fields.log,
-				appRateLimit:     tt.fields.appRateLimit,
-				methodRateLimits: tt.fields.methodRateLimits,
-				retryAfter:       tt.fields.retryAfter,
-				rateLimitMutex:   tt.fields.rateLimitMutex,
-			}
+			c, _ := New()
+			c.appRateLimit = tt.fields.appRateLimit
+			c.methodRateLimits = tt.fields.methodRateLimits
+			c.retryAfter = tt.fields.retryAfter
 			if got := c.GetRateLimitRetryAt(tt.args.method); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("RiotClientRL.GetRateLimitRetryAt() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestRiotClientRL_getAdditionalWaitTime(t *testing.T) {
-	type fields struct {
-		log              *logrus.Entry
-		appRateLimit     limit
-		methodRateLimits map[string]limit
-		retryAfter       time.Time
-		rateLimitMutex   sync.Mutex
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   time.Duration
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			c := &RiotClientRL{
-				log:              tt.fields.log,
-				appRateLimit:     tt.fields.appRateLimit,
-				methodRateLimits: tt.fields.methodRateLimits,
-				retryAfter:       tt.fields.retryAfter,
-				rateLimitMutex:   tt.fields.rateLimitMutex,
-			}
-			if got := c.getAdditionalWaitTime(); got != tt.want {
-				t.Errorf("RiotClientRL.getAdditionalWaitTime() = %v, want %v", got, tt.want)
 			}
 		})
 	}

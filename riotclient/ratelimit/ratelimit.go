@@ -98,8 +98,9 @@ func (c *RiotClientRL) UpdateRateLimits(header http.Header, method string) {
 			if err != nil {
 				c.log.Warnf("Could not convert value %s to rate limit retry at seconds", val[0])
 				c.updateRateLimitRetryAt(10)
+			} else {
+				c.updateRateLimitRetryAt(uint32(seconds))
 			}
-			c.updateRateLimitRetryAt(uint32(seconds))
 		}
 	}
 }
@@ -132,7 +133,6 @@ func (c *RiotClientRL) updateAppRateLimits(limits string) {
 
 // updateRateLimitsCount update the current rate limit counts
 func (c *RiotClientRL) updateAppRateLimitsCount(counts string) {
-	// c.log.Debugln("RateLimit: Updating App Rate Limits Count", counts)
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
@@ -159,16 +159,63 @@ func (c *RiotClientRL) updateAppRateLimitsCount(counts string) {
 }
 
 func (c *RiotClientRL) updateMethodRateLimits(limits string, method string) {
-	// todo
+	c.rateLimitMutex.Lock()
+	defer c.rateLimitMutex.Unlock()
+
+	if len(limits) > 0 {
+		values := strings.Split(limits, ",")
+		if _, ok := c.methodRateLimits[method]; !ok {
+			c.methodRateLimits[method] = newLimit()
+		}
+		for _, entry := range values {
+			rate := strings.Split(entry, ":")
+			if len(rate) == 2 {
+				period, err := strconv.ParseUint(rate[1], 10, 32)
+				if err != nil {
+					c.log.Warnf("Could not convert value %s to rate limit period", rate[1])
+					continue
+				}
+				calls, err := strconv.ParseUint(rate[0], 10, 32)
+				if err != nil {
+					c.log.Warnf("Could not convert value %s to rate limit count", rate[0])
+					continue
+				}
+				c.methodRateLimits[method].rateLimits[uint32(period)] = uint32(calls)
+			}
+		}
+	}
 }
 
 func (c *RiotClientRL) updateMethodRateLimitsCount(counts string, method string) {
+	c.rateLimitMutex.Lock()
+	defer c.rateLimitMutex.Unlock()
 
+	if len(counts) > 0 {
+		values := strings.Split(counts, ",")
+		if _, ok := c.methodRateLimits[method]; !ok {
+			c.methodRateLimits[method] = newLimit()
+		}
+		for _, entry := range values {
+			rate := strings.Split(entry, ":")
+			if len(rate) == 2 {
+				period, err := strconv.ParseUint(rate[1], 10, 32)
+				if err != nil {
+					c.log.Warnf("Could not convert value %s to rate limit period", rate[1])
+					continue
+				}
+				calls, err := strconv.ParseUint(rate[0], 10, 32)
+				if err != nil {
+					c.log.Warnf("Could not convert value %s to rate limit count", rate[0])
+					continue
+				}
+				c.methodRateLimits[method].rateLimitsCount[uint32(period)] = uint32(calls)
+			}
+		}
+	}
 }
 
 // updateRateLimitRetryAt sets the retryAt time based on current time + seconds specified
 func (c *RiotClientRL) updateRateLimitRetryAt(seconds uint32) {
-	// c.log.Debugln("RateLimit: Updating App Rate Limits Retry At")
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
@@ -181,18 +228,28 @@ func (c *RiotClientRL) GetRateLimitRetryAt(method string) time.Time {
 	c.rateLimitMutex.Lock()
 	defer c.rateLimitMutex.Unlock()
 
-	return c.retryAfter.Add(c.getAdditionalWaitTime())
+	return c.retryAfter.Add(c.getAdditionalWaitTime(method))
 }
 
-func (c *RiotClientRL) getAdditionalWaitTime() time.Duration {
+func (c *RiotClientRL) getAdditionalWaitTime(method string) time.Duration {
 	var addWaitTime time.Duration
 	addWaitTime = 0
 
 	for key, val := range c.appRateLimit.rateLimitsCount {
 		maxSlots := c.appRateLimit.rateLimits[key]
 		emptySlots := int32(maxSlots) - int32(val)
-		if emptySlots < 5 {
+		if emptySlots <= 5 {
 			addWaitTime += time.Second * time.Duration(key) / 5
+		}
+	}
+
+	if limit, ok := c.methodRateLimits[method]; ok {
+		for key, val := range limit.rateLimitsCount {
+			maxSlots := limit.rateLimits[key]
+			emptySlots := int32(maxSlots) - int32(val)
+			if emptySlots <= 5 {
+				addWaitTime += time.Second * time.Duration(key) / 5
+			}
 		}
 	}
 
