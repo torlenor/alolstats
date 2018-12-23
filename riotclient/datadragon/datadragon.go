@@ -12,18 +12,21 @@ import (
 	"github.com/torlenor/alolstats/logging"
 )
 
+// N holds the actual versions
+type N struct {
+	Item        string `json:"item"`
+	Rune        string `json:"rune"`
+	Mastery     string `json:"mastery"`
+	Summoner    string `json:"summoner"`
+	Champion    string `json:"champion"`
+	Profileicon string `json:"profileicon"`
+	Map         string `json:"map"`
+	Language    string `json:"language"`
+	Sticker     string `json:"sticker"`
+}
+
 type currentVersions struct {
-	N struct {
-		Item        string `json:"item"`
-		Rune        string `json:"rune"`
-		Mastery     string `json:"mastery"`
-		Summoner    string `json:"summoner"`
-		Champion    string `json:"champion"`
-		Profileicon string `json:"profileicon"`
-		Map         string `json:"map"`
-		Language    string `json:"language"`
-		Sticker     string `json:"sticker"`
-	} `json:"n"`
+	N              N           `json:"n"`
 	V              string      `json:"v"`
 	L              string      `json:"l"`
 	Cdn            string      `json:"cdn"`
@@ -37,31 +40,35 @@ type currentVersions struct {
 // RiotClientDD Riot LoL API DataDragon client
 type RiotClientDD struct {
 	config     config.RiotClient
-	httpClient *http.Client
+	httpClient httpClient
 	log        *logrus.Entry
 }
 
+type httpClient interface {
+	Get(url string) (resp *http.Response, err error)
+}
+
 func checkConfig(cfg config.RiotClient) error {
-	if len(cfg.Region) == 0 {
-		return fmt.Errorf("Region is empty, check config file")
+	if len(cfg.Region) < 2 {
+		return fmt.Errorf("Region does not comply to Riot region conventions, check config file")
 	}
 	return nil
 }
 
 // New creates a new Riot LoL API Data Dragon client
-func New(httpClient *http.Client, cfg config.RiotClient) (*RiotClientDD, error) {
+func New(httpClient httpClient, cfg config.RiotClient) (*RiotClientDD, error) {
 	err := checkConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
+
+	cfg.Region = strings.ToLower(cfg.Region)
 
 	c := &RiotClientDD{
 		config:     cfg,
 		httpClient: httpClient,
 		log:        logging.Get("RiotClientDD"),
 	}
-
-	cfg.Region = strings.ToLower(cfg.Region)
 
 	return c, nil
 }
@@ -79,12 +86,7 @@ func (c *RiotClientDD) downloadFile(url string) ([]byte, error) {
 func (c *RiotClientDD) getRegion() string {
 	region := strings.ToLower(c.config.Region)
 
-	if len(region) > 0 {
-		return string(region[:len(region)-1])
-	}
-
-	c.log.Errorf("Could not get region from config. Defaulting to euw")
-	return "euw"
+	return string(region[:len(region)-1])
 }
 
 func (c *RiotClientDD) getVersions() (*currentVersions, error) {
@@ -112,7 +114,7 @@ func (c *RiotClientDD) GetDataDragonChampions() ([]byte, error) {
 		return nil, err
 	}
 
-	championsURL := versions.Cdn + "/" + versions.N.Champion + "/data/en_US/champion.json"
+	championsURL := versions.Cdn + "/" + versions.N.Champion + "/data/" + versions.L + "/champion.json"
 
 	body, err := c.downloadFile(championsURL)
 	if err != nil {
