@@ -358,7 +358,7 @@ func TestRiotClientDD_GetDataDragonChampions(t *testing.T) {
 			wantRequestString2: "https://ddragon.leagueoflegends.com/cdn/" + "8.24.1" + "/data/" + "en_GB" + "/champion.json",
 		},
 		{
-			name: "Test 2 - Get an invalid response from versions",
+			name: "Test 3 - Get an invalid response from versions",
 			fields: fields{
 				config: config.RiotClient{
 					Region: "euw1",
