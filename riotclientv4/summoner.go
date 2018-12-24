@@ -67,3 +67,24 @@ func (c *RiotClientV4) SummonerBySummonerID(summonerID string) (s *riotclient.Su
 
 	return &summoner, nil
 }
+
+// SummonerByPUUID gets summoner data by its PUUID
+func (c *RiotClientV4) SummonerByPUUID(PUUID string) (s *riotclient.SummonerDTO, err error) {
+	// /lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}
+	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/by-puuid/"+PUUID, "GET", "")
+	if err != nil {
+		return nil, fmt.Errorf("Error in API call: %s", err)
+	}
+
+	summoner := riotclient.SummonerDTO{}
+	err = json.Unmarshal(data, &summoner)
+	if err != nil {
+		return nil, err
+	} else if summoner.ID == "" {
+		return nil, fmt.Errorf("User does not exist")
+	}
+
+	summoner.Timestamp = time.Now()
+
+	return &summoner, nil
+}

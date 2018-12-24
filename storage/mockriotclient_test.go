@@ -139,3 +139,22 @@ func (c *mockClient) ChampionRotations() (*riotclient.FreeRotation, error) {
 
 	return &c.freeRotation, nil
 }
+
+func (c *mockClient) ActiveGameBySummonerID(summonerID string) (*riotclient.CurrentGameInfoDTO, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+func (c *mockClient) FeaturedGames() (*riotclient.FeaturedGamesDTO, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (c *mockClient) LeaguesForSummoner(encSummonerID string) (*riotclient.LeaguePositionDTO, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (c *mockClient) MatchTimeLineByID(matchID uint64) (t *riotclient.MatchTimelineDTO, err error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (c *mockClient) SummonerByPUUID(PUUID string) (s *riotclient.SummonerDTO, err error) {
+	return nil, fmt.Errorf("Not implemented")
+}

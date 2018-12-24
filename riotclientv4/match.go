@@ -50,3 +50,21 @@ func (c *RiotClientV4) MatchesByAccountID(acountID string, startIndex uint32, en
 
 	return &matchList, nil
 }
+
+// MatchTimeLineByID gets the Match TimeLine for a certain match identified by its MatchID/GameID
+func (c *RiotClientV4) MatchTimeLineByID(matchID uint64) (t *riotclient.MatchTimelineDTO, err error) {
+	// /lol/match/v4/timelines/by-match/{matchId}
+	idStr := strconv.FormatUint(matchID, 10)
+	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/timelines/by-match/"+idStr, "GET", "")
+	if err != nil {
+		return nil, fmt.Errorf("Error in API call: %s", err)
+	}
+
+	matchTimeLine := riotclient.MatchTimelineDTO{}
+	err = json.Unmarshal(data, &matchTimeLine)
+	if err != nil {
+		return nil, fmt.Errorf("MatchTimeLineByID error unmarshaling: %s", err)
+	}
+
+	return &matchTimeLine, nil
+}

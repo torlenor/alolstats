@@ -51,3 +51,20 @@ type LeagueListDTO struct {
 	Entries   []LeagueItemDTO `json:"entries"`
 	Timestamp time.Time
 }
+
+// LeaguePositionDTO models the response of the Riot API for leagues for a certain summoner (one entry in result array)
+type LeaguePositionDTO struct {
+	QueueType    string `json:"queueType"`
+	SummonerName string `json:"summonerName"`
+	Wins         int    `json:"wins"`
+	Losses       int    `json:"losses"`
+	Rank         string `json:"rank"`
+	LeagueName   string `json:"leagueName"`
+	LeagueID     string `json:"leagueId"`
+	Tier         string `json:"tier"`
+	SummonerID   string `json:"summonerId"`
+	LeaguePoints int    `json:"leaguePoints"`
+}
+
+// LeaguePositionDTOList models response of the Riot API for leagues for a certain summoner
+type LeaguePositionDTOList []LeaguePositionDTO
