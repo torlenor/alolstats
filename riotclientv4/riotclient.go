@@ -18,10 +18,15 @@ import (
 	"github.com/torlenor/alolstats/riotclient/ratelimit"
 )
 
+type httpClient interface {
+	Get(url string) (resp *http.Response, err error)
+	Do(req *http.Request) (*http.Response, error)
+}
+
 // RiotClientV4 Riot LoL API client
 type RiotClientV4 struct {
 	config         config.RiotClient
-	httpClient     *http.Client
+	httpClient     httpClient
 	log            *logrus.Entry
 	isStarted      bool
 	rateLimitMutex sync.Mutex
@@ -34,8 +39,8 @@ type RiotClientV4 struct {
 }
 
 func checkConfig(cfg config.RiotClient) error {
-	if len(cfg.APIVersion) == 0 {
-		return fmt.Errorf("APIVersion is empty, check config file")
+	if cfg.APIVersion != "v4" {
+		return fmt.Errorf("APIVersion is not correct, must be v4")
 	}
 	if len(cfg.Key) == 0 {
 		return fmt.Errorf("Key is empty, check config file")
@@ -47,7 +52,7 @@ func checkConfig(cfg config.RiotClient) error {
 }
 
 // NewClient creates a new Riot LoL API client
-func NewClient(httpClient *http.Client, cfg config.RiotClient,
+func NewClient(httpClient httpClient, cfg config.RiotClient,
 	ddragon *riotclientdd.RiotClientDD,
 	rateLimit *riotclientrl.RiotClientRL) (*RiotClientV4, error) {
 	err := checkConfig(cfg)

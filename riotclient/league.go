@@ -22,3 +22,36 @@ type LeagueData struct {
 	} `json:"entries"`
 	Timestamp time.Time
 }
+
+// MiniSeriesDTO no description available
+type MiniSeriesDTO struct {
+	Wins     int    `json:"wins"`
+	Losses   int    `json:"losses"`
+	Target   int    `json:"target"`
+	Progress string `json:"progress"`
+}
+
+// LeagueItemDTO contains a certain entry in a league response
+type LeagueItemDTO struct {
+	HotStreak        bool          `json:"hotStreak"`
+	Wins             int           `json:"wins"`
+	Veteran          bool          `json:"veteran"`
+	Losses           int           `json:"losses"`
+	Rank             string        `json:"rank"`
+	PlayerOrTeamName string        `json:"playerOrTeamName"`
+	Inactive         bool          `json:"inactive"`
+	PlayerOrTeamID   string        `json:"playerOrTeamId"`
+	FreshBlood       bool          `json:"freshBlood"`
+	LeaguePoints     int           `json:"leaguePoints"`
+	MiniSeries       MiniSeriesDTO `json:"miniSeries"`
+}
+
+// LeagueListDTO models the response of the Riot API for league informations
+type LeagueListDTO struct {
+	Tier      string          `json:"tier"`
+	Queue     string          `json:"queue"`
+	LeagueID  string          `json:"leagueId"`
+	Name      string          `json:"name"`
+	Entries   []LeagueItemDTO `json:"entries"`
+	Timestamp time.Time
+}
