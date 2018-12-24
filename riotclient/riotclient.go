@@ -15,9 +15,9 @@ type ClientChampion interface {
 
 // ClientSummoner defines an interface to Summoner API calls
 type ClientSummoner interface {
-	SummonerByName(name string) (s *Summoner, err error)
-	SummonerByAccountID(id uint64) (s *Summoner, err error)
-	SummonerBySummonerID(id uint64) (s *Summoner, err error)
+	SummonerByName(name string) (s *SummonerDTO, err error)
+	SummonerByAccountID(accountID string) (s *SummonerDTO, err error)
+	SummonerBySummonerID(summonerID string) (s *SummonerDTO, err error)
 }
 
 // Client defines the interface for a Riot API Client
@@ -26,10 +26,9 @@ type Client interface {
 	ClientChampion
 	ClientSummoner
 
-	MatchByID(id uint64) (s *Match, err error)
+	MatchByID(matchID uint64) (s *MatchDTO, err error)
 
-	MatchesByAccountID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error)
+	MatchesByAccountID(accountID string, startIndex uint32, endIndex uint32) (s *MatchList, err error)
 
-	ChallengerLeagueByQueue(queue string) (*LeagueData, error)
-	MasterLeagueByQueue(queue string) (*LeagueData, error)
+	LeagueByQueue(league string, queue string) (*LeagueListDTO, error)
 }

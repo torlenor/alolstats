@@ -27,7 +27,7 @@ func TestStoreAndRetreiveChampionsList(t *testing.T) {
 	championsList.Champions["534"] = riotclient.Champion{Name: "TEST CHAMP 2",
 		ID: "534", Timestamp: older}
 
-	backend.StoreChampions(championsList)
+	backend.StoreChampions(&championsList)
 	if err != nil {
 		t.Fatalf("Failed storing ChampionList: %s", err)
 	}

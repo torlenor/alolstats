@@ -16,7 +16,7 @@ type mockClient struct {
 	freeRotationRetrieved bool
 
 	failSummoner         bool
-	summoner             riotclient.Summoner
+	summoner             riotclient.SummonerDTO
 	wasSummonerRetrieved bool
 }
 
@@ -28,7 +28,7 @@ func (c *mockClient) Stop() {
 	// nothing
 }
 
-func (c *mockClient) setSummoner(summoner riotclient.Summoner) {
+func (c *mockClient) setSummoner(summoner riotclient.SummonerDTO) {
 	c.summoner = summoner
 }
 
@@ -40,49 +40,45 @@ func (c *mockClient) getWasSummonerRetrieved() bool {
 	return c.wasSummonerRetrieved
 }
 
-func (c *mockClient) SummonerByName(name string) (s *riotclient.Summoner, err error) {
+func (c *mockClient) SummonerByName(name string) (s *riotclient.SummonerDTO, err error) {
 	c.wasSummonerRetrieved = true
 
 	if c.failSummoner {
-		return &riotclient.Summoner{}, fmt.Errorf("Error retreiving summoner")
+		return &riotclient.SummonerDTO{}, fmt.Errorf("Error retreiving summoner")
 	}
 
 	return &c.summoner, nil
 }
 
-func (c *mockClient) SummonerByAccountID(id uint64) (s *riotclient.Summoner, err error) {
+func (c *mockClient) SummonerByAccountID(accountID string) (s *riotclient.SummonerDTO, err error) {
 	c.wasSummonerRetrieved = true
 
 	if c.failSummoner {
-		return &riotclient.Summoner{}, fmt.Errorf("Error retreiving summoner")
+		return &riotclient.SummonerDTO{}, fmt.Errorf("Error retreiving summoner")
 	}
 
 	return &c.summoner, nil
 }
 
-func (c *mockClient) SummonerBySummonerID(id uint64) (s *riotclient.Summoner, err error) {
+func (c *mockClient) SummonerBySummonerID(summonerID string) (s *riotclient.SummonerDTO, err error) {
 	c.wasSummonerRetrieved = true
 
 	if c.failSummoner {
-		return &riotclient.Summoner{}, fmt.Errorf("Error retreiving summoner")
+		return &riotclient.SummonerDTO{}, fmt.Errorf("Error retreiving summoner")
 	}
 
 	return &c.summoner, nil
 }
 
-func (c *mockClient) MatchByID(id uint64) (s *riotclient.Match, err error) {
+func (c *mockClient) MatchByID(id uint64) (s *riotclient.MatchDTO, err error) {
 	return nil, nil
 }
 
-func (c *mockClient) MatchesByAccountID(id uint64, startIndex uint32, endIndex uint32) (s *riotclient.MatchList, err error) {
+func (c *mockClient) MatchesByAccountID(accountID string, startIndex uint32, endIndex uint32) (s *riotclient.MatchList, err error) {
 	return nil, nil
 }
 
-func (c *mockClient) ChallengerLeagueByQueue(queue string) (*riotclient.LeagueData, error) {
-	return nil, nil
-}
-
-func (c *mockClient) MasterLeagueByQueue(queue string) (*riotclient.LeagueData, error) {
+func (c *mockClient) LeagueByQueue(league string, queue string) (*riotclient.LeagueListDTO, error) {
 	return nil, nil
 }
 
@@ -96,7 +92,7 @@ func (c *mockClient) reset() {
 	c.freeRotationRetrieved = false
 
 	c.failSummoner = false
-	c.summoner = riotclient.Summoner{}
+	c.summoner = riotclient.SummonerDTO{}
 	c.wasSummonerRetrieved = false
 }
 

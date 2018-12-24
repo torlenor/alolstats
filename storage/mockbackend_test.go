@@ -22,9 +22,9 @@ type mockBackend struct {
 	freeRotationWhereStored bool
 
 	failSummoner         bool
-	summoner             riotclient.Summoner
+	summoner             riotclient.SummonerDTO
 	wasSummonerRetrieved bool
-	storedSummoner       riotclient.Summoner
+	storedSummoner       riotclient.SummonerDTO
 	wasSummonerStored    bool
 }
 
@@ -43,9 +43,9 @@ func (b *mockBackend) reset() {
 	b.freeRotationWhereStored = false
 
 	b.failSummoner = false
-	b.summoner = riotclient.Summoner{}
+	b.summoner = riotclient.SummonerDTO{}
 	b.wasSummonerRetrieved = false
-	b.storedSummoner = riotclient.Summoner{}
+	b.storedSummoner = riotclient.SummonerDTO{}
 	b.wasSummonerStored = false
 }
 
@@ -72,14 +72,14 @@ func (b *mockBackend) getChampionsStored() bool {
 	return b.championsWhereStored
 }
 
-func (b *mockBackend) GetChampions() (riotclient.ChampionList, error) {
+func (b *mockBackend) GetChampions() (*riotclient.ChampionList, error) {
 	b.championsRetrieved = true
 
 	if b.failChampions {
-		return riotclient.ChampionList{}, fmt.Errorf("Error retreiving champions")
+		return nil, fmt.Errorf("Error retreiving champions")
 	}
 
-	return b.champions, nil
+	return &b.champions, nil
 }
 
 func (b *mockBackend) GetChampionsTimeStamp() time.Time {
@@ -92,8 +92,8 @@ func (b *mockBackend) GetChampionsTimeStamp() time.Time {
 	return b.championsTimeStamp
 }
 
-func (b *mockBackend) StoreChampions(championList riotclient.ChampionList) error {
-	b.championsStored = championList
+func (b *mockBackend) StoreChampions(championList *riotclient.ChampionList) error {
+	b.championsStored = *championList
 	b.championsWhereStored = true
 	return nil
 }
@@ -118,14 +118,14 @@ func (b *mockBackend) getFreeRotationStored() bool {
 	return b.freeRotationWhereStored
 }
 
-func (b *mockBackend) GetFreeRotation() (riotclient.FreeRotation, error) {
+func (b *mockBackend) GetFreeRotation() (*riotclient.FreeRotation, error) {
 	b.freeRotationRetrieved = true
 
 	if b.failFreeRotation {
-		return riotclient.FreeRotation{}, fmt.Errorf("Error retreiving Free Rotation")
+		return nil, fmt.Errorf("Error retreiving Free Rotation")
 	}
 
-	return b.freeRotation, nil
+	return &b.freeRotation, nil
 }
 
 func (b *mockBackend) GetFreeRotationTimeStamp() time.Time {
@@ -138,8 +138,8 @@ func (b *mockBackend) GetFreeRotationTimeStamp() time.Time {
 	return b.freeRotation.Timestamp
 }
 
-func (b *mockBackend) StoreFreeRotation(freeRotation riotclient.FreeRotation) error {
-	b.freeRotationStored = freeRotation
+func (b *mockBackend) StoreFreeRotation(freeRotation *riotclient.FreeRotation) error {
+	b.freeRotationStored = *freeRotation
 	b.freeRotationWhereStored = true
 	return nil
 }
@@ -148,7 +148,7 @@ func (b *mockBackend) StoreFreeRotation(freeRotation riotclient.FreeRotation) er
 // Summoner
 //
 
-func (b *mockBackend) setSummoner(data riotclient.Summoner) {
+func (b *mockBackend) setSummoner(data riotclient.SummonerDTO) {
 	b.summoner = data
 }
 
@@ -164,61 +164,61 @@ func (b *mockBackend) getWasSummonerStored() bool {
 	return b.wasSummonerStored
 }
 
-func (b *mockBackend) GetSummonerByName(name string) (riotclient.Summoner, error) {
+func (b *mockBackend) GetSummonerByName(name string) (*riotclient.SummonerDTO, error) {
 	b.wasSummonerRetrieved = true
 
 	if b.failSummoner {
-		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
+		return nil, fmt.Errorf("Error retreiving Summoner")
 	}
 
 	if name == b.summoner.Name {
-		return b.summoner, nil
+		return &b.summoner, nil
 	}
 
-	return riotclient.Summoner{}, fmt.Errorf("Summoner not found")
+	return nil, fmt.Errorf("Summoner not found")
 }
 
 func (b *mockBackend) GetSummonerByNameTimeStamp(name string) time.Time {
 	return b.summoner.Timestamp
 }
 
-func (b *mockBackend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summoner, error) {
+func (b *mockBackend) GetSummonerBySummonerID(summonerID string) (*riotclient.SummonerDTO, error) {
 	b.wasSummonerRetrieved = true
 
 	if b.failSummoner {
-		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
+		return nil, fmt.Errorf("Error retreiving Summoner")
 	}
 
 	if summonerID == b.summoner.ID {
-		return b.summoner, nil
+		return &b.summoner, nil
 	}
 
-	return riotclient.Summoner{}, fmt.Errorf("Summoner not found")
+	return nil, fmt.Errorf("Summoner not found")
 }
 
-func (b *mockBackend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time {
+func (b *mockBackend) GetSummonerBySummonerIDTimeStamp(summonerID string) time.Time {
 	return b.summoner.Timestamp
 }
 
-func (b *mockBackend) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner, error) {
+func (b *mockBackend) GetSummonerByAccountID(accountID string) (*riotclient.SummonerDTO, error) {
 	b.wasSummonerRetrieved = true
 
 	if b.failSummoner {
-		return riotclient.Summoner{}, fmt.Errorf("Error retreiving Summoner")
+		return nil, fmt.Errorf("Error retreiving Summoner")
 	}
 
 	if accountID == b.summoner.AccountID {
-		return b.summoner, nil
+		return &b.summoner, nil
 	}
 
-	return riotclient.Summoner{}, fmt.Errorf("Summoner not found")
+	return nil, fmt.Errorf("Summoner not found")
 }
 
-func (b *mockBackend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
+func (b *mockBackend) GetSummonerByAccountIDTimeStamp(accountID string) time.Time {
 	return b.summoner.Timestamp
 }
 
-func (b *mockBackend) StoreSummoner(data *riotclient.Summoner) error {
+func (b *mockBackend) StoreSummoner(data *riotclient.SummonerDTO) error {
 	b.summoner = *data
 	b.wasSummonerStored = true
 	return nil
@@ -228,28 +228,24 @@ func (b *mockBackend) StoreSummoner(data *riotclient.Summoner) error {
 // Match
 //
 
-func (b *mockBackend) GetMatch(id uint64) (riotclient.Match, error) {
-	return riotclient.Match{}, nil
+func (b *mockBackend) GetMatch(id uint64) (*riotclient.MatchDTO, error) {
+	return &riotclient.MatchDTO{}, nil
 }
 
-func (b *mockBackend) StoreMatch(data *riotclient.Match) error {
+func (b *mockBackend) StoreMatch(data *riotclient.MatchDTO) error {
 	return nil
 }
 
-func (b *mockBackend) GetMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
-	return riotclient.Matches{}, nil
+func (b *mockBackend) GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (*riotclient.Matches, error) {
+	return &riotclient.Matches{}, nil
 }
 
-func (b *mockBackend) GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
-	return riotclient.Matches{}, nil
+func (b *mockBackend) GetMatchesByGameVersionChampionIDMapQueue(gameVersion string, championID uint64, mapID uint64, queue uint64) (*riotclient.Matches, error) {
+	return &riotclient.Matches{}, nil
 }
 
-func (b *mockBackend) GetMatchesByGameVersionChampionIDMapQueue(gameVersion string, championID uint64, mapID uint64, queue uint64) (riotclient.Matches, error) {
-	return riotclient.Matches{}, nil
-}
-
-func (b *mockBackend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (riotclient.Matches, error) {
-	return riotclient.Matches{}, nil
+func (b *mockBackend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (*riotclient.Matches, error) {
+	return &riotclient.Matches{}, nil
 }
 
 func (b *mockBackend) GetStorageSummary() (Summary, error) {

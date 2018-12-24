@@ -21,9 +21,9 @@ func (s *Storage) getFreeRotation() riotclient.FreeRotation {
 				s.log.Warnln(err)
 				return riotclient.FreeRotation{}
 			}
-			return freeRotation
+			return *freeRotation
 		}
-		s.backend.StoreFreeRotation(*freeRotation)
+		s.backend.StoreFreeRotation(freeRotation)
 		return *freeRotation
 	}
 
@@ -32,7 +32,7 @@ func (s *Storage) getFreeRotation() riotclient.FreeRotation {
 		s.log.Warnln(err)
 		return riotclient.FreeRotation{}
 	}
-	return freeRotation
+	return *freeRotation
 }
 
 func (s *Storage) freeRotationEndpoint(w http.ResponseWriter, r *http.Request) {

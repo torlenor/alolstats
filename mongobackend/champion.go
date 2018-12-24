@@ -11,7 +11,7 @@ import (
 )
 
 // GetChampions gets the champions list from storage
-func (b *Backend) GetChampions() (riotclient.ChampionList, error) {
+func (b *Backend) GetChampions() (*riotclient.ChampionList, error) {
 
 	c := b.client.Database(b.config.Database).Collection("champions")
 
@@ -20,7 +20,7 @@ func (b *Backend) GetChampions() (riotclient.ChampionList, error) {
 		nil,
 	)
 	if err != nil {
-		return riotclient.ChampionList{}, fmt.Errorf("Find error: %s", err)
+		return nil, fmt.Errorf("Find error: %s", err)
 	}
 
 	defer cur.Close(context.Background())
@@ -42,7 +42,7 @@ func (b *Backend) GetChampions() (riotclient.ChampionList, error) {
 		b.log.Warnln("Cursor error ", err)
 	}
 
-	return championsList, nil
+	return &championsList, nil
 }
 
 // GetChampionsCount gets the number of champions from storage
@@ -81,7 +81,7 @@ func (b *Backend) GetChampionsTimeStamp() time.Time {
 }
 
 // StoreChampions stores a new champions list
-func (b *Backend) StoreChampions(championList riotclient.ChampionList) error {
+func (b *Backend) StoreChampions(championList *riotclient.ChampionList) error {
 	b.log.Debugf("Storing Champions in storage")
 
 	upsert := true

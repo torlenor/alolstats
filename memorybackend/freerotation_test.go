@@ -25,7 +25,7 @@ func TestStoreAndRetreiveFreeRotation(t *testing.T) {
 		"2012-11-01T22:08:41+00:00")
 	freeRotation.Timestamp = t1
 
-	backend.StoreFreeRotation(freeRotation)
+	backend.StoreFreeRotation(&freeRotation)
 	if err != nil {
 		t.Fatalf("Failed storing FreeRotation: %s", err)
 	}

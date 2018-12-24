@@ -16,7 +16,7 @@ import (
 	"github.com/torlenor/alolstats/memorybackend"
 	"github.com/torlenor/alolstats/mongobackend"
 	"github.com/torlenor/alolstats/riotclient"
-	"github.com/torlenor/alolstats/riotclientv3"
+	"github.com/torlenor/alolstats/riotclientv4"
 	"github.com/torlenor/alolstats/statsrunner"
 	"github.com/torlenor/alolstats/storage"
 
@@ -90,6 +90,8 @@ func riotClientCreator(cfg config.RiotClient) (riotclient.Client, error) {
 
 	switch version {
 	case "v3":
+		return nil, fmt.Errorf("API v3 is not supported anymore")
+	case "v4":
 		httpClient := &http.Client{}
 		ddragon, err := riotclientdd.New(httpClient, cfg)
 		if err != nil {
@@ -102,17 +104,13 @@ func riotClientCreator(cfg config.RiotClient) (riotclient.Client, error) {
 			return nil, err
 		}
 
-		riotClient, err := riotclientv3.NewClient(httpClient, cfg, ddragon, rateLimit)
+		riotClient, err := riotclientv4.NewClient(httpClient, cfg, ddragon, rateLimit)
 		if err != nil {
-			log.Errorln("Error creating RiotClient APIVersion V3:" + err.Error())
+			log.Errorln("Error creating RiotClient APIVersion V4:" + err.Error())
 			return nil, err
 		}
 
 		return riotClient, nil
-	case "v4":
-		err := fmt.Errorf("NOT IMPLEMENTED, YET")
-		log.Errorln("Error creating RiotClient APIVersion V4:" + err.Error())
-		return nil, err
 	default:
 		return nil, fmt.Errorf("Unknown RiotClient APIVersion specified in config: %s", cfg.APIVersion)
 	}

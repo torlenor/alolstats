@@ -23,9 +23,9 @@ func (s *Storage) GetChampions() riotclient.ChampionList {
 				return riotclient.ChampionList{}
 			}
 			s.log.Debugf("Could not get Champions from Client, returning from Storage Backend instead")
-			return champions
+			return *champions
 		}
-		err = s.backend.StoreChampions(*champions)
+		err = s.backend.StoreChampions(champions)
 		if err != nil {
 			s.log.Warnln("Could not store Champions in storage backend:", err)
 		}
@@ -40,14 +40,14 @@ func (s *Storage) GetChampions() riotclient.ChampionList {
 			return riotclient.ChampionList{}
 		}
 		s.log.Warnln("Could not get Champions from storage backend, returning from Client instead:", err)
-		err = s.backend.StoreChampions(*champions)
+		err = s.backend.StoreChampions(champions)
 		if err != nil {
 			s.log.Warnln("Could not store Champions in storage backend:", err)
 		}
 		return *champions
 	}
 	s.log.Debugf("Returned Champions from Storage Backend")
-	return champions
+	return *champions
 }
 
 func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {

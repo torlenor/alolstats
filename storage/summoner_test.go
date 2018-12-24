@@ -22,22 +22,22 @@ func TestGettingSummonerByName(t *testing.T) {
 		t.Fatalf("Could not get a new Storage: %s", err)
 	}
 
-	summonerBackend := riotclient.Summoner{
-		AccountID:    112345,
-		ID:           212345,
-		Name:         "Backend Summoner",
-		Level:        10,
-		RevisionDate: 312345,
-		Timestamp:    time.Now().Add(-time.Minute * 10),
+	summonerBackend := riotclient.SummonerDTO{
+		AccountID:     "112345",
+		ID:            "212345",
+		Name:          "Backend Summoner",
+		SummonerLevel: 10,
+		RevisionDate:  312345,
+		Timestamp:     time.Now().Add(-time.Minute * 10),
 	}
 
-	summonerClient := riotclient.Summoner{
-		AccountID:    412345,
-		ID:           512345,
-		Name:         "Client Summoner",
-		Level:        20,
-		RevisionDate: 612345,
-		Timestamp:    time.Now(),
+	summonerClient := riotclient.SummonerDTO{
+		AccountID:     "412345",
+		ID:            "512345",
+		Name:          "Client Summoner",
+		SummonerLevel: 20,
+		RevisionDate:  612345,
+		Timestamp:     time.Now(),
 	}
 
 	riotClient.setSummoner(summonerClient)
@@ -226,7 +226,7 @@ func TestGettingSummonerByName(t *testing.T) {
 		t.Errorf("Storage did not get the data from client")
 	}
 
-	empty := riotclient.Summoner{}
+	empty := riotclient.SummonerDTO{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")
@@ -257,7 +257,7 @@ func TestGettingSummonerByName(t *testing.T) {
 		t.Errorf("Storage did not get the data from client")
 	}
 
-	empty = riotclient.Summoner{}
+	empty = riotclient.SummonerDTO{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")
@@ -278,28 +278,28 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 		t.Fatalf("Could not get a new Storage: %s", err)
 	}
 
-	summonerBackend := riotclient.Summoner{
-		AccountID:    112345,
-		ID:           212345,
-		Name:         "Backend Summoner",
-		Level:        10,
-		RevisionDate: 312345,
-		Timestamp:    time.Now().Add(-time.Minute * 10),
+	summonerBackend := riotclient.SummonerDTO{
+		AccountID:     "112345",
+		ID:            "212345",
+		Name:          "Backend Summoner",
+		SummonerLevel: 10,
+		RevisionDate:  312345,
+		Timestamp:     time.Now().Add(-time.Minute * 10),
 	}
 
-	summonerClient := riotclient.Summoner{
-		AccountID:    112345,
-		ID:           212345,
-		Name:         "Client Summoner",
-		Level:        20,
-		RevisionDate: 612345,
-		Timestamp:    time.Now(),
+	summonerClient := riotclient.SummonerDTO{
+		AccountID:     "112345",
+		ID:            "212345",
+		Name:          "Client Summoner",
+		SummonerLevel: 20,
+		RevisionDate:  612345,
+		Timestamp:     time.Now(),
 	}
 
 	riotClient.setSummoner(summonerClient)
 
 	// No stored list in backend should get it from client and store it
-	actualSummoner, err := storage.GetSummonerBySummonerID(212345)
+	actualSummoner, err := storage.GetSummonerBySummonerID("212345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -326,7 +326,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now()
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
+	actualSummoner, err = storage.GetSummonerBySummonerID("212345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -354,7 +354,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	backend.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
+	actualSummoner, err = storage.GetSummonerBySummonerID("212345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -381,7 +381,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
+	actualSummoner, err = storage.GetSummonerBySummonerID("212345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -409,7 +409,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
+	actualSummoner, err = storage.GetSummonerBySummonerID("212345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -437,7 +437,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	backend.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(212345)
+	actualSummoner, err = storage.GetSummonerBySummonerID("212345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -466,7 +466,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	backend.setFailSummoner(true)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(1234)
+	actualSummoner, err = storage.GetSummonerBySummonerID("1234")
 	if err == nil {
 		t.Errorf("There should have been an error, but wasn't")
 	}
@@ -482,7 +482,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 		t.Errorf("Storage did not get the data from client")
 	}
 
-	empty := riotclient.Summoner{}
+	empty := riotclient.SummonerDTO{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")
@@ -497,7 +497,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 	backend.setFailSummoner(true)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerBySummonerID(1234)
+	actualSummoner, err = storage.GetSummonerBySummonerID("1234")
 	if err == nil {
 		t.Errorf("There should have been an error, but wasn't")
 	}
@@ -513,7 +513,7 @@ func TestGettingSummonerBySummonerID(t *testing.T) {
 		t.Errorf("Storage did not get the data from client")
 	}
 
-	empty = riotclient.Summoner{}
+	empty = riotclient.SummonerDTO{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")
@@ -534,28 +534,28 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 		t.Fatalf("Could not get a new Storage: %s", err)
 	}
 
-	summonerBackend := riotclient.Summoner{
-		AccountID:    112345,
-		ID:           212345,
-		Name:         "Backend Summoner",
-		Level:        10,
-		RevisionDate: 312345,
-		Timestamp:    time.Now().Add(-time.Minute * 10),
+	summonerBackend := riotclient.SummonerDTO{
+		AccountID:     "112345",
+		ID:            "212345",
+		Name:          "Backend Summoner",
+		SummonerLevel: 10,
+		RevisionDate:  312345,
+		Timestamp:     time.Now().Add(-time.Minute * 10),
 	}
 
-	summonerClient := riotclient.Summoner{
-		AccountID:    112345,
-		ID:           212345,
-		Name:         "Client Summoner",
-		Level:        20,
-		RevisionDate: 612345,
-		Timestamp:    time.Now(),
+	summonerClient := riotclient.SummonerDTO{
+		AccountID:     "112345",
+		ID:            "212345",
+		Name:          "Client Summoner",
+		SummonerLevel: 20,
+		RevisionDate:  612345,
+		Timestamp:     time.Now(),
 	}
 
 	riotClient.setSummoner(summonerClient)
 
 	// No stored list in backend should get it from client and store it
-	actualSummoner, err := storage.GetSummonerByAccountID(112345)
+	actualSummoner, err := storage.GetSummonerByAccountID("112345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -582,7 +582,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now()
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	actualSummoner, err = storage.GetSummonerByAccountID("112345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -610,7 +610,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	backend.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	actualSummoner, err = storage.GetSummonerByAccountID("112345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -637,7 +637,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	summonerBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeSummoner+1))
 	backend.setSummoner(summonerBackend)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	actualSummoner, err = storage.GetSummonerByAccountID("112345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -665,7 +665,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	actualSummoner, err = storage.GetSummonerByAccountID("112345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -693,7 +693,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setSummoner(summonerBackend)
 	backend.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	actualSummoner, err = storage.GetSummonerByAccountID("112345")
 	if err != nil {
 		t.Errorf("There was an error: %s", err)
 	}
@@ -722,7 +722,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setFailSummoner(true)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	actualSummoner, err = storage.GetSummonerByAccountID("112345")
 	if err == nil {
 		t.Errorf("There should have been an error, but wasn't")
 	}
@@ -738,7 +738,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 		t.Errorf("Storage did not get the data from client")
 	}
 
-	empty := riotclient.Summoner{}
+	empty := riotclient.SummonerDTO{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")
@@ -753,7 +753,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 	backend.setFailSummoner(true)
 	riotClient.setFailSummoner(true)
 
-	actualSummoner, err = storage.GetSummonerByAccountID(112345)
+	actualSummoner, err = storage.GetSummonerByAccountID("112345")
 	if err == nil {
 		t.Errorf("There should have been an error, but wasn't")
 	}
@@ -769,7 +769,7 @@ func TestGettingSummonerByAccountID(t *testing.T) {
 		t.Errorf("Storage did not get the data from client")
 	}
 
-	empty = riotclient.Summoner{}
+	empty = riotclient.SummonerDTO{}
 
 	if empty != actualSummoner {
 		t.Error("Data not equal empty data")

@@ -7,19 +7,19 @@ import (
 )
 
 // GetMatch retreives match data for given id
-func (b *Backend) GetMatch(id uint64) (riotclient.Match, error) {
+func (b *Backend) GetMatch(id uint64) (*riotclient.MatchDTO, error) {
 
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	if val, ok := b.matches[id]; ok {
-		return val, nil
+	if match, ok := b.matches[id]; ok {
+		return &match, nil
 	}
-	return riotclient.Match{}, fmt.Errorf("Match with id=%d not found in storage backend", id)
+	return nil, fmt.Errorf("Match with id=%d not found in storage backend", id)
 }
 
 // StoreMatch stores new match data
-func (b *Backend) StoreMatch(data *riotclient.Match) error {
+func (b *Backend) StoreMatch(data *riotclient.MatchDTO) error {
 	b.log.Debugf("Storing Match id=%d in storage", data.GameID)
 
 	b.mutex.Lock()

@@ -12,7 +12,7 @@ import (
 	"github.com/torlenor/alolstats/riotclient"
 )
 
-func (b *Backend) summonerQuery(query *bson.D) (riotclient.Summoner, error) {
+func (b *Backend) summonerQuery(query *bson.D) (*riotclient.SummonerDTO, error) {
 	c := b.client.Database(b.config.Database).Collection("summoners")
 
 	cur, err := c.Find(
@@ -20,15 +20,15 @@ func (b *Backend) summonerQuery(query *bson.D) (riotclient.Summoner, error) {
 		query,
 	)
 	if err != nil {
-		return riotclient.Summoner{}, fmt.Errorf("Find error: %s", err)
+		return nil, fmt.Errorf("Find error: %s", err)
 	}
 
 	defer cur.Close(context.Background())
 
-	var summoners []riotclient.Summoner
+	var summoners []riotclient.SummonerDTO
 
 	for cur.Next(nil) {
-		summoner := riotclient.Summoner{}
+		summoner := riotclient.SummonerDTO{}
 		err := cur.Decode(&summoner)
 		if err != nil {
 			b.log.Warnln("Decode error ", err)
@@ -41,12 +41,12 @@ func (b *Backend) summonerQuery(query *bson.D) (riotclient.Summoner, error) {
 	}
 
 	if len(summoners) == 1 {
-		return summoners[0], nil
+		return &summoners[0], nil
 	} else if len(summoners) > 1 {
-		return riotclient.Summoner{}, fmt.Errorf("Found one than more Summoner (namely %d) in storage backend", len(summoners))
+		return nil, fmt.Errorf("Found one than more Summoner (namely %d) in storage backend", len(summoners))
 	}
 
-	return riotclient.Summoner{}, fmt.Errorf("Summoner not found in storage backend")
+	return nil, fmt.Errorf("Summoner not found in storage backend")
 }
 
 // GetSummonersCount returns the number of stored Summoners in the Backend
@@ -75,19 +75,19 @@ func (b *Backend) GetSummonerByNameTimeStamp(name string) time.Time {
 }
 
 // GetSummonerByName retreives a summoner by name
-func (b *Backend) GetSummonerByName(name string) (riotclient.Summoner, error) {
+func (b *Backend) GetSummonerByName(name string) (*riotclient.SummonerDTO, error) {
 	query := &bson.D{{Key: "name", Value: strings.ToLower(name)}}
 	return b.summonerQuery(query)
 }
 
 // GetSummonerBySummonerID retreives a summoner identified by its Summoner ID
-func (b *Backend) GetSummonerBySummonerID(summonerID uint64) (riotclient.Summoner, error) {
+func (b *Backend) GetSummonerBySummonerID(summonerID string) (*riotclient.SummonerDTO, error) {
 	query := &bson.D{{Key: "id", Value: summonerID}}
 	return b.summonerQuery(query)
 }
 
 // GetSummonerBySummonerIDTimeStamp retreives a summoners time stamp by its Summoner ID
-func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time {
+func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID string) time.Time {
 	summoner, err := b.GetSummonerBySummonerID(summonerID)
 	if err != nil {
 		return time.Time{}
@@ -96,13 +96,13 @@ func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID uint64) time.Time 
 }
 
 // GetSummonerByAccountID retreives a summoner identified by its Account ID
-func (b *Backend) GetSummonerByAccountID(accountID uint64) (riotclient.Summoner, error) {
+func (b *Backend) GetSummonerByAccountID(accountID string) (*riotclient.SummonerDTO, error) {
 	query := &bson.D{{Key: "accountid", Value: accountID}}
 	return b.summonerQuery(query)
 }
 
 // GetSummonerByAccountIDTimeStamp retreives a summoners time stamp by its Account ID
-func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
+func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID string) time.Time {
 	summoner, err := b.GetSummonerByAccountID(accountID)
 	if err != nil {
 		return time.Time{}
@@ -111,7 +111,7 @@ func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID uint64) time.Time {
 }
 
 // StoreSummoner stores new Summoner data
-func (b *Backend) StoreSummoner(data *riotclient.Summoner) error {
+func (b *Backend) StoreSummoner(data *riotclient.SummonerDTO) error {
 	b.log.Debugf("Storing Summoner %s in storage", data.Name)
 
 	upsert := true

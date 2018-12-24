@@ -39,6 +39,7 @@ func (c *RiotClientV4) worker(workQueue workQueue) {
 				tries++
 
 				sleepFor := time.Until(c.rateLimit.GetRateLimitRetryAt(work.method))
+				c.log.Debugln("sleepFor =", sleepFor.String())
 				if sleepFor > 0 {
 					c.log.Debugln("Worker: Sleeping for", sleepFor.String(), "to adhere to rate limit")
 					time.Sleep(sleepFor)

@@ -142,36 +142,22 @@ type TeamStatsDTO struct {
 	} `json:"bans"`
 }
 
-// ParticipantIdentityDTO contains Participant identity information
-type ParticipantIdentityDTO struct {
-	ParticipantID int `json:"participantId"`
-	Player        struct {
-		PlatformID        string `json:"platformId"`
-		AccountID         int    `json:"accountId"`
-		SummonerName      string `json:"summonerName"`
-		SummonerID        int    `json:"summonerId"`
-		CurrentPlatformID string `json:"currentPlatformId"`
-		CurrentAccountID  int    `json:"currentAccountId"`
-		MatchHistoryURI   string `json:"matchHistoryUri"`
-		ProfileIcon       int    `json:"profileIcon"`
-	} `json:"player"`
+// PlayerDTO contains the Player Information
+type PlayerDTO struct {
+	PlatformID        string `json:"platformId"`
+	AccountID         string `json:"accountId"`
+	SummonerName      string `json:"summonerName"`
+	SummonerID        string `json:"summonerId"`
+	CurrentPlatformID string `json:"currentPlatformId"`
+	CurrentAccountID  string `json:"currentAccountId"`
+	MatchHistoryURI   string `json:"matchHistoryUri"`
+	ProfileIcon       int    `json:"profileIcon"`
 }
 
-// Match contains the complete match data (excluding full time line)
-type Match struct {
-	GameID                int64                    `json:"gameId"`
-	PlatformID            string                   `json:"platformId"`
-	GameCreation          int64                    `json:"gameCreation"`
-	GameDuration          int                      `json:"gameDuration"`
-	QueueID               int                      `json:"queueId"`
-	MapID                 int                      `json:"mapId"`
-	SeasonID              int                      `json:"seasonId"`
-	GameVersion           string                   `json:"gameVersion"`
-	GameMode              string                   `json:"gameMode"`
-	GameType              string                   `json:"gameType"`
-	Teams                 []TeamStatsDTO           `json:"teams"`
-	Participants          []ParticipantDTO         `json:"participants" bson:"participants"`
-	ParticipantIdentities []ParticipantIdentityDTO `json:"participantIdentities"`
+// ParticipantIdentityDTO contains Participant identity information
+type ParticipantIdentityDTO struct {
+	ParticipantID int       `json:"participantId"`
+	Player        PlayerDTO `json:"player"`
 }
 
 // MatchDTO contains the complete match data (excluding full time line)
@@ -191,9 +177,9 @@ type MatchDTO struct {
 	ParticipantIdentities []ParticipantIdentityDTO `json:"participantIdentities"`
 }
 
-// Matches contains a collection of matches
+// Matches contains a collection of MatchDTOs
 type Matches struct {
-	Matches []Match `json:"matches"`
+	Matches []MatchDTO `json:"matches"`
 }
 
 // MatchList contains a list of matches which have been requested via the API

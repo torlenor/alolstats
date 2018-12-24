@@ -33,17 +33,13 @@ type MiniSeriesDTO struct {
 
 // LeagueItemDTO contains a certain entry in a league response
 type LeagueItemDTO struct {
-	HotStreak        bool          `json:"hotStreak"`
-	Wins             int           `json:"wins"`
-	Veteran          bool          `json:"veteran"`
-	Losses           int           `json:"losses"`
-	Rank             string        `json:"rank"`
-	PlayerOrTeamName string        `json:"playerOrTeamName"`
-	Inactive         bool          `json:"inactive"`
-	PlayerOrTeamID   string        `json:"playerOrTeamId"`
-	FreshBlood       bool          `json:"freshBlood"`
-	LeaguePoints     int           `json:"leaguePoints"`
-	MiniSeries       MiniSeriesDTO `json:"miniSeries"`
+	SummonerName string        `json:"summonerName"`
+	Wins         int           `json:"wins"`
+	Losses       int           `json:"losses"`
+	Rank         string        `json:"rank"`
+	SummonerID   string        `json:"summonerId"`
+	LeaguePoints int           `json:"leaguePoints"`
+	MiniSeries   MiniSeriesDTO `json:"miniSeries"`
 }
 
 // LeagueListDTO models the response of the Riot API for league informations
