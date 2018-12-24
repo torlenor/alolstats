@@ -116,6 +116,8 @@ func (c *RiotClientV4) checkResponseCodeOK(response *http.Response) error {
 		return fmt.Errorf("Status code 403 (Forbidden)")
 	case 404:
 		return fmt.Errorf("Status code 404 (Not Found)")
+	case 405:
+		return fmt.Errorf("Status code 404 (Method not allowed)")
 	case 415:
 		return fmt.Errorf("Status code 415 (Unsupported Media Type)")
 	case 500:

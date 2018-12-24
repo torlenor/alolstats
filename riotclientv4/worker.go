@@ -15,6 +15,7 @@ type workResponseChan chan workResponseData
 type workOrder struct {
 	request      *http.Request
 	responseChan workResponseChan
+	method       string
 }
 
 // A buffered channel that we can send work requests on.
@@ -37,7 +38,7 @@ func (c *RiotClientV4) worker(workQueue workQueue) {
 				tryAgain = false
 				tries++
 
-				sleepFor := time.Until(c.rateLimit.GetRateLimitRetryAt("")) // TODO add method
+				sleepFor := time.Until(c.rateLimit.GetRateLimitRetryAt(work.method))
 				if sleepFor > 0 {
 					c.log.Debugln("Worker: Sleeping for", sleepFor.String(), "to adhere to rate limit")
 					time.Sleep(sleepFor)
@@ -47,7 +48,7 @@ func (c *RiotClientV4) worker(workQueue workQueue) {
 				if err != nil {
 					continue
 				}
-				err = c.checkRateLimited(response, "") // TODO add method
+				err = c.checkRateLimited(response, work.method)
 				if err != nil {
 					tryAgain = true
 					c.log.Debugln("Worker: Repeating request")
