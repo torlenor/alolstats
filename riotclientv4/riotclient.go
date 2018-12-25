@@ -28,14 +28,13 @@ var apiCall = (*RiotClientV4).realAPICall
 
 // RiotClientV4 Riot LoL API client
 type RiotClientV4 struct {
-	config         config.RiotClient
-	httpClient     httpClient
-	log            *logrus.Entry
-	isStarted      bool
-	rateLimitMutex sync.Mutex
-	workersWG      sync.WaitGroup
-	stopWorkers    chan struct{}
-	workQueue      workQueue
+	config      config.RiotClient
+	httpClient  httpClient
+	log         *logrus.Entry
+	isStarted   bool
+	workersWG   sync.WaitGroup
+	stopWorkers chan struct{}
+	workQueue   workQueue
 
 	ddragon   *riotclientdd.RiotClientDD
 	rateLimit *riotclientrl.RiotClientRL

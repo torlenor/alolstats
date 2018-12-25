@@ -11,13 +11,6 @@ import (
 	"github.com/torlenor/alolstats/riotclient"
 )
 
-var apiCallReturnJSON []byte
-var apiCallReturnErr error
-
-func (c *RiotClientV4) mockAPICall(path string, method string, body string) (r []byte, e error) {
-	return apiCallReturnJSON, apiCallReturnErr
-}
-
 func TestRiotClientV4_leagueByQueue(t *testing.T) {
 	// Override real API call with our fake one
 	apiCall = (*RiotClientV4).mockAPICall

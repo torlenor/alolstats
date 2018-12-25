@@ -3,7 +3,6 @@ package riotclientv4
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/torlenor/alolstats/riotclient"
 )
@@ -23,7 +22,7 @@ func (c *RiotClientV4) ChampionRotations() (*riotclient.FreeRotation, error) {
 		return nil, fmt.Errorf("Received empty free rotation list: %s", data)
 	}
 
-	freeRotation.Timestamp = time.Now()
+	freeRotation.Timestamp = now()
 
 	return &freeRotation, nil
 }
