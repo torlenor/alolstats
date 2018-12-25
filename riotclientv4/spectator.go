@@ -10,7 +10,7 @@ import (
 // ActiveGameBySummonerID returns the active game (live game) for the given Summoner ID
 func (c *RiotClientV4) ActiveGameBySummonerID(summonerID string) (*riotclient.CurrentGameInfoDTO, error) {
 	// /lol/spectator/v4/active-games/by-summoner/{encryptedSummonerId}
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/spectator/"+c.config.APIVersion+"/active-games/by-summoner/"+summonerID, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/spectator/"+c.config.APIVersion+"/active-games/by-summoner/"+summonerID, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
@@ -27,7 +27,7 @@ func (c *RiotClientV4) ActiveGameBySummonerID(summonerID string) (*riotclient.Cu
 // FeaturedGames returns the currently features games from Riot
 func (c *RiotClientV4) FeaturedGames() (*riotclient.FeaturedGamesDTO, error) {
 	// /lol/spectator/v4/featured-games
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/spectator/"+c.config.APIVersion+"/featured-games", "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/spectator/"+c.config.APIVersion+"/featured-games", "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}

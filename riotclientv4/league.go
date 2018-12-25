@@ -3,7 +3,6 @@ package riotclientv4
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/torlenor/alolstats/riotclient"
 )
@@ -11,7 +10,7 @@ import (
 func (c *RiotClientV4) leagueByQueue(leagueEndPoint string, queue string) (*riotclient.LeagueListDTO, error) {
 	// https://euw1.api.riotgames.com/lol/league/v4/[leagueEndPoint]/by-queue/[QUEUE]
 	if queue == "RANKED_SOLO_5x5" || queue == "RANKED_FLEX_SR" || queue == "RANKED_FLEX_TT" {
-		data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/league/"+c.config.APIVersion+"/"+leagueEndPoint+"/by-queue/"+queue, "GET", "")
+		data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/league/"+c.config.APIVersion+"/"+leagueEndPoint+"/by-queue/"+queue, "GET", "")
 		if err != nil {
 			return nil, fmt.Errorf("Error in API call: %s", err)
 		}
@@ -22,7 +21,7 @@ func (c *RiotClientV4) leagueByQueue(leagueEndPoint string, queue string) (*riot
 			return nil, fmt.Errorf("%s. Data was: %s", err, data)
 		}
 
-		league.Timestamp = time.Now()
+		league.Timestamp = now()
 
 		return &league, nil
 	}
@@ -43,7 +42,7 @@ func (c *RiotClientV4) LeagueByQueue(league string, queue string) (*riotclient.L
 // LeaguesForSummoner returns all Leagues a Summoner is ranked in
 func (c *RiotClientV4) LeaguesForSummoner(encSummonerID string) (*riotclient.LeaguePositionDTO, error) {
 	// /lol/league/v4/positions/by-summoner/{encryptedSummonerId}
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/league/"+c.config.APIVersion+"/positions/by-summoner/"+encSummonerID, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/league/"+c.config.APIVersion+"/positions/by-summoner/"+encSummonerID, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}

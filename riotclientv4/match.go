@@ -12,7 +12,7 @@ import (
 func (c *RiotClientV4) MatchByID(id uint64) (s *riotclient.MatchDTO, err error) {
 	// Example: https://euw1.api.riotgames.com/lol/match/v4/matches/3827449823
 	idStr := strconv.FormatUint(id, 10)
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/matches/"+idStr, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/matches/"+idStr, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
@@ -37,7 +37,7 @@ func (c *RiotClientV4) MatchesByAccountID(acountID string, startIndex uint32, en
 	// Example: https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/1boL9yr2g5kZbPExCP4I6ngN2NIQxe-gi6FWIC8_Di7D4g?endIndex=100&beginIndex=0
 	startIndexStr := strconv.FormatUint(uint64(startIndex), 10)
 	endIndexStr := strconv.FormatUint(uint64(endIndex), 10)
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/matchlists/by-account/"+acountID+"?beginIndex="+startIndexStr+"&endIndex="+endIndexStr, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/matchlists/by-account/"+acountID+"?beginIndex="+startIndexStr+"&endIndex="+endIndexStr, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
@@ -55,7 +55,7 @@ func (c *RiotClientV4) MatchesByAccountID(acountID string, startIndex uint32, en
 func (c *RiotClientV4) MatchTimeLineByID(matchID uint64) (t *riotclient.MatchTimelineDTO, err error) {
 	// /lol/match/v4/timelines/by-match/{matchId}
 	idStr := strconv.FormatUint(matchID, 10)
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/timelines/by-match/"+idStr, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/timelines/by-match/"+idStr, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}

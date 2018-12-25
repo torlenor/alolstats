@@ -10,7 +10,7 @@ import (
 
 // SummonerByName gets summoner data by its name
 func (c *RiotClientV4) SummonerByName(name string) (s *riotclient.SummonerDTO, err error) {
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/by-name/"+name, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/by-name/"+name, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
@@ -30,7 +30,7 @@ func (c *RiotClientV4) SummonerByName(name string) (s *riotclient.SummonerDTO, e
 
 // SummonerByAccountID gets summoner data by its AccountID
 func (c *RiotClientV4) SummonerByAccountID(accountID string) (s *riotclient.SummonerDTO, err error) {
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/by-account/"+accountID, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/by-account/"+accountID, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
@@ -50,7 +50,7 @@ func (c *RiotClientV4) SummonerByAccountID(accountID string) (s *riotclient.Summ
 
 // SummonerBySummonerID gets summoner data by its SummonerID
 func (c *RiotClientV4) SummonerBySummonerID(summonerID string) (s *riotclient.SummonerDTO, err error) {
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/"+summonerID, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/"+summonerID, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
@@ -71,7 +71,7 @@ func (c *RiotClientV4) SummonerBySummonerID(summonerID string) (s *riotclient.Su
 // SummonerByPUUID gets summoner data by its PUUID
 func (c *RiotClientV4) SummonerByPUUID(PUUID string) (s *riotclient.SummonerDTO, err error) {
 	// /lol/summoner/v4/summoners/by-puuid/{encryptedPUUID}
-	data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/by-puuid/"+PUUID, "GET", "")
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/summoner/"+c.config.APIVersion+"/summoners/by-puuid/"+PUUID, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}

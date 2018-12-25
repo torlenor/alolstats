@@ -23,6 +23,9 @@ type httpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
+var now = time.Now
+var apiCall = (*RiotClientV4).realAPICall
+
 // RiotClientV4 Riot LoL API client
 type RiotClientV4 struct {
 	config         config.RiotClient
@@ -138,10 +141,6 @@ func (c *RiotClientV4) checkRateLimited(response *http.Response, method string) 
 	c.rateLimit.UpdateRateLimits(response.Header, method)
 
 	if response.StatusCode == 429 {
-		if _, ok := response.Header["Retry-After"]; !ok {
-			// c.updateRateLimitRetryAt(2)
-			// TODO
-		}
 		c.log.Warnf("Rate limited with header: %s", response.Header)
 		return fmt.Errorf("Status code 429 (Rate Limited)")
 	}
@@ -149,7 +148,7 @@ func (c *RiotClientV4) checkRateLimited(response *http.Response, method string) 
 	return nil
 }
 
-func (c *RiotClientV4) apiCall(path string, method string, body string) (r []byte, e error) {
+func (c *RiotClientV4) realAPICall(path string, method string, body string) (r []byte, e error) {
 	if !c.isStarted {
 		return nil, fmt.Errorf("Riot Client not started. Start by calling the Start() function")
 	}
@@ -169,7 +168,6 @@ func (c *RiotClientV4) apiCall(path string, method string, body string) (r []byt
 
 	c.workQueue <- work
 
-	c.log.Debugln("ApiCall: Waiting for request to finish processing")
 	select {
 	case res := <-work.responseChan:
 		if res.err != nil {

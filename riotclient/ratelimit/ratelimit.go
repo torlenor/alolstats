@@ -242,7 +242,6 @@ func (c *RiotClientRL) getAdditionalWaitTime(method string) time.Duration {
 	for key, val := range c.appRateLimit.rateLimitsCount {
 		maxSlots := c.appRateLimit.rateLimits[key]
 		emptySlots := int32(maxSlots) - int32(val)
-		c.log.Debugln("emptySlots: key =", key, "count =", val, "emptySlots =", emptySlots)
 		if emptySlots <= 5 {
 			addWaitTime += time.Second * time.Duration(key) / 5
 		}
@@ -258,6 +257,5 @@ func (c *RiotClientRL) getAdditionalWaitTime(method string) time.Duration {
 		}
 	}
 
-	c.log.Debugln("addWaitTime =", addWaitTime)
 	return addWaitTime
 }

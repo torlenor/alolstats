@@ -114,21 +114,15 @@ WaitLoop:
 				}
 			}
 
-			leagueStrings := []string{
-				"masterleagues",
-				"grandmasterleagues",
-				"challengerleagues",
-			}
-
-			for _, val := range leagueStrings {
+			accountIDs := make(map[string]bool)
+			for _, league := range f.config.FetchMatchesForLeagues {
 				if len(f.config.FetchMatchesForLeagueQueues) > 0 {
-					f.log.Infof("Fetching matches for specified %s Leagues...", val)
-					accountIDs := make(map[string]bool)
+					f.log.Infof("Fetching matches for specified %s Leagues...", league)
 
 					for _, queue := range f.config.FetchMatchesForLeagueQueues {
-						err := f.getLeagueSummonerAccountIDs(val, queue, accountIDs)
+						err := f.getLeagueSummonerAccountIDs(league, queue, accountIDs)
 						if err != nil {
-							f.log.Errorf("Error fetching Account IDs for Challenger League queue %s: %s", queue, err)
+							f.log.Errorf("Error fetching Account IDs for league %s queue %s: %s", league, queue, err)
 							continue
 						}
 						if f.shouldWorkersStop {
@@ -138,17 +132,17 @@ WaitLoop:
 							continue WaitLoop
 						}
 					}
+				}
+			}
 
-					f.log.Infof("Found %d unique Account IDs in specified Challenger Leagues. Fetching matches...", len(accountIDs))
-					for accountID := range accountIDs {
-						f.fetchSummonerMatchesByAccountID(accountID, f.config.FetchMatchesForLeaguesNumber)
-						if f.shouldWorkersStop {
-							elapsed := time.Since(start)
-							f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
-							nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
-							continue WaitLoop
-						}
-					}
+			f.log.Infof("Found %d unique Account IDs in specified Leagues. Fetching matches...", len(accountIDs))
+			for accountID := range accountIDs {
+				f.fetchSummonerMatchesByAccountID(accountID, f.config.FetchMatchesForLeaguesNumber)
+				if f.shouldWorkersStop {
+					elapsed := time.Since(start)
+					f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+					nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+					continue WaitLoop
 				}
 			}
 
