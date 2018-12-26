@@ -3,6 +3,7 @@ package riotclientv4
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 
 	"github.com/torlenor/alolstats/riotclient"
@@ -28,21 +29,35 @@ func (c *RiotClientV4) MatchByID(id uint64) (s *riotclient.MatchDTO, err error) 
 	return &match, nil
 }
 
-// MatchesByAccountID gets a match by AccountID. Provide a start and end index to fetch matches.
-// The matches will be fetched as [beginIndex, endIndex) and the indices start at 0.
-//
-// For example to fetch the last match of an account enter startIndex=0, endIndex=1
-// and to fetch the first match of an account enter startIndex=(totalNumMatches-1), endIndex=totalNumMatches.
-func (c *RiotClientV4) MatchesByAccountID(acountID string, startIndex uint32, endIndex uint32) (s *riotclient.MatchList, err error) {
+// MatchesByAccountID gets a match by AccountID
+// args: List of arguments to the query. They are directly passed to the request.
+// Refer to https://developer.riotgames.com/api-methods/#match-v4/GET_getMatchlist for details.
+func (c *RiotClientV4) MatchesByAccountID(accountID string, args map[string]string) (s *riotclient.MatchlistDTO, err error) {
 	// Example: https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/1boL9yr2g5kZbPExCP4I6ngN2NIQxe-gi6FWIC8_Di7D4g?endIndex=100&beginIndex=0
-	startIndexStr := strconv.FormatUint(uint64(startIndex), 10)
-	endIndexStr := strconv.FormatUint(uint64(endIndex), 10)
-	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/match/"+c.config.APIVersion+"/matchlists/by-account/"+acountID+"?beginIndex="+startIndexStr+"&endIndex="+endIndexStr, "GET", "")
+	basicAPICall := "https://" + c.config.Region + ".api.riotgames.com/lol/match/" + c.config.APIVersion + "/matchlists/by-account/" + accountID
+	fullAPICall := basicAPICall
+	if len(args) > 0 {
+		fullAPICall = fullAPICall + "?"
+
+		keys := make([]string, 0, len(args))
+		for k := range args {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+
+		for _, k := range keys {
+			fullAPICall = fullAPICall + k + "=" + args[k] + "&"
+		}
+		if last := len(fullAPICall) - 1; last >= 0 && fullAPICall[last] == '&' {
+			fullAPICall = fullAPICall[:last]
+		}
+	}
+	data, err := apiCall(c, fullAPICall, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
 
-	matchList := riotclient.MatchList{}
+	matchList := riotclient.MatchlistDTO{}
 	err = json.Unmarshal(data, &matchList)
 	if err != nil {
 		return nil, err

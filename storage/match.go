@@ -58,8 +58,10 @@ func (s *Storage) GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs(game
 }
 
 // GetMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex
-func (s *Storage) GetMatchesByAccountID(accountID string, startIndex uint32, endIndex uint32) (*riotclient.MatchList, error) {
-	return s.riotClient.MatchesByAccountID(accountID, startIndex, endIndex)
+func (s *Storage) GetMatchesByAccountID(accountID string, beginIndex uint32, endIndex uint32) (*riotclient.MatchlistDTO, error) {
+	beginIndexStr := strconv.FormatInt(int64(beginIndex), 10)
+	endIndexStr := strconv.FormatInt(int64(endIndex), 10)
+	return s.riotClient.MatchesByAccountID(accountID, map[string]string{"beginIndex": beginIndexStr, "endIndex": endIndexStr})
 }
 
 func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {

@@ -214,23 +214,6 @@ type Matches struct {
 	Matches []MatchDTO `json:"matches"`
 }
 
-// MatchList contains a list of matches which have been requested via the API
-type MatchList struct {
-	Matches []struct {
-		Lane       string `json:"lane"`
-		GameID     int64  `json:"gameId"`
-		Champion   int    `json:"champion"`
-		PlatformID string `json:"platformId"`
-		Timestamp  int64  `json:"timestamp"`
-		Queue      int    `json:"queue"`
-		Role       string `json:"role"`
-		Season     int    `json:"season"`
-	} `json:"matches"`
-	StartIndex int `json:"startIndex"`
-	EndIndex   int `json:"endIndex"`
-	TotalGames int `json:"totalGames"`
-}
-
 // MatchReferenceDTO models the Riot API response for one Matches entry in a MatchlistDto
 type MatchReferenceDTO struct {
 	Lane       string `json:"lane"`

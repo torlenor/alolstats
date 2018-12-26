@@ -404,15 +404,14 @@ func TestRiotClientV4_MatchesByAccountID(t *testing.T) {
 		log    *logrus.Entry
 	}
 	type args struct {
-		acountID   string
-		startIndex uint32
-		endIndex   uint32
+		accountID string
+		args      map[string]string
 	}
 	tests := []struct {
 		name              string
 		fields            fields
 		args              args
-		wantS             *riotclient.MatchList
+		wantS             *riotclient.MatchlistDTO
 		wantErr           bool
 		setJSON           []byte
 		setError          error
@@ -420,7 +419,168 @@ func TestRiotClientV4_MatchesByAccountID(t *testing.T) {
 		wantAPICallMethod string
 		wantAPICallBody   string
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test 1 - Receive valid MatchList JSON",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				accountID: "C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw",
+				args:      make(map[string]string),
+			},
+			wantS: &riotclient.MatchlistDTO{
+				Matches: []riotclient.MatchReferenceDTO{
+					{
+						Lane:       "JUNGLE",
+						GameID:     3875655954,
+						Champion:   120,
+						PlatformID: "EUW1",
+						Timestamp:  1545831637628,
+						Queue:      420,
+						Role:       "NONE",
+						Season:     11,
+					},
+					{
+						Lane:       "JUNGLE",
+						GameID:     3875554798,
+						Champion:   79,
+						PlatformID: "EUW1",
+						Timestamp:  1545828172417,
+						Queue:      420,
+						Role:       "NONE",
+						Season:     11,
+					},
+					{
+						Lane:       "JUNGLE",
+						GameID:     3875459851,
+						Champion:   120,
+						PlatformID: "EUW1",
+						Timestamp:  1545825706777,
+						Queue:      420,
+						Role:       "NONE",
+						Season:     11,
+					},
+				},
+				EndIndex:   100,
+				StartIndex: 0,
+				TotalGames: 3,
+			},
+			setJSON:           []byte(`{"matches":[{"lane":"JUNGLE","gameId":3875655954,"champion":120,"platformId":"EUW1","timestamp":1545831637628,"queue":420,"role":"NONE","season":11},{"lane":"JUNGLE","gameId":3875554798,"champion":79,"platformId":"EUW1","timestamp":1545828172417,"queue":420,"role":"NONE","season":11},{"lane":"JUNGLE","gameId":3875459851,"champion":120,"platformId":"EUW1","timestamp":1545825706777,"queue":420,"role":"NONE","season":11}],"endIndex":100,"startIndex":0,"totalGames":3}`),
+			setError:          nil,
+			wantErr:           false,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+		{
+			name: "Test 2 - Receive invalid MatchList JSON",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				accountID: "C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw",
+				args:      make(map[string]string),
+			},
+			wantS:             nil,
+			setJSON:           []byte(`{"matches":[{{{{"lane":"JUNGLE","gameId":3875655954,"champion":120,"platformId":"EUW1","timestamp":1545831637628,"queue":420,"role":"NONE","season":11},{"lane":"JUNGLE","gameId":3875554798,"champion":79,"platformId":"EUW1","timestamp":1545828172417,"queue":420,"role":"NONE","season":11},{"lane":"JUNGLE","gameId":3875459851,"champion":120,"platformId":"EUW1","timestamp":1545825706777,"queue":420,"role":"NONE","season":11}],"endIndex":100,"startIndex":0,"totalGames":3}`),
+			setError:          nil,
+			wantErr:           true,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+		{
+			name: "Test 3 - API error",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				accountID: "C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw",
+				args:      make(map[string]string),
+			},
+			wantS:             nil,
+			setJSON:           []byte(``),
+			setError:          fmt.Errorf("Some error"),
+			wantErr:           true,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+		{
+			name: "Test 4 - Set various query args",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				accountID: "C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw",
+				args: map[string]string{
+					"beginIndex": "0",
+					"endIndex":   "100",
+					"beginTime":  "0",
+					"champion":   "123",
+					"queue":      "100",
+				},
+			},
+			wantS: &riotclient.MatchlistDTO{
+				Matches: []riotclient.MatchReferenceDTO{
+					{
+						Lane:       "JUNGLE",
+						GameID:     3875655954,
+						Champion:   120,
+						PlatformID: "EUW1",
+						Timestamp:  1545831637628,
+						Queue:      420,
+						Role:       "NONE",
+						Season:     11,
+					},
+					{
+						Lane:       "JUNGLE",
+						GameID:     3875554798,
+						Champion:   79,
+						PlatformID: "EUW1",
+						Timestamp:  1545828172417,
+						Queue:      420,
+						Role:       "NONE",
+						Season:     11,
+					},
+					{
+						Lane:       "JUNGLE",
+						GameID:     3875459851,
+						Champion:   120,
+						PlatformID: "EUW1",
+						Timestamp:  1545825706777,
+						Queue:      420,
+						Role:       "NONE",
+						Season:     11,
+					},
+				},
+				EndIndex:   100,
+				StartIndex: 0,
+				TotalGames: 3,
+			},
+			setJSON:           []byte(`{"matches":[{"lane":"JUNGLE","gameId":3875655954,"champion":120,"platformId":"EUW1","timestamp":1545831637628,"queue":420,"role":"NONE","season":11},{"lane":"JUNGLE","gameId":3875554798,"champion":79,"platformId":"EUW1","timestamp":1545828172417,"queue":420,"role":"NONE","season":11},{"lane":"JUNGLE","gameId":3875459851,"champion":120,"platformId":"EUW1","timestamp":1545825706777,"queue":420,"role":"NONE","season":11}],"endIndex":100,"startIndex":0,"totalGames":3}`),
+			setError:          nil,
+			wantErr:           false,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/C9VDk9h0oZtvFNWWeQVaU2G_Kq6YWYR2pcKbhmd4TgSMvw?beginIndex=0&beginTime=0&champion=123&endIndex=100&queue=100",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -432,7 +592,7 @@ func TestRiotClientV4_MatchesByAccountID(t *testing.T) {
 			apiCallReturnJSON = tt.setJSON
 			apiCallReturnErr = tt.setError
 
-			gotS, err := c.MatchesByAccountID(tt.args.acountID, tt.args.startIndex, tt.args.endIndex)
+			gotS, err := c.MatchesByAccountID(tt.args.accountID, tt.args.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RiotClientV4.MatchesByAccountID() error = %v, wantErr %v", err, tt.wantErr)
 				return

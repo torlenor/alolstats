@@ -74,7 +74,7 @@ func (c *mockClient) MatchByID(id uint64) (s *riotclient.MatchDTO, err error) {
 	return nil, nil
 }
 
-func (c *mockClient) MatchesByAccountID(accountID string, startIndex uint32, endIndex uint32) (s *riotclient.MatchList, err error) {
+func (c *mockClient) MatchesByAccountID(acountID string, args map[string]string) (s *riotclient.MatchlistDTO, err error) {
 	return nil, nil
 }
 

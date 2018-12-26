@@ -24,7 +24,7 @@ type ClientSummoner interface {
 // ClientMatch defines an interface to Match API calls
 type ClientMatch interface {
 	MatchByID(matchID uint64) (s *MatchDTO, err error)
-	MatchesByAccountID(accountID string, startIndex uint32, endIndex uint32) (s *MatchList, err error)
+	MatchesByAccountID(accountID string, args map[string]string) (s *MatchlistDTO, err error)
 	MatchTimeLineByID(matchID uint64) (t *MatchTimelineDTO, err error)
 }
 
