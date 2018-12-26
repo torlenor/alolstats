@@ -3,7 +3,6 @@ package riotclientv4
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/torlenor/alolstats/riotclient"
 )
@@ -23,7 +22,7 @@ func (c *RiotClientV4) SummonerByName(name string) (s *riotclient.SummonerDTO, e
 		return nil, fmt.Errorf("User does not exist")
 	}
 
-	summoner.Timestamp = time.Now()
+	summoner.Timestamp = now()
 
 	return &summoner, nil
 }
@@ -43,7 +42,7 @@ func (c *RiotClientV4) SummonerByAccountID(accountID string) (s *riotclient.Summ
 		return nil, fmt.Errorf("User does not exist")
 	}
 
-	summoner.Timestamp = time.Now()
+	summoner.Timestamp = now()
 
 	return &summoner, nil
 }
@@ -63,7 +62,7 @@ func (c *RiotClientV4) SummonerBySummonerID(summonerID string) (s *riotclient.Su
 		return nil, fmt.Errorf("User does not exist")
 	}
 
-	summoner.Timestamp = time.Now()
+	summoner.Timestamp = now()
 
 	return &summoner, nil
 }
@@ -84,7 +83,7 @@ func (c *RiotClientV4) SummonerByPUUID(PUUID string) (s *riotclient.SummonerDTO,
 		return nil, fmt.Errorf("User does not exist")
 	}
 
-	summoner.Timestamp = time.Now()
+	summoner.Timestamp = now()
 
 	return &summoner, nil
 }
