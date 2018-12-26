@@ -3,7 +3,6 @@ package riotclientv4
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/torlenor/alolstats/riotclient"
 )
@@ -33,7 +32,7 @@ func (c *RiotClientV4) Champions() (s *riotclient.ChampionList, err error) {
 		Champions: championsDat.Data,
 	}
 
-	now := time.Now()
+	now := now()
 
 	for id, champion := range champions.Champions {
 		champion.Timestamp = now

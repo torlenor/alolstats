@@ -69,6 +69,10 @@ func (b *Backend) GetChampionsTimeStamp() time.Time {
 		return time.Time{}
 	}
 
+	if len(championList.Champions) == 0 {
+		return time.Time{}
+	}
+
 	// Find oldest champ time
 	oldest := time.Now()
 	for _, champion := range championList.Champions {

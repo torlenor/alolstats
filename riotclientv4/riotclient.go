@@ -14,7 +14,6 @@ import (
 	"github.com/torlenor/alolstats/config"
 	"github.com/torlenor/alolstats/logging"
 
-	"github.com/torlenor/alolstats/riotclient/datadragon"
 	"github.com/torlenor/alolstats/riotclient/ratelimit"
 )
 
@@ -36,8 +35,12 @@ type RiotClientV4 struct {
 	stopWorkers chan struct{}
 	workQueue   workQueue
 
-	ddragon   *riotclientdd.RiotClientDD
+	ddragon   dataDragon
 	rateLimit *riotclientrl.RiotClientRL
+}
+
+type dataDragon interface {
+	GetDataDragonChampions() ([]byte, error)
 }
 
 func checkConfig(cfg config.RiotClient) error {
@@ -55,7 +58,7 @@ func checkConfig(cfg config.RiotClient) error {
 
 // NewClient creates a new Riot LoL API client
 func NewClient(httpClient httpClient, cfg config.RiotClient,
-	ddragon *riotclientdd.RiotClientDD,
+	ddragon dataDragon,
 	rateLimit *riotclientrl.RiotClientRL) (*RiotClientV4, error) {
 	err := checkConfig(cfg)
 	if err != nil {

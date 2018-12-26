@@ -45,6 +45,7 @@ type ChampionStats struct {
 	Attackdamageperlevel float64 `json:"attackdamageperlevel"`
 	Attackspeedoffset    float64 `json:"attackspeedoffset"`
 	Attackspeedperlevel  float64 `json:"attackspeedperlevel"`
+	Attackspeed          float64 `json:"attackspeed"`
 }
 
 // Champion stores champion data
