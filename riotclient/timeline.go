@@ -49,9 +49,9 @@ type MatchParticipantFrameDTO struct {
 
 // MatchFrameDTO contains the actual timeline data of a match timeline
 type MatchFrameDTO struct {
-	Timestamp         int64                      `json:"timestamp"`
-	ParticipantFrames []MatchParticipantFrameDTO `json:"participantFrames"`
-	Events            []MatchEventDTO            `json:"events"`
+	Timestamp         int64                               `json:"timestamp"`
+	ParticipantFrames map[string]MatchParticipantFrameDTO `json:"participantFrames"`
+	Events            []MatchEventDTO                     `json:"events"`
 }
 
 // MatchTimelineDTO contains a timeline for events in a match

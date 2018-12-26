@@ -354,6 +354,26 @@ func TestRiotClientV4_MatchByID(t *testing.T) {
 			wantAPICallMethod: "GET",
 			wantAPICallBody:   "",
 		},
+		{
+			name: "Test 4 - Empty JSON",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				id: 3872223341,
+			},
+			wantS:             nil,
+			setJSON:           []byte("{}"),
+			setError:          nil,
+			wantErr:           true,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/matches/3872223341",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -645,7 +665,159 @@ func TestRiotClientV4_MatchTimeLineByID(t *testing.T) {
 		wantAPICallMethod string
 		wantAPICallBody   string
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test 1 - Receive valid Match JSON",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				matchID: 3873214513,
+			},
+			wantT: &riotclient.MatchTimelineDTO{
+				Frames: []riotclient.MatchFrameDTO{
+					{
+						Timestamp: 60027,
+						ParticipantFrames: map[string]riotclient.MatchParticipantFrameDTO{
+							"1": {
+								TotalGold:     500,
+								TeamScore:     0,
+								ParticipantID: 1,
+								Level:         1,
+								CurrentGold:   0,
+								MinionsKilled: 0,
+								DominionScore: 0,
+								Position: riotclient.MatchPositionDTO{
+									Y: 3448,
+									X: 8028,
+								},
+								Xp:                  0,
+								JungleMinionsKilled: 0,
+							},
+							"2": {
+								TotalGold:     500,
+								TeamScore:     0,
+								ParticipantID: 2,
+								Level:         1,
+								CurrentGold:   50,
+								MinionsKilled: 0,
+								DominionScore: 0,
+								Position: riotclient.MatchPositionDTO{
+									Y: 6095,
+									X: 6449,
+								},
+								Xp:                  0,
+								JungleMinionsKilled: 0,
+							},
+						},
+						Events: []riotclient.MatchEventDTO{
+							{
+								Timestamp:     3984,
+								SkillSlot:     1,
+								LevelUpType:   "NORMAL",
+								Type:          "SKILL_LEVEL_UP",
+								ParticipantID: 2,
+							},
+							{
+								ItemID:        2003,
+								Timestamp:     4248,
+								Type:          "ITEM_PURCHASED",
+								ParticipantID: 8,
+							},
+							{
+								Timestamp:     4446,
+								SkillSlot:     1,
+								LevelUpType:   "NORMAL",
+								Type:          "SKILL_LEVEL_UP",
+								ParticipantID: 4,
+							},
+							{
+								ItemID:        1055,
+								Timestamp:     4875,
+								Type:          "ITEM_PURCHASED",
+								ParticipantID: 8,
+							},
+							{
+								ItemID:        1056,
+								Timestamp:     4941,
+								Type:          "ITEM_PURCHASED",
+								ParticipantID: 3,
+							},
+							{
+								Timestamp:     5073,
+								SkillSlot:     1,
+								LevelUpType:   "NORMAL",
+								Type:          "SKILL_LEVEL_UP",
+								ParticipantID: 10,
+							},
+							{
+								ItemID:        2003,
+								Timestamp:     5403,
+								Type:          "ITEM_PURCHASED",
+								ParticipantID: 3,
+							},
+							{
+								Timestamp:     5403,
+								SkillSlot:     1,
+								LevelUpType:   "NORMAL",
+								Type:          "SKILL_LEVEL_UP",
+								ParticipantID: 1,
+							},
+						},
+					},
+				},
+				FrameInterval: 60000,
+			},
+			setJSON:           []byte(`{"frames":[{"timestamp":60027,"participantFrames":{"1":{"totalGold":500,"teamScore":0,"participantId":1,"level":1,"currentGold":0,"minionsKilled":0,"dominionScore":0,"position":{"y":3448,"x":8028},"xp":0,"jungleMinionsKilled":0},"2":{"totalGold":500,"teamScore":0,"participantId":2,"level":1,"currentGold":50,"minionsKilled":0,"dominionScore":0,"position":{"y":6095,"x":6449},"xp":0,"jungleMinionsKilled":0}},"events":[{"timestamp":3984,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":2},{"itemId":2003,"timestamp":4248,"type":"ITEM_PURCHASED","participantId":8},{"timestamp":4446,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":4},{"itemId":1055,"timestamp":4875,"type":"ITEM_PURCHASED","participantId":8},{"itemId":1056,"timestamp":4941,"type":"ITEM_PURCHASED","participantId":3},{"timestamp":5073,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":10},{"itemId":2003,"timestamp":5403,"type":"ITEM_PURCHASED","participantId":3},{"timestamp":5403,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":1}]}],"frameInterval":60000}`),
+			setError:          nil,
+			wantErr:           false,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/timelines/by-match/3873214513",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+		{
+			name: "Test 2 - Receive invalid Match JSON",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				matchID: 3873214513,
+			},
+			wantT:             nil,
+			setJSON:           []byte(`{{{"{{{frames":{{[{"timestamp":60027,"participantFrames":{"1":{"totalGold":500,"teamScore":0,"participantId":1,"level":1,"currentGold":0,"minionsKilled":0,"dominionScore":0,"position":{"y":3448,"x":8028},"xp":0,"jungleMinionsKilled":0},"2":{"totalGold":500,"teamScore":0,"participantId":2,"level":1,"currentGold":50,"minionsKilled":0,"dominionScore":0,"position":{"y":6095,"x":6449},"xp":0,"jungleMinionsKilled":0}},"events":[{"timestamp":3984,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":2},{"itemId":2003,"timestamp":4248,"type":"ITEM_PURCHASED","participantId":8},{"timestamp":4446,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":4},{"itemId":1055,"timestamp":4875,"type":"ITEM_PURCHASED","participantId":8},{"itemId":1056,"timestamp":4941,"type":"ITEM_PURCHASED","participantId":3},{"timestamp":5073,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":10},{"itemId":2003,"timestamp":5403,"type":"ITEM_PURCHASED","participantId":3},{"timestamp":5403,"skillSlot":1,"levelUpType":"NORMAL","type":"SKILL_LEVEL_UP","participantId":1}]}],"frameInterval":60000}`),
+			setError:          nil,
+			wantErr:           true,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/timelines/by-match/3873214513",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+		{
+			name: "Test 3 - API call error",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				matchID: 3873214513,
+			},
+			wantT:             nil,
+			setJSON:           []byte(""),
+			setError:          fmt.Errorf("Some error"),
+			wantErr:           true,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/match/v4/timelines/by-match/3873214513",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
