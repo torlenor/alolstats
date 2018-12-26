@@ -40,14 +40,14 @@ func (c *RiotClientV4) LeagueByQueue(league string, queue string) (*riotclient.L
 }
 
 // LeaguesForSummoner returns all Leagues a Summoner is ranked in
-func (c *RiotClientV4) LeaguesForSummoner(encSummonerID string) (*riotclient.LeaguePositionDTO, error) {
+func (c *RiotClientV4) LeaguesForSummoner(encSummonerID string) (*riotclient.LeaguePositionDTOList, error) {
 	// /lol/league/v4/positions/by-summoner/{encryptedSummonerId}
 	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/league/"+c.config.APIVersion+"/positions/by-summoner/"+encSummonerID, "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
 
-	leaguePositions := riotclient.LeaguePositionDTO{}
+	leaguePositions := riotclient.LeaguePositionDTOList{}
 	err = json.Unmarshal(data, &leaguePositions)
 	if err != nil {
 		return nil, err

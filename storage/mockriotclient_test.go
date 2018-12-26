@@ -147,7 +147,7 @@ func (c *mockClient) FeaturedGames() (*riotclient.FeaturedGamesDTO, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
-func (c *mockClient) LeaguesForSummoner(encSummonerID string) (*riotclient.LeaguePositionDTO, error) {
+func (c *mockClient) LeaguesForSummoner(encSummonerID string) (*riotclient.LeaguePositionDTOList, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 

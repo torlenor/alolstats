@@ -77,6 +77,35 @@ type ParticipantStatsDTO struct {
 	PlayerScore7                    int  `json:"playerScore7"`
 	PlayerScore8                    int  `json:"playerScore8"`
 	PlayerScore9                    int  `json:"playerScore9"`
+	Perk0Var1                       int  `json:"perk0var1"`
+	Perk0Var2                       int  `json:"perk0var2"`
+	Perk0Var3                       int  `json:"perk0var3"`
+	Perk1Var1                       int  `json:"perk1var1"`
+	Perk1Var2                       int  `json:"perk1var2"`
+	Perk1Var3                       int  `json:"perk1var3"`
+	Perk2Var1                       int  `json:"perk2var1"`
+	Perk2Var2                       int  `json:"perk2var2"`
+	Perk2Var3                       int  `json:"perk2var3"`
+	Perk3Var1                       int  `json:"perk3var1"`
+	Perk3Var2                       int  `json:"perk3var2"`
+	Perk3Var3                       int  `json:"perk3var3"`
+	Perk4Var1                       int  `json:"perk4var1"`
+	Perk4Var2                       int  `json:"perk4var2"`
+	Perk4Var3                       int  `json:"perk4var3"`
+	Perk5Var1                       int  `json:"perk5var1"`
+	Perk5Var2                       int  `json:"perk5var2"`
+	Perk5Var3                       int  `json:"perk5var3"`
+	Perk0                           int  `json:"perk0"`
+	Perk1                           int  `json:"perk1"`
+	Perk2                           int  `json:"perk2"`
+	Perk3                           int  `json:"perk3"`
+	Perk4                           int  `json:"perk4"`
+	Perk5                           int  `json:"perk5"`
+	StatPerk0                       int  `json:"statPerk0"`
+	StatPerk1                       int  `json:"statPerk1"`
+	StatPerk2                       int  `json:"statPerk2"`
+	PerkPrimaryStyle                int  `json:"perkPrimaryStyle"`
+	PerkSubStyle                    int  `json:"perkSubStyle"`
 }
 
 // RuneDTO contains the runes of a participant of a match
@@ -119,27 +148,30 @@ type ParticipantDTO struct {
 	Timeline                  ParticipantTimelineDTO `json:"timeline"`
 }
 
+// TeamStatsBansDTO contains bans in a match
+type TeamStatsBansDTO struct {
+	ChampionID int `json:"championId"`
+	PickTurn   int `json:"pickTurn"`
+}
+
 // TeamStatsDTO contains Team information
 type TeamStatsDTO struct {
-	TeamID               int    `json:"teamId"`
-	Win                  string `json:"win"`
-	FirstBlood           bool   `json:"firstBlood"`
-	FirstTower           bool   `json:"firstTower"`
-	FirstInhibitor       bool   `json:"firstInhibitor"`
-	FirstBaron           bool   `json:"firstBaron"`
-	FirstDragon          bool   `json:"firstDragon"`
-	FirstRiftHerald      bool   `json:"firstRiftHerald"`
-	TowerKills           int    `json:"towerKills"`
-	InhibitorKills       int    `json:"inhibitorKills"`
-	BaronKills           int    `json:"baronKills"`
-	DragonKills          int    `json:"dragonKills"`
-	VilemawKills         int    `json:"vilemawKills"`
-	RiftHeraldKills      int    `json:"riftHeraldKills"`
-	DominionVictoryScore int    `json:"dominionVictoryScore"`
-	Bans                 []struct {
-		ChampionID int `json:"championId"`
-		PickTurn   int `json:"pickTurn"`
-	} `json:"bans"`
+	TeamID               int                `json:"teamId"`
+	Win                  string             `json:"win"`
+	FirstBlood           bool               `json:"firstBlood"`
+	FirstTower           bool               `json:"firstTower"`
+	FirstInhibitor       bool               `json:"firstInhibitor"`
+	FirstBaron           bool               `json:"firstBaron"`
+	FirstDragon          bool               `json:"firstDragon"`
+	FirstRiftHerald      bool               `json:"firstRiftHerald"`
+	TowerKills           int                `json:"towerKills"`
+	InhibitorKills       int                `json:"inhibitorKills"`
+	BaronKills           int                `json:"baronKills"`
+	DragonKills          int                `json:"dragonKills"`
+	VilemawKills         int                `json:"vilemawKills"`
+	RiftHeraldKills      int                `json:"riftHeraldKills"`
+	DominionVictoryScore int                `json:"dominionVictoryScore"`
+	Bans                 []TeamStatsBansDTO `json:"bans"`
 }
 
 // PlayerDTO contains the Player Information

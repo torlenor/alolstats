@@ -31,7 +31,7 @@ type ClientMatch interface {
 // ClientLeague defines an interface to League API calls
 type ClientLeague interface {
 	LeagueByQueue(league string, queue string) (*LeagueListDTO, error)
-	LeaguesForSummoner(encSummonerID string) (*LeaguePositionDTO, error)
+	LeaguesForSummoner(encSummonerID string) (*LeaguePositionDTOList, error)
 }
 
 // ClientSpectator defines an interface to Spectator API calls

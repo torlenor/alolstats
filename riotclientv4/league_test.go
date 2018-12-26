@@ -164,3 +164,138 @@ func TestRiotClientV4_leagueByQueue(t *testing.T) {
 		})
 	}
 }
+
+func TestRiotClientV4_LeaguesForSummoner(t *testing.T) {
+	// Override real API call with our fake one
+	apiCall = (*RiotClientV4).mockAPICall
+
+	// Inject a new time.Now()
+	now = func() time.Time {
+		layout := "2006-01-02T15:04:05.000Z"
+		str := "2018-12-22T13:00:00.0000"
+		t, _ := time.Parse(layout, str)
+		return t
+	}
+
+	type fields struct {
+		config config.RiotClient
+		log    *logrus.Entry
+	}
+	type args struct {
+		summonerID string
+	}
+	tests := []struct {
+		name              string
+		fields            fields
+		args              args
+		wantS             *riotclient.LeaguePositionDTOList
+		wantErr           bool
+		setJSON           []byte
+		setError          error
+		wantAPICallPath   string
+		wantAPICallMethod string
+		wantAPICallBody   string
+	}{
+		{
+			name: "Test 1 - Receive valid League Positions JSON",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				summonerID: "7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
+			},
+			wantS: &riotclient.LeaguePositionDTOList{
+				{
+					QueueType:    "RANKED_SOLO_5x5",
+					SummonerName: "Suirotas",
+					Wins:         392,
+					Losses:       339,
+					Rank:         "I",
+					LeagueName:   "Mordekaiser's Maulers",
+					LeagueID:     "a14485bd-709d-3c4c-94f3-b4d6e92a7372",
+					Tier:         "GRANDMASTER",
+					SummonerID:   "7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
+					LeaguePoints: 157,
+				},
+			},
+			setJSON:           []byte(`[{"queueType":"RANKED_SOLO_5x5","summonerName":"Suirotas","wins":392,"losses":339,"rank":"I","leagueName":"Mordekaiser's Maulers","leagueId":"a14485bd-709d-3c4c-94f3-b4d6e92a7372","tier":"GRANDMASTER","summonerId":"7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE","leaguePoints":157}]`),
+			setError:          nil,
+			wantErr:           false,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/league/v4/positions/by-summoner/7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+		{
+			name: "Test 2 - Receive invalid League Positions JSON",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				summonerID: "7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
+			},
+			setJSON:           []byte(`{{{[{"queueType":"RANKED_SOLO_5x5","summonerName":"Suirotas","wins":392,"losses":339,"rank":"I","leagueName":"Mordekaiser's Maulers","leagueId":"a14485bd-709d-3c4c-94f3-b4d6e92a7372","tier":"GRANDMASTER","summonerId":"7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE","leaguePoints":157}]`),
+			setError:          nil,
+			wantErr:           true,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/league/v4/positions/by-summoner/7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+		{
+			name: "Test 3 - API Call failure",
+			fields: fields{
+				config: config.RiotClient{
+					APIVersion: "v4",
+					Region:     "euw1",
+				},
+				log: logging.Get("RiotClientV4"),
+			},
+			args: args{
+				summonerID: "7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
+			},
+			setJSON:           []byte(""),
+			setError:          fmt.Errorf("Some API error"),
+			wantErr:           true,
+			wantAPICallPath:   "https://euw1.api.riotgames.com/lol/league/v4/positions/by-summoner/7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
+			wantAPICallMethod: "GET",
+			wantAPICallBody:   "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &RiotClientV4{
+				config: tt.fields.config,
+				log:    tt.fields.log,
+			}
+
+			apiCallReturnJSON = tt.setJSON
+			apiCallReturnErr = tt.setError
+
+			gotS, err := c.LeaguesForSummoner(tt.args.summonerID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RiotClientV4.LeaguesForSummoner() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotS, tt.wantS) {
+				t.Errorf("RiotClientV4.LeaguesForSummoner() = %v, want %v", gotS, tt.wantS)
+			}
+
+			if lastAPICallPath != tt.wantAPICallPath {
+				t.Errorf("lastAPICallPath = %v, want %v", lastAPICallPath, tt.wantAPICallPath)
+			}
+			if lastAPICallBody != tt.wantAPICallBody {
+				t.Errorf("lastAPICallBody = %v, want %v", lastAPICallBody, tt.wantAPICallBody)
+			}
+			if lastAPICallMethod != tt.wantAPICallMethod {
+				t.Errorf("lastAPICallMethod = %v, want %v", lastAPICallMethod, tt.wantAPICallMethod)
+			}
+		})
+	}
+}
