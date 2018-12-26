@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/torlenor/alolstats/config"
+	"github.com/torlenor/alolstats/logging"
 	"github.com/torlenor/alolstats/riotclient"
 )
 
@@ -47,6 +48,7 @@ func TestRiotClientV4_leagueByQueue(t *testing.T) {
 					APIVersion: "v4",
 					Region:     "euw1",
 				},
+				log: logging.Get("RiotClientV4"),
 			},
 			args: args{
 				leagueEndPoint: "mastersleague",
@@ -84,6 +86,7 @@ func TestRiotClientV4_leagueByQueue(t *testing.T) {
 					APIVersion: "v4",
 					Region:     "euw1",
 				},
+				log: logging.Get("RiotClientV4"),
 			},
 			args: args{
 				leagueEndPoint: "challengersleague",
@@ -101,6 +104,7 @@ func TestRiotClientV4_leagueByQueue(t *testing.T) {
 					APIVersion: "v4",
 					Region:     "euw1",
 				},
+				log: logging.Get("RiotClientV4"),
 			},
 			args: args{
 				leagueEndPoint: "grandmastersleague",
@@ -116,6 +120,7 @@ func TestRiotClientV4_leagueByQueue(t *testing.T) {
 					APIVersion: "v4",
 					Region:     "euw1",
 				},
+				log: logging.Get("RiotClientV4"),
 			},
 			args: args{
 				leagueEndPoint: "grandmastersleague",

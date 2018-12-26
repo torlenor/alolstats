@@ -188,12 +188,10 @@ func TestRiotClientV4_Champions(t *testing.T) {
 				ddragon: tt.fields.ddragon,
 			}
 			gotS, err := c.Champions()
-			c.log.Warnf("test6")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RiotClientV4.Champions() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			c.log.Warnf("test7")
 			if !reflect.DeepEqual(gotS, tt.wantS) {
 				t.Errorf("RiotClientV4.Champions() = %v, want %v", gotS, tt.wantS)
 			}
