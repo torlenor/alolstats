@@ -9,10 +9,10 @@ import (
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo/options"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"github.com/torlenor/alolstats/storage"
 )
 
-func (b *Backend) summonerQuery(query *bson.D) (*riotclient.SummonerDTO, error) {
+func (b *Backend) summonerQuery(query *bson.D) (*storage.Summoner, error) {
 	c := b.client.Database(b.config.Database).Collection("summoners")
 
 	cur, err := c.Find(
@@ -25,10 +25,10 @@ func (b *Backend) summonerQuery(query *bson.D) (*riotclient.SummonerDTO, error) 
 
 	defer cur.Close(context.Background())
 
-	var summoners []riotclient.SummonerDTO
+	var summoners []storage.Summoner
 
 	for cur.Next(nil) {
-		summoner := riotclient.SummonerDTO{}
+		summoner := storage.Summoner{}
 		err := cur.Decode(&summoner)
 		if err != nil {
 			b.log.Warnln("Decode error ", err)
@@ -71,18 +71,18 @@ func (b *Backend) GetSummonerByNameTimeStamp(name string) time.Time {
 	if err != nil {
 		return time.Time{}
 	}
-	return summoner.Timestamp
+	return summoner.SummonerDTO.Timestamp
 }
 
 // GetSummonerByName retreives a summoner by name
-func (b *Backend) GetSummonerByName(name string) (*riotclient.SummonerDTO, error) {
-	query := &bson.D{{Key: "name", Value: strings.ToLower(name)}}
+func (b *Backend) GetSummonerByName(name string) (*storage.Summoner, error) {
+	query := &bson.D{{Key: "summonername", Value: strings.ToLower(name)}}
 	return b.summonerQuery(query)
 }
 
 // GetSummonerBySummonerID retreives a summoner identified by its Summoner ID
-func (b *Backend) GetSummonerBySummonerID(summonerID string) (*riotclient.SummonerDTO, error) {
-	query := &bson.D{{Key: "id", Value: summonerID}}
+func (b *Backend) GetSummonerBySummonerID(summonerID string) (*storage.Summoner, error) {
+	query := &bson.D{{Key: "summonerdto.id", Value: summonerID}}
 	return b.summonerQuery(query)
 }
 
@@ -92,12 +92,12 @@ func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID string) time.Time 
 	if err != nil {
 		return time.Time{}
 	}
-	return summoner.Timestamp
+	return summoner.SummonerDTO.Timestamp
 }
 
 // GetSummonerByAccountID retreives a summoner identified by its Account ID
-func (b *Backend) GetSummonerByAccountID(accountID string) (*riotclient.SummonerDTO, error) {
-	query := &bson.D{{Key: "accountid", Value: accountID}}
+func (b *Backend) GetSummonerByAccountID(accountID string) (*storage.Summoner, error) {
+	query := &bson.D{{Key: "summonerdto.accountid", Value: accountID}}
 	return b.summonerQuery(query)
 }
 
@@ -107,17 +107,17 @@ func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID string) time.Time {
 	if err != nil {
 		return time.Time{}
 	}
-	return summoner.Timestamp
+	return summoner.SummonerDTO.Timestamp
 }
 
 // StoreSummoner stores new Summoner data
-func (b *Backend) StoreSummoner(data *riotclient.SummonerDTO) error {
-	b.log.Debugf("Storing Summoner %s in storage", data.Name)
+func (b *Backend) StoreSummoner(data *storage.Summoner) error {
+	b.log.Debugf("Storing Summoner %s in storage", data.SummonerDTO.Name)
 
 	upsert := true
 	updateOptions := options.UpdateOptions{Upsert: &upsert}
 
-	query := bson.D{{Key: "accountid", Value: data.AccountID}}
+	query := bson.D{{Key: "summonerdto.accountid", Value: data.SummonerDTO.AccountID}}
 	update := bson.D{{Key: "$set", Value: data}}
 
 	c := b.client.Database(b.config.Database).Collection("summoners")

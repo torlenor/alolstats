@@ -94,7 +94,7 @@ func (b *Backend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersio
 	return &matches, nil
 }
 
-func (b *Backend) GetSummonerByName(name string) (*riotclient.SummonerDTO, error) {
+func (b *Backend) GetSummonerByName(name string) (*storage.Summoner, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
@@ -102,7 +102,7 @@ func (b *Backend) GetSummonerByNameTimeStamp(name string) time.Time {
 	return time.Time{}
 }
 
-func (b *Backend) GetSummonerBySummonerID(summonerID string) (*riotclient.SummonerDTO, error) {
+func (b *Backend) GetSummonerBySummonerID(summonerID string) (*storage.Summoner, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
@@ -110,7 +110,7 @@ func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID string) time.Time 
 	return time.Time{}
 }
 
-func (b *Backend) GetSummonerByAccountID(accountID string) (*riotclient.SummonerDTO, error) {
+func (b *Backend) GetSummonerByAccountID(accountID string) (*storage.Summoner, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
@@ -118,7 +118,7 @@ func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID string) time.Time {
 	return time.Time{}
 }
 
-func (b *Backend) StoreSummoner(data *riotclient.SummonerDTO) error {
+func (b *Backend) StoreSummoner(data *storage.Summoner) error {
 	return fmt.Errorf("Not implemented")
 }
 

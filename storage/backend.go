@@ -11,13 +11,13 @@ type BackendRiotAPI interface {
 	GetMatch(matchID uint64) (*riotclient.MatchDTO, error)
 	StoreMatch(data *riotclient.MatchDTO) error
 
-	GetSummonerByName(name string) (*riotclient.SummonerDTO, error)
+	GetSummonerByName(name string) (*Summoner, error)
 	GetSummonerByNameTimeStamp(name string) time.Time
-	GetSummonerBySummonerID(summonerID string) (*riotclient.SummonerDTO, error)
+	GetSummonerBySummonerID(summonerID string) (*Summoner, error)
 	GetSummonerBySummonerIDTimeStamp(summonerID string) time.Time
-	GetSummonerByAccountID(accountID string) (*riotclient.SummonerDTO, error)
+	GetSummonerByAccountID(accountID string) (*Summoner, error)
 	GetSummonerByAccountIDTimeStamp(accountID string) time.Time
-	StoreSummoner(data *riotclient.SummonerDTO) error
+	StoreSummoner(data *Summoner) error
 }
 
 // Backend defines the interface for a storage backend like mongodb
