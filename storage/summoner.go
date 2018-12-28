@@ -1,11 +1,7 @@
 package storage
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"sync/atomic"
 	"time"
 
 	"github.com/torlenor/alolstats/utils"
@@ -147,40 +143,4 @@ func (s *Storage) GetSummonerByAccountID(accountID string) (riotclient.SummonerD
 	}
 	s.log.Debugf("Returned Summoner with AccountID %s from Storage", accountID)
 	return summoner.SummonerDTO, nil
-}
-
-func (s *Storage) summonerByNameEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Received Rest API SummonerByName request from", r.RemoteAddr)
-
-	var summonerName string
-	if val, ok := r.URL.Query()["name"]; ok {
-		if len(val[0]) == 0 {
-			s.log.Warnf("name parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		summonerName = val[0]
-	} else {
-		s.log.Warnf("There was no name parameter in request")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	summoner, err := s.GetSummonerByName(summonerName)
-	if err != nil {
-		s.log.Warnf("Error getting SummonerByName data")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	out, err := json.Marshal(summoner)
-	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	io.WriteString(w, string(out))
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
 }

@@ -4,17 +4,19 @@ import "github.com/torlenor/alolstats/api"
 
 func (s *Storage) registerAPIChampions(api *api.API) {
 	api.AttachModuleGet("/champions", s.championsEndpoint)
+
 	api.AttachModuleGet("/champion/bykey", s.championByKeyEndpoint)
+	api.AttachModuleGet("/champion/byid", s.championByIDEndpoint)
+
 	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
 }
 
 func (s *Storage) registerAPIMatch(api *api.API) {
 	api.AttachModuleGet("/match", s.getMatchEndpoint)
-	api.AttachModuleGet("/active-game", s.getActiveGameBySummonerNameEndpoint)
-
 }
 
 func (s *Storage) registerAPISpectator(api *api.API) {
+	api.AttachModuleGet("/active-game", s.getActiveGameBySummonerNameEndpoint)
 	api.AttachModuleGet("/featured-games", s.getFeaturedGamesEndpoint)
 }
 

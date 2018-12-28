@@ -1,10 +1,8 @@
 package storage
 
 import (
-	"encoding/json"
-	"io"
-	"net/http"
-	"sync/atomic"
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/torlenor/alolstats/riotclient"
@@ -50,51 +48,24 @@ func (s *Storage) GetChampions() riotclient.ChampionList {
 	return *champions
 }
 
-func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Received Rest API Champions request from", r.RemoteAddr)
+// GetChampionByID returns a champion identified by its ID
+func (s *Storage) GetChampionByID(id uint32) (riotclient.Champion, error) {
+	idStr := strconv.FormatUint(uint64(id), 10)
+
 	champions := s.GetChampions()
 
-	out, err := json.Marshal(champions)
-	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
+	champion := riotclient.Champion{}
+	found := false
+	for _, champion = range champions.Champions {
+		if idStr == champion.ID {
+			found = true
+			break
+		}
 	}
 
-	io.WriteString(w, string(out))
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
-}
-
-func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Received Rest API Champions request from", r.RemoteAddr)
-
-	if val, ok := r.URL.Query()["key"]; ok {
-		if len(val[0]) == 0 {
-			s.log.Warnf("key parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-
-		champions := s.GetChampions()
-
-		champion := riotclient.Champion{}
-
-		for _, champion = range champions.Champions {
-			if val[0] == champion.Key {
-				break
-			}
-		}
-
-		out, err := json.Marshal(champion)
-		if err != nil {
-			s.log.Errorln(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		io.WriteString(w, string(out))
+	if found {
+		return champion, nil
 	}
 
-	atomic.AddUint64(&s.stats.handledRequests, 1)
+	return champion, fmt.Errorf("Champion with ID %d not found", id)
 }
