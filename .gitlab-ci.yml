@@ -9,9 +9,6 @@ cache:
 variables:
   CONTAINER_IMAGE: git.abyle.org:5000/$CI_PROJECT_PATH
 
-services:
-  - mongo:latest
-
 stages:
   - build
   - test
@@ -35,6 +32,8 @@ build:
 unit_tests:
   image: golang:1.11
   stage: test
+  services:
+    - mongo:latest
   script:
     - make test
     - go tool cover -func coverage.out
@@ -66,7 +65,7 @@ container_scanning:
   dependencies:
     - create_docker_image
   tags:
-    - docker-from-docker
+    - docker-in-docker
   variables:
     DOCKER_DRIVER: overlay2
     ## Define two new variables based on GitLab's CI/CD predefined variables
