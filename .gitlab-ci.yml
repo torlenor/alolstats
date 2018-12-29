@@ -17,6 +17,7 @@ stages:
   - test
   - build_static
   - build_image
+  - container_scanning
   - release
   - deploy
 
@@ -61,7 +62,7 @@ create_docker_image:
 
 container_scanning:
   image: docker:stable
-  stage: build_image
+  stage: container_scanning
   dependencies:
     - create_docker_image
   tags:
