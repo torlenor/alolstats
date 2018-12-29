@@ -9,7 +9,8 @@ import (
 
 // ChampionRotations returns the current free champions rotation from Riot API
 func (c *RiotClientV4) ChampionRotations() (*riotclient.FreeRotation, error) {
-	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/platform/"+c.config.APIVersion+"/champion-rotations", "GET", "")
+	// still v3
+	data, err := apiCall(c, "https://"+c.config.Region+".api.riotgames.com/lol/platform/v3/champion-rotations", "GET", "")
 	if err != nil {
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
