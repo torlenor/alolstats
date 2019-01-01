@@ -7,13 +7,15 @@ import (
 )
 
 // GetFreeRotation gets the stored free champions rotation
-func (b *Backend) GetFreeRotation() (riotclient.FreeRotation, error) {
+func (b *Backend) GetFreeRotation() (*riotclient.FreeRotation, error) {
 	b.log.Debugln("Getting Free Rotation List from storage")
 
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	return b.freeRotation, nil
+	freeRotation := b.freeRotation
+
+	return &freeRotation, nil
 }
 
 // GetFreeRotationTimeStamp gets the timestamp of the stored free champions rotation
@@ -27,11 +29,11 @@ func (b *Backend) GetFreeRotationTimeStamp() time.Time {
 }
 
 // StoreFreeRotation stores a new free champions rotation list
-func (b *Backend) StoreFreeRotation(freeRotation riotclient.FreeRotation) error {
+func (b *Backend) StoreFreeRotation(freeRotation *riotclient.FreeRotation) error {
 	b.log.Debugln("Storing new Free Rotation List in storage")
 
 	b.mutex.Lock()
-	b.freeRotation = freeRotation
+	b.freeRotation = *freeRotation
 	b.mutex.Unlock()
 
 	return nil

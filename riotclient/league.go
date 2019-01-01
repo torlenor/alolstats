@@ -1,10 +1,6 @@
 package riotclient
 
-import (
-	"encoding/json"
-	"fmt"
-	"time"
-)
+import "time"
 
 // LeagueData is the representation of a Challenger League at a certain point in time
 type LeagueData struct {
@@ -27,38 +23,48 @@ type LeagueData struct {
 	Timestamp time.Time
 }
 
-func (c *RiotClient) leagueByQueue(leagueEndPoint string, queue string) (*LeagueData, error) {
-	// https://euw1.api.riotgames.com/lol/league/v3/LEAGUEENDPOINT/by-queue/RANKED_SOLO_5x5
-	if queue == "RANKED_SOLO_5x5" || queue == "RANKED_FLEX_SR" || queue == "RANKED_FLEX_TT" {
-		data, err := c.apiCall("https://"+c.config.Region+".api.riotgames.com/lol/league/v3/"+leagueEndPoint+"/by-queue/"+queue, "GET", "")
-		if err != nil {
-			return nil, fmt.Errorf("Error in API call: %s", err)
-		}
-
-		league := LeagueData{}
-		err = json.Unmarshal(data, &league)
-		if err != nil {
-			return nil, fmt.Errorf("%s. Data was: %s", err, data)
-		}
-
-		league.Timestamp = time.Now()
-
-		return &league, nil
-	}
-
-	return nil, fmt.Errorf("Invalid queue type %s, allowed are RANKED_SOLO_5x5, RANKED_FLEX_SR or RANKED_FLEX_TT", queue)
+// MiniSeriesDTO no description available
+type MiniSeriesDTO struct {
+	Wins     int    `json:"wins"`
+	Losses   int    `json:"losses"`
+	Target   int    `json:"target"`
+	Progress string `json:"progress"`
 }
 
-// MasterLeagueByQueue gets the current challenger league list by queue type
-// Allowed values for queue are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
-func (c *RiotClient) MasterLeagueByQueue(queue string) (*LeagueData, error) {
-	// https://euw1.api.riotgames.com/lol/league/v3/masterleagues/by-queue/RANKED_SOLO_5x5
-	return c.leagueByQueue("masterleagues", queue)
+// LeagueItemDTO contains a certain entry in a league response
+type LeagueItemDTO struct {
+	SummonerName string        `json:"summonerName"`
+	Wins         int           `json:"wins"`
+	Losses       int           `json:"losses"`
+	Rank         string        `json:"rank"`
+	SummonerID   string        `json:"summonerId"`
+	LeaguePoints int           `json:"leaguePoints"`
+	MiniSeries   MiniSeriesDTO `json:"miniSeries"`
 }
 
-// ChallengerLeagueByQueue gets the current challenger league list by queue type
-// Allowed values for queue are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
-func (c *RiotClient) ChallengerLeagueByQueue(queue string) (*LeagueData, error) {
-	// https://euw1.api.riotgames.com/lol/league/v3/challengerleagues/by-queue/RANKED_SOLO_5x5
-	return c.leagueByQueue("challengerleagues", queue)
+// LeagueListDTO models the response of the Riot API for league informations
+type LeagueListDTO struct {
+	Tier      string          `json:"tier"`
+	Queue     string          `json:"queue"`
+	LeagueID  string          `json:"leagueId"`
+	Name      string          `json:"name"`
+	Entries   []LeagueItemDTO `json:"entries"`
+	Timestamp time.Time
 }
+
+// LeaguePositionDTO models the response of the Riot API for leagues for a certain summoner (one entry in result array)
+type LeaguePositionDTO struct {
+	QueueType    string `json:"queueType"`
+	SummonerName string `json:"summonerName"`
+	Wins         int    `json:"wins"`
+	Losses       int    `json:"losses"`
+	Rank         string `json:"rank"`
+	LeagueName   string `json:"leagueName"`
+	LeagueID     string `json:"leagueId"`
+	Tier         string `json:"tier"`
+	SummonerID   string `json:"summonerId"`
+	LeaguePoints int    `json:"leaguePoints"`
+}
+
+// LeaguePositionDTOList models response of the Riot API for leagues for a certain summoner
+type LeaguePositionDTOList []LeaguePositionDTO

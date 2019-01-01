@@ -1,211 +1,51 @@
-// Package riotclient provides the Riot API client
+// Package riotclient provides the Riot API Client interfaces
 package riotclient
 
-import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
+// ClientBase defines basic Riot Client operations
+type ClientBase interface {
+	Start()
+	Stop()
+}
 
-	"github.com/sirupsen/logrus"
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/logging"
-)
-
-// Client defines the interface for a Riot API client
-type Client interface {
-	SummonerByName(name string) (s *Summoner, err error)
-	SummonerByAccountID(id uint64) (s *Summoner, err error)
-	SummonerBySummonerID(id uint64) (s *Summoner, err error)
-
+// ClientChampion defines an interface to Champion API calls
+type ClientChampion interface {
 	Champions() (s *ChampionList, err error)
-
-	FreeRotation() (*FreeRotation, error)
-
-	MatchByID(id uint64) (s *Match, err error)
-
-	MatchesByAccountID(id uint64, startIndex uint32, endIndex uint32) (s *MatchList, err error)
-
-	ChallengerLeagueByQueue(queue string) (*LeagueData, error)
-	MasterLeagueByQueue(queue string) (*LeagueData, error)
+	ChampionRotations() (s *FreeRotation, err error)
 }
 
-// RiotClient Riot LoL API client
-type RiotClient struct {
-	config         config.RiotClient
-	httpClient     *http.Client
-	log            *logrus.Entry
-	rateLimit      rateLimit
-	isStarted      bool
-	rateLimitMutex sync.Mutex
-	workersWG      sync.WaitGroup
-	stopWorkers    chan struct{}
+// ClientSummoner defines an interface to Summoner API calls
+type ClientSummoner interface {
+	SummonerByName(name string) (s *SummonerDTO, err error)
+	SummonerByAccountID(accountID string) (s *SummonerDTO, err error)
+	SummonerBySummonerID(summonerID string) (s *SummonerDTO, err error)
+	SummonerByPUUID(PUUID string) (s *SummonerDTO, err error)
 }
 
-func checkConfig(cfg config.RiotClient) error {
-	if len(cfg.APIVersion) == 0 {
-		return fmt.Errorf("APIVersion is empty, check config file")
-	}
-	if len(cfg.Key) == 0 {
-		return fmt.Errorf("Key is empty, check config file")
-	}
-	if len(cfg.Region) == 0 {
-		return fmt.Errorf("Region is empty, check config file")
-	}
-	return nil
+// ClientMatch defines an interface to Match API calls
+type ClientMatch interface {
+	MatchByID(matchID uint64) (s *MatchDTO, err error)
+	MatchesByAccountID(accountID string, args map[string]string) (s *MatchlistDTO, err error)
+	MatchTimeLineByID(matchID uint64) (t *MatchTimelineDTO, err error)
 }
 
-// NewClient creates a new Riot LoL API client
-func NewClient(httpClient *http.Client, cfg config.RiotClient) (*RiotClient, error) {
-	err := checkConfig(cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	c := &RiotClient{
-		config:      cfg,
-		httpClient:  httpClient,
-		log:         logging.Get("RiotClient"),
-		isStarted:   false,
-		workersWG:   sync.WaitGroup{},
-		stopWorkers: make(chan struct{}),
-	}
-
-	cfg.Region = strings.ToLower(cfg.Region)
-
-	return c, nil
+// ClientLeague defines an interface to League API calls
+type ClientLeague interface {
+	LeagueByQueue(league string, queue string) (*LeagueListDTO, error)
+	LeaguesForSummoner(encSummonerID string) (*LeaguePositionDTOList, error)
 }
 
-// Start starts the riot client and its workers
-func (c *RiotClient) Start() {
-	if !c.isStarted {
-		c.log.Println("Starting Riot Client")
-		c.stopWorkers = make(chan struct{})
-		go c.worker()
-		c.isStarted = true
-	} else {
-		c.log.Println("Riot Client already running")
-	}
+// ClientSpectator defines an interface to Spectator API calls
+type ClientSpectator interface {
+	ActiveGameBySummonerID(summonerID string) (*CurrentGameInfoDTO, error)
+	FeaturedGames() (*FeaturedGamesDTO, error)
 }
 
-// Stop stops the riot client and its workers
-func (c *RiotClient) Stop() {
-	if c.isStarted {
-		c.log.Println("Stopping Riot Client")
-		close(c.stopWorkers)
-		c.workersWG.Wait()
-		c.isStarted = false
-	} else {
-		c.log.Println("Riot Client already stopped")
-	}
-}
-
-// IsRunning returns if the Riot Client is currently started
-func (c *RiotClient) IsRunning() bool {
-	return c.isStarted
-}
-
-func (c *RiotClient) checkResponseCodeOK(response *http.Response) error {
-	// Rate limit 429 is handeled in separate check function
-	switch response.StatusCode {
-	case 200:
-		return nil
-	case 400:
-		return fmt.Errorf("Status code 400 (Bad Request)")
-	case 401:
-		return fmt.Errorf("Status code 401 (Unauthoritzed)")
-	case 403:
-		return fmt.Errorf("Status code 403 (Forbidden)")
-	case 404:
-		return fmt.Errorf("Status code 404 (Not Found)")
-	case 415:
-		return fmt.Errorf("Status code 415 (Unsupported Media Type)")
-	case 500:
-		return fmt.Errorf("Status code 500 (Internal Server Error)")
-	case 503:
-		return fmt.Errorf("Status code 503 (Service Unavailable)")
-	default:
-		return fmt.Errorf("Status code %d (Unknown Error)", response.StatusCode)
-	}
-}
-
-func (c *RiotClient) checkRateLimited(response *http.Response) error {
-	if val, ok := response.Header["X-App-Rate-Limit"]; ok {
-		if len(val) > 0 {
-			c.updateAppRateLimits(val[0])
-		}
-	}
-	if val, ok := response.Header["X-App-Rate-Limit-Count"]; ok {
-		if len(val) > 0 {
-			c.updateAppRateLimitsCount(val[0])
-		}
-	}
-	if val, ok := response.Header["X-Method-Rate-Limit"]; ok {
-		c.log.Warnln("TODO: X-Method-Rate-Limit header not yet processed", val)
-	}
-	if val, ok := response.Header["X-Method-Rate-Limit-Count"]; ok {
-		c.log.Warnln("TODO: X-Method-Rate-Limit-Count header not yet processed", val)
-	}
-	if response.StatusCode == 429 {
-		if val, ok := response.Header["Retry-After"]; ok {
-			if len(val) > 0 {
-				seconds, err := strconv.ParseUint(val[0], 10, 32)
-				if err != nil {
-					c.log.Warnf("Could not convert value %s to rate limit retry at seconds", val[0])
-					c.updateRateLimitRetryAt(10)
-				}
-				c.updateRateLimitRetryAt(uint32(seconds))
-			}
-		} else {
-			// https://developer.riotgames.com/rate-limiting.html
-			// If the rate limit was enforced by the underlying service to which the request was proxied,
-			// rather than the API edge, then the above headers will not be included. In that case, your
-			// code cannot use the same mechanism to handle these responses. Instead, your code would simply
-			// need to back off for a reasonable amount of time (e.g., 1 second) before trying again the
-			// same request.
-			c.updateRateLimitRetryAt(2)
-		}
-		c.log.Warnf("Rate limited with header: %s", response.Header)
-		return fmt.Errorf("Status code 429 (Rate Limited)")
-	}
-
-	return nil
-}
-
-func (c *RiotClient) apiCall(path string, method string, body string) (r []byte, e error) {
-	if !c.isStarted {
-		return nil, fmt.Errorf("Riot Client not started. Start by calling the Start() function")
-	}
-
-	c.log.Debugln("ApiCall: Got new Api Call:", path)
-
-	req, err := http.NewRequest(method, path, strings.NewReader(body))
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("X-Riot-Token", c.config.Key)
-	req.Header.Add("Content-Type", "application/json")
-
-	work := workOrder{request: req,
-		responseChan: make(workResponseChan)}
-
-	workQueue <- work
-
-	c.log.Debugln("ApiCall: Waiting for request to finish processing")
-	select {
-	case res := <-work.responseChan:
-		if res.err != nil {
-			c.log.Debugln("ApiCall: Error from worker:", res.err)
-			return nil, res.err
-		}
-		c.log.Debugln("ApiCall: Succesfully finished Api Call")
-		return ioutil.ReadAll(res.response.Body)
-	case <-time.After(180 * time.Second):
-		c.log.Debugln("ApiCall: API call timed out")
-		return nil, fmt.Errorf("Worker timed out")
-	}
+// Client defines the interface for a Riot API Client
+type Client interface {
+	ClientBase
+	ClientChampion
+	ClientSummoner
+	ClientMatch
+	ClientLeague
+	ClientSpectator
 }

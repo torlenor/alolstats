@@ -10,7 +10,6 @@ import (
 	"sync/atomic"
 
 	"github.com/sirupsen/logrus"
-	"github.com/torlenor/alolstats/api"
 	"github.com/torlenor/alolstats/config"
 	"github.com/torlenor/alolstats/logging"
 	"github.com/torlenor/alolstats/matchfilereader"
@@ -49,19 +48,6 @@ func NewStorage(cfg config.LoLStorage, riotClient riotclient.Client, backend Bac
 	return s, nil
 }
 
-// RegisterAPI registers all endpoints from storage to the RestAPI
-func (s *Storage) RegisterAPI(api *api.API) {
-	api.AttachModuleGet("/champions", s.championsEndpoint)
-	api.AttachModuleGet("/champion-rotations", s.freeRotationEndpoint)
-	api.AttachModuleGet("/match", s.getMatchEndpoint)
-	api.AttachModuleGet("/matches/stored/bygameversion", s.storedMatchesByGameVersionEndpoint)
-	api.AttachModuleGet("/summoner/byname", s.summonerByNameEndpoint)
-	api.AttachModuleGet("/summoner/bysummonerid", s.summonerBySummonerIDEndpoint)
-	api.AttachModuleGet("/summoner/byaccountid", s.summonerByAccountIDEndpoint)
-
-	api.AttachModuleGet("/storage/summary", s.storageSummaryEndpoint)
-}
-
 // Start starts the storage runners
 func (s *Storage) Start() {
 	s.log.Info("Starting Storage")
@@ -85,13 +71,11 @@ func (s *Storage) Start() {
 		}
 		s.log.Println("Finished reading match data from json files")
 	}
-	// TODO
 }
 
 // Stop stops the storage runners
 func (s *Storage) Stop() {
 	s.log.Println("Stopping Storage")
-	// TODO
 }
 
 // GetHandeledRequests gets the total number of api requests handeled by the storage since creating it

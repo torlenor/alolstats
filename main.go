@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,8 +16,12 @@ import (
 	"github.com/torlenor/alolstats/memorybackend"
 	"github.com/torlenor/alolstats/mongobackend"
 	"github.com/torlenor/alolstats/riotclient"
+	"github.com/torlenor/alolstats/riotclientv4"
 	"github.com/torlenor/alolstats/statsrunner"
 	"github.com/torlenor/alolstats/storage"
+
+	"github.com/torlenor/alolstats/riotclient/datadragon"
+	"github.com/torlenor/alolstats/riotclient/ratelimit"
 
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
@@ -48,6 +53,13 @@ func init() {
 	flag.Parse()
 }
 
+func statusEndpoint(w http.ResponseWriter, r *http.Request) {
+
+	status := fmt.Sprintf(`{"status":"OK", "version":"%s", "compiled_at":"%s"}`, version, compTime)
+
+	io.WriteString(w, string(status))
+}
+
 func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
 	backendName := strings.ToLower(cfg.Backend)
 
@@ -70,6 +82,37 @@ func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
 		return backend, nil
 	default:
 		return nil, fmt.Errorf("Unknown storage backend specified in config: %s", cfg.Backend)
+	}
+}
+
+func riotClientCreator(cfg config.RiotClient) (riotclient.Client, error) {
+	version := strings.ToLower(cfg.APIVersion)
+
+	switch version {
+	case "v3":
+		return nil, fmt.Errorf("API v3 is not supported anymore")
+	case "v4":
+		httpClient := &http.Client{}
+		ddragon, err := riotclientdd.New(httpClient, cfg)
+		if err != nil {
+			log.Errorln("Error creating Riot Client Data Dragon:" + err.Error())
+			return nil, err
+		}
+		rateLimit, err := riotclientrl.New()
+		if err != nil {
+			log.Errorln("Error creating Riot Client Rate Limit Checker:" + err.Error())
+			return nil, err
+		}
+
+		riotClient, err := riotclientv4.NewClient(httpClient, cfg, ddragon, rateLimit)
+		if err != nil {
+			log.Errorln("Error creating RiotClient APIVersion V4:" + err.Error())
+			return nil, err
+		}
+
+		return riotClient, nil
+	default:
+		return nil, fmt.Errorf("Unknown RiotClient APIVersion specified in config: %s", cfg.APIVersion)
 	}
 }
 
@@ -98,8 +141,9 @@ func main() {
 	if err != nil {
 		log.Fatalln("Error creating the API:" + err.Error())
 	}
+	api.AttachModuleGet("/status", statusEndpoint)
 
-	client, err := riotclient.NewClient(&http.Client{}, cfg.RiotClient)
+	client, err := riotClientCreator(cfg.RiotClient)
 	if err != nil {
 		log.Fatalln("Error creating the Riot Client:" + err.Error())
 	}

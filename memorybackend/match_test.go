@@ -11,7 +11,7 @@ func TestStoreAndRetreiveMatch(t *testing.T) {
 	if err != nil || backend == nil {
 		t.Fatalf("Could not get a new Memory Backend: %s", err)
 	}
-	match := &riotclient.Match{}
+	match := &riotclient.MatchDTO{}
 	match.GameID = 1234
 	match.GameDuration = 3434
 

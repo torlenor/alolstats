@@ -11,21 +11,21 @@ import (
 )
 
 // GetMatch gets a match from storage or riot client based on GameID
-func (s *Storage) GetMatch(id uint64) (riotclient.Match, error) {
+func (s *Storage) GetMatch(id uint64) (riotclient.MatchDTO, error) {
 	match, err := s.backend.GetMatch(id)
 	if err != nil {
 		s.log.Warnln(err)
 		match, err := s.riotClient.MatchByID(id)
 		if err != nil {
 			s.log.Warnln(err)
-			return riotclient.Match{}, err
+			return riotclient.MatchDTO{}, err
 		}
 		s.log.Debugf("Returned Match %d from Riot API", id)
 		s.backend.StoreMatch(match)
 		return *match, nil
 	}
 	s.log.Debugf("Returned Match %d from Storage", id)
-	return match, nil
+	return *match, nil
 }
 
 // FetchAndStoreMatch gets a match from Riot Client and stores it in storage backend if it doesn't exist, yet
@@ -45,24 +45,23 @@ func (s *Storage) FetchAndStoreMatch(id uint64) error {
 	return nil
 }
 
-// GetStoredMatchesByGameVersion gets all matches for a specific game version
-func (s *Storage) GetStoredMatchesByGameVersion(gameVersion string) (riotclient.Matches, error) {
-	return s.backend.GetMatchesByGameVersion(gameVersion)
-}
-
 // GetStoredMatchesByGameVersionAndChampionID gets all matches for a specific game version and Champion ID
 func (s *Storage) GetStoredMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (riotclient.Matches, error) {
-	return s.backend.GetMatchesByGameVersionAndChampionID(gameVersion, championID)
+	matches, err := s.backend.GetMatchesByGameVersionAndChampionID(gameVersion, championID)
+	return *matches, err
 }
 
 // GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs gets all matches for a specific game version, Champion ID, map id and gtequeue <= queue id <= ltequeue
 func (s *Storage) GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (riotclient.Matches, error) {
-	return s.backend.GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion, championID, mapID, ltequeue, gtequeue)
+	matches, err := s.backend.GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion, championID, mapID, ltequeue, gtequeue)
+	return *matches, err
 }
 
 // GetMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex
-func (s *Storage) GetMatchesByAccountID(accountID uint64, startIndex uint32, endIndex uint32) (*riotclient.MatchList, error) {
-	return s.riotClient.MatchesByAccountID(accountID, startIndex, endIndex)
+func (s *Storage) GetMatchesByAccountID(accountID string, beginIndex uint32, endIndex uint32) (*riotclient.MatchlistDTO, error) {
+	beginIndexStr := strconv.FormatInt(int64(beginIndex), 10)
+	endIndexStr := strconv.FormatInt(int64(endIndex), 10)
+	return s.riotClient.MatchesByAccountID(accountID, map[string]string{"beginIndex": beginIndexStr, "endIndex": endIndexStr})
 }
 
 func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -88,35 +87,6 @@ func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
 		}
 
 		out, err := json.Marshal(match)
-		if err != nil {
-			s.log.Errorln(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		io.WriteString(w, string(out))
-	}
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
-}
-
-func (s *Storage) storedMatchesByGameVersionEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API Matches request from", r.RemoteAddr)
-	if val, ok := r.URL.Query()["gameversion"]; ok {
-		if len(val) == 0 {
-			s.log.Warnf("gameversion parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-
-		matches, err := s.GetStoredMatchesByGameVersion(val[0])
-		if err != nil {
-			s.log.Warnf("Could not get matches for game version = %s", val[0])
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-
-		out, err := json.Marshal(matches)
 		if err != nil {
 			s.log.Errorln(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

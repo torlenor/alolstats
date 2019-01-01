@@ -3,7 +3,9 @@ package api
 import (
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/torlenor/alolstats/config"
@@ -43,7 +45,7 @@ func (a *API) AttachModulePost(path string, f func(http.ResponseWriter, *http.Re
 }
 
 func (a *API) run(listenAddress string) {
-	a.log.Fatal(http.ListenAndServe(listenAddress, a.router))
+	a.log.Fatal(http.ListenAndServe(listenAddress, handlers.CORS()(a.router)))
 }
 
 // Start the REST API

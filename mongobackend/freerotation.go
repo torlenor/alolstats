@@ -8,8 +8,8 @@ import (
 )
 
 // GetFreeRotation gets the stored free champions rotation
-func (b *Backend) GetFreeRotation() (riotclient.FreeRotation, error) {
-	return riotclient.FreeRotation{}, fmt.Errorf("Not implemented")
+func (b *Backend) GetFreeRotation() (*riotclient.FreeRotation, error) {
+	return nil, fmt.Errorf("Not implemented")
 }
 
 // GetFreeRotationTimeStamp gets the timestamp of the stored free champions rotation
@@ -18,6 +18,6 @@ func (b *Backend) GetFreeRotationTimeStamp() time.Time {
 }
 
 // StoreFreeRotation stores a new free champions rotation list
-func (b *Backend) StoreFreeRotation(freeRotation riotclient.FreeRotation) error {
+func (b *Backend) StoreFreeRotation(freeRotation *riotclient.FreeRotation) error {
 	return fmt.Errorf("Not implemented")
 }

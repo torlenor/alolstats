@@ -2,25 +2,19 @@ package fetchrunner
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 )
 
-func (f *FetchRunner) getChallengerLeagueSummonerAccountIDs(queue string, accountIDs map[uint64]bool) error {
-	challengerLeague, err := f.storage.GetChallengerLeagueByQueue(queue)
+func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, accountIDs map[string]bool) error {
+	leagueData, err := f.storage.GetLeagueByQueue(league, queue)
 	if err != nil {
-		return fmt.Errorf("Error getting ChallengerLeague: %s", err)
+		return fmt.Errorf("Error getting League %s: %s", league, err)
 	}
 
-	for _, leagueEntry := range challengerLeague.Entries {
-		summonerID, err := strconv.ParseUint(leagueEntry.PlayerOrTeamID, 10, 64)
+	for _, leagueEntry := range leagueData.Entries {
+		summoner, err := f.storage.GetSummonerBySummonerID(leagueEntry.SummonerID)
 		if err != nil {
-			f.log.Warnf("Could not convert value %s to SummonerID", leagueEntry.PlayerOrTeamID)
-			continue
-		}
-		summoner, err := f.storage.GetSummonerBySummonerID(summonerID)
-		if err != nil {
-			f.log.Warnf("Could not get Summoner for Summoner ID %d: %s", summonerID, err)
+			f.log.Warnf("Could not get Summoner for Summoner ID %s: %s", leagueEntry.SummonerID, err)
 			continue
 		}
 		accountIDs[summoner.AccountID] = true
@@ -29,33 +23,24 @@ func (f *FetchRunner) getChallengerLeagueSummonerAccountIDs(queue string, accoun
 	return nil
 }
 
-func (f *FetchRunner) getMasterLeagueSummonerAccountIDs(queue string, accountIDs map[uint64]bool) error {
-	masterLeague, err := f.storage.GetMasterLeagueByQueue(queue)
+func (f *FetchRunner) fetchSummonerMatchesByName(summonerName string, number uint32) {
+	summoner, err := f.storage.GetSummonerByName(summonerName)
 	if err != nil {
-		return fmt.Errorf("Error getting Master League: %s", err)
+		f.log.Errorf("Error fetching summoner matches: Could not get Summoner Data for Summoner %s", summonerName)
+		return
 	}
+	accountID := summoner.AccountID
 
-	for _, leagueEntry := range masterLeague.Entries {
-		summonerID, err := strconv.ParseUint(leagueEntry.PlayerOrTeamID, 10, 64)
-		if err != nil {
-			f.log.Warnf("Could not convert value %s to SummonerID", leagueEntry.PlayerOrTeamID)
-			continue
-		}
-		summoner, err := f.storage.GetSummonerBySummonerID(summonerID)
-		if err != nil {
-			f.log.Warnf("Could not get Summoner for Summoner ID %d: %s", summonerID, err)
-			continue
-		}
-		accountIDs[summoner.AccountID] = true
-	}
-
-	return nil
+	f.fetchSummonerMatchesByAccountID(accountID, number)
 }
 
-func (f *FetchRunner) fetchSummonerMatches(accountID uint64) {
+func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number uint32) {
 	stop := false
 	startIndex := uint32(0)
 	endIndex := uint32(100)
+	if number < endIndex {
+		endIndex = number
+	}
 	for !stop {
 		matches, err := f.storage.GetMatchesByAccountID(accountID, startIndex, endIndex)
 		if err != nil {
@@ -68,11 +53,14 @@ func (f *FetchRunner) fetchSummonerMatches(accountID uint64) {
 		if len(matches.Matches) == 0 || (endIndex+1) >= uint32(matches.TotalGames) {
 			stop = true
 		}
-		if f.config.MatchesForSummonerLastNMatches > 0 && uint64(endIndex+1) > f.config.MatchesForSummonerLastNMatches {
+		if number > 0 && uint32(endIndex+1) > number {
 			stop = true
 		}
 		startIndex += 100
 		endIndex += 100
+		if endIndex > number {
+			endIndex = number
+		}
 	}
 }
 
@@ -98,10 +86,10 @@ WaitLoop:
 
 			start := time.Now()
 
-			if len(f.config.MatchesForSummonerAccountIDs) > 0 {
-				f.log.Infof("Fetching matches for specified Account IDs...")
-				for _, accountID := range f.config.MatchesForSummonerAccountIDs {
-					f.fetchSummonerMatches(accountID)
+			if len(f.config.FetchMatchesForSummoners) > 0 {
+				f.log.Infof("Fetching matches for specified Summoners...")
+				for _, summonerName := range f.config.FetchMatchesForSummoners {
+					f.fetchSummonerMatchesByName(summonerName, uint32(f.config.FetchMatchesForSummonersNumber))
 					if f.shouldWorkersStop {
 						elapsed := time.Since(start)
 						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
@@ -111,63 +99,35 @@ WaitLoop:
 				}
 			}
 
-			if len(f.config.MatchesForChallengerLeagueSummonerQueues) > 0 {
-				f.log.Infof("Fetching matches for specified Challenger Leagues...")
-				accountIDs := make(map[uint64]bool)
+			accountIDs := make(map[string]bool)
+			for _, league := range f.config.FetchMatchesForLeagues {
+				if len(f.config.FetchMatchesForLeagueQueues) > 0 {
+					f.log.Infof("Fetching matches for specified %s Leagues...", league)
 
-				for _, queue := range f.config.MatchesForChallengerLeagueSummonerQueues {
-					err := f.getChallengerLeagueSummonerAccountIDs(queue, accountIDs)
-					if err != nil {
-						f.log.Errorf("Error fetching Account IDs for Challenger League queue %s: %s", queue, err)
-						continue
-					}
-					if f.shouldWorkersStop {
-						elapsed := time.Since(start)
-						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
-						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
-						continue WaitLoop
-					}
-				}
-
-				f.log.Infof("Found %d unique Account IDs in specified Challenger Leagues. Fetching matches...", len(accountIDs))
-				for accountID := range accountIDs {
-					f.fetchSummonerMatches(accountID)
-					if f.shouldWorkersStop {
-						elapsed := time.Since(start)
-						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
-						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
-						continue WaitLoop
+					for _, queue := range f.config.FetchMatchesForLeagueQueues {
+						err := f.getLeagueSummonerAccountIDs(league, queue, accountIDs)
+						if err != nil {
+							f.log.Errorf("Error fetching Account IDs for league %s queue %s: %s", league, queue, err)
+							continue
+						}
+						if f.shouldWorkersStop {
+							elapsed := time.Since(start)
+							f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+							nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+							continue WaitLoop
+						}
 					}
 				}
 			}
 
-			if len(f.config.MatchesForMasterLeagueSummonerQueues) > 0 {
-				f.log.Infof("Fetching matches for specified Master Leagues...")
-				accountIDs := make(map[uint64]bool)
-
-				for _, queue := range f.config.MatchesForMasterLeagueSummonerQueues {
-					err := f.getMasterLeagueSummonerAccountIDs(queue, accountIDs)
-					if err != nil {
-						f.log.Errorf("Error fetching Account IDs for Master League queue %s: %s", queue, err)
-						continue
-					}
-					if f.shouldWorkersStop {
-						elapsed := time.Since(start)
-						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
-						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
-						continue WaitLoop
-					}
-				}
-
-				f.log.Infof("Found %d unique Account IDs in specified Master Leagues. Fetching matches...", len(accountIDs))
-				for accountID := range accountIDs {
-					f.fetchSummonerMatches(accountID)
-					if f.shouldWorkersStop {
-						elapsed := time.Since(start)
-						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
-						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
-						continue WaitLoop
-					}
+			f.log.Infof("Found %d unique Account IDs in specified Leagues. Fetching matches...", len(accountIDs))
+			for accountID := range accountIDs {
+				f.fetchSummonerMatchesByAccountID(accountID, uint32(f.config.FetchMatchesForLeaguesNumber))
+				if f.shouldWorkersStop {
+					elapsed := time.Since(start)
+					f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
+					nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+					continue WaitLoop
 				}
 			}
 
