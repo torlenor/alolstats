@@ -50,7 +50,45 @@ type championStats struct {
 	WinLossRatio float64 `json:"winlossratio"`
 
 	LaneRolePercentage []laneRolePercentage `json:"lanerolepercentage"`
+
+	LaneRolePercentagePlotly []laneRolePercentagePlotly `json:"lanerolepercentageplotly"`
 }
+
+type laneRolePercentagePlotly struct {
+	X []string  `json:"x"` // ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
+	Y []float64 `json:"y"` // [2.2058823529411766, 2.941176470588235, 0.7352941176470588, 0, 0],
+
+	Name string `json:"name"` // 'Solo',
+	Type string `json:"type"` // 'bar'
+}
+
+// var solo = {
+// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
+// 	y: [2.2058823529411766, 2.941176470588235, 0.7352941176470588, 0, 0],
+// 	name: 'Solo',
+// 	type: 'bar'
+//   };
+
+//   var carry = {
+// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
+// 	y: [0, 0, 0, 77.20588235294117, 0],
+// 	name: 'Carry',
+// 	type: 'bar'
+//   };
+
+//   var support = {
+// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
+// 	y: [0, 0, 0, 5, 0],
+// 	name: 'Support',
+// 	type: 'bar'
+//   };
+
+//   var unknown = {
+// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
+// 	y: [0, 0, 0, 5.88235294117647, 11.029411764705882],
+// 	name: 'Unknown',
+// 	type: 'bar'
+//   };
 
 func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
 
@@ -261,6 +299,87 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 			break
 		}
 	}
+
+	// Plotly data
+	// type laneRolePercentagePlotly struct {
+	// 	X []string `json:"x"` // ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
+	// 	Y []string `json:"x"` // [2.2058823529411766, 2.941176470588235, 0.7352941176470588, 0, 0],
+
+	// 	Name string `json:"name"` // 'Solo',
+	// 	Type string `json:"type"` // 'bar'
+	// }
+
+	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
+		laneRolePercentagePlotly{
+			Name: "Uknown",
+			Type: "bar",
+
+			X: []string{
+				"TOP", "MIDDLE", "JUNGLE", "BOT", "UNKNOWN",
+			},
+			Y: []float64{
+				0.0,
+				0.0,
+				0.0,
+				float64(botUnknownWins+botUnknownLosses) / float64(total) * 100.0,
+				float64(unknownWins+unknownLosses) / float64(total) * 100.0,
+			},
+		},
+	)
+
+	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
+		laneRolePercentagePlotly{
+			Name: "Support",
+			Type: "bar",
+
+			X: []string{
+				"TOP", "MIDDLE", "JUNGLE", "BOT", "UNKNOWN",
+			},
+			Y: []float64{
+				0.0,
+				0.0,
+				0.0,
+				float64(botSupWins+botSupLosses) / float64(total) * 100.0,
+				0.0,
+			},
+		},
+	)
+
+	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
+		laneRolePercentagePlotly{
+			Name: "Carry",
+			Type: "bar",
+
+			X: []string{
+				"TOP", "MIDDLE", "JUNGLE", "BOT", "UNKNOWN",
+			},
+			Y: []float64{
+				0.0,
+				0.0,
+				0.0,
+				float64(botCarryWins+botCarryLosses) / float64(total) * 100.0,
+				0.0,
+			},
+		},
+	)
+
+	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
+		laneRolePercentagePlotly{
+			Name: "Solo",
+			Type: "bar",
+
+			X: []string{
+				"TOP", "MIDDLE", "JUNGLE", "BOT", "UNKNOWN",
+			},
+			Y: []float64{
+				float64(topWins+topLosses) / float64(total) * 100.0,
+				float64(midWins+midLosses) / float64(total) * 100.0,
+				float64(jungleWins+jungleLosses) / float64(total) * 100.0,
+				0.0,
+				0.0,
+			},
+		},
+	)
 
 	championStats.Timestamp = time.Now()
 
