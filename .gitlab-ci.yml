@@ -1,11 +1,3 @@
-cache:
-  paths:
-    - /apt-cache
-    - /go/src/github.com
-    - /go/src/golang.org
-    - /go/src/google.golang.org
-    - /go/src/gopkg.in
-
 variables:
   CONTAINER_IMAGE: git.abyle.org:5000/$CI_PROJECT_PATH
 
