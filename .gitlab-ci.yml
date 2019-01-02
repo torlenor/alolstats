@@ -115,6 +115,7 @@ deploy_testing:
   script:
     - echo deploying to test server... $CONTAINER_IMAGE:$CI_COMMIT_SHA
     - export TRANSACTIONID=`uuidgen`
+    - mkdir ${CICD_TOKEN}
     - > 
       echo '{
          "cicdToken": "${CICD_TOKEN}",
