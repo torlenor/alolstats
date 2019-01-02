@@ -123,7 +123,7 @@ deploy_testing:
          \"transactionId\": \"${TRANSACTIONID}\",
          \"target\": {
            \"type\": \"PortainerStackTarget\",
-           \"stackName\": \" alolstatsdev\",
+           \"stackName\": \"alolstatsdev\",
            \"portainerEndpointId\": 1,
            \"serviceName\": \"alolstats_dev.docker.abyle.org\",
            \"serviceAttributes\": {
