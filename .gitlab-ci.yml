@@ -164,9 +164,9 @@ deploy_production:
          \"transactionId\": \"${TRANSACTIONID}\",
          \"target\": {
            \"type\": \"PortainerStackTarget\",
-           \"stackName\": \"alolstatsdev\",
+           \"stackName\": \"alolstats\",
            \"portainerEndpointId\": 1,
-           \"serviceName\": \"alolstats_dev.docker.abyle.org\",
+           \"serviceName\": \"alolstats.docker.abyle.org\",
            \"serviceAttributes\": {
                 \"image\": \"$CONTAINER_IMAGE:$CI_COMMIT_TAG\"
            }
