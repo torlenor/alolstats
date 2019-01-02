@@ -125,8 +125,6 @@ deploy_testing:
     - export EXITCODE=`echo ${OUTPUT} | jq .shellExitCode`
     - echo ${OUTPUT} | jq
     - test -n "$EXITCODE" && exit $EXITCODE
-  only:
-    - cicd
 
 release:
   stage: release
