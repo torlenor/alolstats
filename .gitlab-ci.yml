@@ -101,12 +101,41 @@ deploy_testing:
     - create_docker_image
   tags:
     - docker-from-docker
+  stage: deploy
+  dependencies:
+    - build
+  image: git.abyle.org:5000/abyle/dockerfiles/abyle-acicddeploy:latest
+  environment: production
+  before_script:
+    - mkdir -p "${HOME}/.ssh/"
+    - echo "${SSH_PRIVATE_KEY}" > "${HOME}/.ssh/id_rsa"
+    - chmod 700 "${HOME}/.ssh/id_rsa"
+    - echo "$SSH_KNOWN_HOSTS" > "${HOME}/.ssh/known_hosts"
+    - chmod 644 "${HOME}/.ssh/known_hosts"
   script:
-    # We need to login somewhere...
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.abyle.org:5000
-    - docker pull $CONTAINER_IMAGE:$CI_COMMIT_SHA
     - echo deploying to test server... $CONTAINER_IMAGE:$CI_COMMIT_SHA
-    - echo FAKE FAKE FAKE ... done
+    - export TRANSACTIONID=`uuidgen`
+    - > 
+      echo '{
+         "cicdToken": "${CICD_TOKEN}",
+         "transactionId": "${TRANSACTIONID}",
+         "target": {
+           "type": "PortainerStackTarget",
+           "stackName": " alolstatsdev",
+           "portainerEndpointId": 1,
+           "serviceName": "alolstats_dev.docker.abyle.org",
+           "serviceAttributes": {
+                "image": "$CONTAINER_IMAGE:$CI_COMMIT_SHA"
+           }
+         }
+         }' > "${CICD_TOKEN}"/job.cicd.json
+    - scp -r "${CICD_TOKEN}"/ "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_ACICD_BASE_PATH}/incoming"
+    - export OUTPUT=`ssh ${SSH_USER}@${SSH_HOST} -C "acicdstatus.py -f ${SSH_REMOTE_ACICD_BASE_PATH}/status/${TRANSACTIONID}.json"`
+    - export EXITCODE=`echo ${OUTPUT} | jq .shellExitCode`
+    - echo ${OUTPUT} | jq
+    - test -n "$EXITCODE" && exit $EXITCODE
+  only:
+    - master
 
 release:
   stage: release
