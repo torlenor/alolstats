@@ -92,8 +92,6 @@ deploy_testing:
   stage: deploy
   dependencies:
     - create_docker_image
-  dependencies:
-    - build
   image: git.abyle.org:5000/abyle/dockerfiles/abyle-acicddeploy:latest
   environment: testing
   before_script:
@@ -146,8 +144,6 @@ release:
 
 deploy_production:
   stage: deploy
-  dependencies:
-    - create_docker_image
   dependencies:
     - release
   image: git.abyle.org:5000/abyle/dockerfiles/abyle-acicddeploy:latest
