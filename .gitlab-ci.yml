@@ -135,7 +135,7 @@ deploy_testing:
     - echo ${OUTPUT} | jq
     - test -n "$EXITCODE" && exit $EXITCODE
   only:
-    - master
+    - cicd
 
 release:
   stage: release
