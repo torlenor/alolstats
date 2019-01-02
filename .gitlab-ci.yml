@@ -42,6 +42,7 @@ build_static:
   image: golang:1.11
   stage: build_static
   artifacts:
+    expire_in: 1 week
     paths:
     - ./bin/
   script:
@@ -105,7 +106,7 @@ deploy_testing:
   dependencies:
     - build
   image: git.abyle.org:5000/abyle/dockerfiles/abyle-acicddeploy:latest
-  environment: production
+  environment: development
   before_script:
     - mkdir -p "${HOME}/.ssh/"
     - echo "${SSH_PRIVATE_KEY}" > "${HOME}/.ssh/id_rsa"
@@ -117,19 +118,19 @@ deploy_testing:
     - export TRANSACTIONID=`uuidgen`
     - mkdir ${CICD_TOKEN}
     - > 
-      echo '{
-         "cicdToken": "${CICD_TOKEN}",
-         "transactionId": "${TRANSACTIONID}",
-         "target": {
-           "type": "PortainerStackTarget",
-           "stackName": " alolstatsdev",
-           "portainerEndpointId": 1,
-           "serviceName": "alolstats_dev.docker.abyle.org",
-           "serviceAttributes": {
-                "image": "$CONTAINER_IMAGE:$CI_COMMIT_SHA"
+      echo "{
+         \"cicdToken\": \"${CICD_TOKEN}\",
+         \"transactionId\": \"${TRANSACTIONID}\",
+         \"target\": {
+           \"type\": \"PortainerStackTarget\",
+           \"stackName\": \" alolstatsdev\",
+           \"portainerEndpointId\": 1,
+           \"serviceName\": \"alolstats_dev.docker.abyle.org\",
+           \"serviceAttributes\": {
+                \"image\": \"$CONTAINER_IMAGE:$CI_COMMIT_SHA\"
            }
          }
-         }' > "${CICD_TOKEN}"/job.cicd.json
+         }" > "${CICD_TOKEN}"/job.cicd.json
     - scp -r "${CICD_TOKEN}"/ "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_ACICD_BASE_PATH}/incoming"
     - export OUTPUT=`ssh ${SSH_USER}@${SSH_HOST} -C "acicdstatus.py -f ${SSH_REMOTE_ACICD_BASE_PATH}/status/${TRANSACTIONID}.json"`
     - export EXITCODE=`echo ${OUTPUT} | jq .shellExitCode`
@@ -158,6 +159,7 @@ release:
 
 deploy_production:
   stage: deploy
+  environment: production
   dependencies:
     - release
   tags:
