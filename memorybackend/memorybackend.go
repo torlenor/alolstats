@@ -17,7 +17,7 @@ import (
 
 // Backend represents the Memory Backend
 type Backend struct {
-	championList riotclient.ChampionList
+	championList riotclient.ChampionsList
 	freeRotation riotclient.FreeRotation
 	matches      map[uint64]riotclient.MatchDTO
 
@@ -28,8 +28,9 @@ type Backend struct {
 // NewBackend creates a new Memory Backend
 func NewBackend() (*Backend, error) {
 	b := &Backend{
-		log:     logging.Get("Memory Storage Backend"),
-		matches: make(map[uint64]riotclient.MatchDTO),
+		log:          logging.Get("Memory Storage Backend"),
+		matches:      make(map[uint64]riotclient.MatchDTO),
+		championList: make(riotclient.ChampionsList),
 	}
 	return b, nil
 }
@@ -94,6 +95,14 @@ func (b *Backend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersio
 	return &matches, nil
 }
 
+func (b *Backend) GetMatchTimeLine(matchID uint64) (*riotclient.MatchTimelineDTO, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) StoreMatchTimeLine(data *riotclient.MatchTimelineDTO) error {
+	return fmt.Errorf("Not implemented")
+}
+
 func (b *Backend) GetSummonerByName(name string) (*storage.Summoner, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
@@ -118,15 +127,55 @@ func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID string) time.Time {
 	return time.Time{}
 }
 
+func (b *Backend) GetSummonerByPUUID(PUUID string) (*storage.Summoner, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetSummonerByPUUIDTimeStamp(PUUID string) time.Time {
+	return time.Time{}
+}
+
 func (b *Backend) StoreSummoner(data *storage.Summoner) error {
 	return fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetLeagueByQueue(league string, queue string) (*riotclient.LeagueListDTO, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetLeagueByQueueTimeStamp(league string, queue string) (time.Time, error) {
+	return time.Time{}, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) StoreLeague(*riotclient.LeagueListDTO) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetLeaguesForSummoner(summonerName string) (*storage.SummonerLeagues, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetLeaguesForSummonerBySummonerID(summonerID string) (*storage.SummonerLeagues, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) StoreLeaguesForSummoner(*storage.SummonerLeagues) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetLeaguesForSummonerTimeStamp(summonerName string) (time.Time, error) {
+	return time.Time{}, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetLeaguesForSummonerBySummonerIDTimeStamp(summonerID string) (time.Time, error) {
+	return time.Time{}, fmt.Errorf("Not implemented")
 }
 
 // GetStorageSummary returns stats about the stored elements in the Backend
 func (b *Backend) GetStorageSummary() (storage.Summary, error) {
 	summary := storage.Summary{}
 	summary.NumberOfMatches = uint64(len(b.matches))
-	summary.NumberOfChampions = uint64(len(b.championList.Champions))
+	summary.NumberOfChampions = uint64(len(b.championList))
 	summary.NumberOfSummoners = 0 // not implemented
 
 	return summary, nil

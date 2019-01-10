@@ -4,6 +4,30 @@ import (
 	"time"
 )
 
+// Champion stores champion data in the format coming from DataDragon + TimeStamp
+type Champion struct {
+	Version string        `json:"version"`
+	ID      string        `json:"id"`
+	Key     string        `json:"key"`
+	Name    string        `json:"name"`
+	Title   string        `json:"title"`
+	Blurb   string        `json:"blurb"`
+	Info    ChampionInfo  `json:"info"`
+	Image   ChampionImage `json:"image"`
+	Tags    []string      `json:"tags"`
+	Partype string        `json:"partype"`
+	Stats   ChampionStats `json:"stats"`
+
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// ChampionsList is used to pass around a list of champions
+type ChampionsList map[string]Champion
+
+//////////////////////////////////////////////
+// Subelementtype definitions follow bellow //
+//////////////////////////////////////////////
+
 // ChampionInfo contains the basic info about the champion
 type ChampionInfo struct {
 	Attack     int `json:"attack"`
@@ -46,25 +70,4 @@ type ChampionStats struct {
 	Attackspeedoffset    float64 `json:"attackspeedoffset"`
 	Attackspeedperlevel  float64 `json:"attackspeedperlevel"`
 	Attackspeed          float64 `json:"attackspeed"`
-}
-
-// Champion stores champion data
-type Champion struct {
-	Version   string        `json:"version"`
-	ID        string        `json:"id"`
-	Key       string        `json:"key"`
-	Name      string        `json:"name"`
-	Title     string        `json:"title"`
-	Blurb     string        `json:"blurb"`
-	Info      ChampionInfo  `json:"info"`
-	Image     ChampionImage `json:"image"`
-	Tags      []string      `json:"tags"`
-	Partype   string        `json:"partype"`
-	Stats     ChampionStats `json:"stats"`
-	Timestamp time.Time     `json:"timestamp"`
-}
-
-// ChampionList stores a list of Champion data
-type ChampionList struct {
-	Champions map[string]Champion `json:"champions"`
 }

@@ -13,13 +13,27 @@ import (
 type Summoner struct {
 	SummonerDTO  riotclient.SummonerDTO
 	SummonerName string
+	SummonerID   string
+	AccountID    string
+	PUUID        string
+}
+
+func (s *Storage) storeSummoner(summoner riotclient.SummonerDTO) error {
+	return s.backend.StoreSummoner(&Summoner{
+		SummonerDTO:  summoner,
+		SummonerName: utils.CleanUpSummonerName(summoner.Name),
+		SummonerID:   summoner.ID,
+		AccountID:    summoner.AccountID,
+		PUUID:        summoner.PuuID,
+	})
 }
 
 // GetSummonerByName returns a Summoner identified by name
-func (s *Storage) GetSummonerByName(name string) (riotclient.SummonerDTO, error) {
+// forceUpdate will try to update the champion, if it is false the config settings will be considered if update is required
+func (s *Storage) GetSummonerByName(name string, forceUpdate bool) (riotclient.SummonerDTO, error) {
 	name = utils.CleanUpSummonerName(name)
 	duration := time.Since(s.backend.GetSummonerByNameTimeStamp(name))
-	if duration.Minutes() > float64(s.config.MaxAgeSummoner) {
+	if (duration.Minutes() > float64(s.config.MaxAgeSummoner)) || forceUpdate {
 		summoner, err := s.riotClient.SummonerByName(name)
 		if err != nil {
 			s.log.Warnln("Could not get new data from Client, trying to get it from Storage instead", err)
@@ -31,7 +45,7 @@ func (s *Storage) GetSummonerByName(name string) (riotclient.SummonerDTO, error)
 			s.log.Debugf("Returned Summoner %s from Storage", name)
 			return summoner.SummonerDTO, nil
 		}
-		err = s.backend.StoreSummoner(&Summoner{SummonerDTO: *summoner, SummonerName: name})
+		err = s.storeSummoner(*summoner)
 		if err != nil {
 			s.log.Warnln("Could not store Summoner in storage backend:", err)
 		}
@@ -46,7 +60,7 @@ func (s *Storage) GetSummonerByName(name string) (riotclient.SummonerDTO, error)
 			return riotclient.SummonerDTO{}, errClient
 		}
 		s.log.Warnln("Could not get Summoner from storage backend, returning from Client instead:", err)
-		err = s.backend.StoreSummoner(&Summoner{SummonerDTO: *summoner, SummonerName: name})
+		err = s.storeSummoner(*summoner)
 		if err != nil {
 			s.log.Warnln("Could not store Summoner in storage backend:", err)
 		}
@@ -58,12 +72,13 @@ func (s *Storage) GetSummonerByName(name string) (riotclient.SummonerDTO, error)
 }
 
 // GetSummonerBySummonerID returns a Summoner identified by Summoner ID
-func (s *Storage) GetSummonerBySummonerID(summonerID string) (riotclient.SummonerDTO, error) {
+// forceUpdate will try to update the champion, if it is false the config settings will be considered if update is required
+func (s *Storage) GetSummonerBySummonerID(summonerID string, forceUpdate bool) (riotclient.SummonerDTO, error) {
 	if len(summonerID) == 0 {
 		return riotclient.SummonerDTO{}, fmt.Errorf("Summoner ID cannot be empty")
 	}
 	duration := time.Since(s.backend.GetSummonerBySummonerIDTimeStamp(summonerID))
-	if duration.Minutes() > float64(s.config.MaxAgeSummoner) {
+	if (duration.Minutes() > float64(s.config.MaxAgeSummoner)) || forceUpdate {
 		summoner, err := s.riotClient.SummonerBySummonerID(summonerID)
 		if err != nil {
 			s.log.Warnln("Could not get new data from Client, trying to get it from Storage instead", err)
@@ -75,7 +90,7 @@ func (s *Storage) GetSummonerBySummonerID(summonerID string) (riotclient.Summone
 			s.log.Debugf("Returned Summoner with SummonerID %s from Storage", summonerID)
 			return summoner.SummonerDTO, nil
 		}
-		err = s.backend.StoreSummoner(&Summoner{SummonerDTO: *summoner, SummonerName: utils.CleanUpSummonerName(summoner.Name)})
+		err = s.storeSummoner(*summoner)
 		if err != nil {
 			s.log.Warnln("Could not store Summoner in storage backend:", err)
 		}
@@ -90,7 +105,7 @@ func (s *Storage) GetSummonerBySummonerID(summonerID string) (riotclient.Summone
 			return riotclient.SummonerDTO{}, errClient
 		}
 		s.log.Warnln("Could not get Summoner from storage backend, returning from Client instead:", err)
-		err = s.backend.StoreSummoner(&Summoner{SummonerDTO: *summoner, SummonerName: utils.CleanUpSummonerName(summoner.Name)})
+		err = s.storeSummoner(*summoner)
 		if err != nil {
 			s.log.Warnln("Could not store Summoner in storage backend:", err)
 		}
@@ -102,12 +117,12 @@ func (s *Storage) GetSummonerBySummonerID(summonerID string) (riotclient.Summone
 }
 
 // GetSummonerByAccountID returns a Summoner identified by Account ID
-func (s *Storage) GetSummonerByAccountID(accountID string) (riotclient.SummonerDTO, error) {
+func (s *Storage) GetSummonerByAccountID(accountID string, forceUpdate bool) (riotclient.SummonerDTO, error) {
 	if len(accountID) == 0 {
 		return riotclient.SummonerDTO{}, fmt.Errorf("Account ID cannot be empty")
 	}
 	duration := time.Since(s.backend.GetSummonerByAccountIDTimeStamp(accountID))
-	if duration.Minutes() > float64(s.config.MaxAgeSummoner) {
+	if (duration.Minutes() > float64(s.config.MaxAgeSummoner)) || forceUpdate {
 		summoner, err := s.riotClient.SummonerByAccountID(accountID)
 		if err != nil {
 			s.log.Warnln("Could not get new data from Client, trying to get it from Storage instead", err)
@@ -119,7 +134,7 @@ func (s *Storage) GetSummonerByAccountID(accountID string) (riotclient.SummonerD
 			s.log.Debugf("Returned Summoner with AccountID %s from Storage", accountID)
 			return summoner.SummonerDTO, nil
 		}
-		err = s.backend.StoreSummoner(&Summoner{SummonerDTO: *summoner, SummonerName: utils.CleanUpSummonerName(summoner.Name)})
+		err = s.storeSummoner(*summoner)
 		if err != nil {
 			s.log.Warnln("Could not store Summoner in storage backend:", err)
 		}
@@ -134,7 +149,7 @@ func (s *Storage) GetSummonerByAccountID(accountID string) (riotclient.SummonerD
 			return riotclient.SummonerDTO{}, errClient
 		}
 		s.log.Warnln("Could not get Summoner from storage backend, returning from Client instead:", err)
-		err = s.backend.StoreSummoner(&Summoner{SummonerDTO: *summoner, SummonerName: utils.CleanUpSummonerName(summoner.Name)})
+		err = s.storeSummoner(*summoner)
 		if err != nil {
 			s.log.Warnln("Could not store Summoner in storage backend:", err)
 		}

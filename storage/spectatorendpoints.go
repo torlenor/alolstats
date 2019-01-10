@@ -30,7 +30,7 @@ func (s *Storage) getActiveGameBySummonerNameEndpoint(w http.ResponseWriter, r *
 		return
 	}
 
-	summoner, err := s.GetSummonerByName(summonerName)
+	summoner, err := s.GetSummonerByName(summonerName, checkParamterForceUpdate(r.URL.Query()))
 	if err != nil {
 		s.log.Warnf("Error getting SummonerByName data")
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, "Summoner "+summonerName+" not found"), http.StatusBadRequest)

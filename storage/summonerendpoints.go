@@ -21,8 +21,8 @@ type SummonerResponse struct {
 	LeagueRankings riotclient.LeaguePositionDTOList `json:"leagues"`
 }
 
-func (s *Storage) prepareSummonerResponse(summonerName string) (*SummonerResponse, error) {
-	summoner, err := s.GetSummonerByName(summonerName)
+func (s *Storage) prepareSummonerResponse(summonerName string, forceUpdate bool) (*SummonerResponse, error) {
+	summoner, err := s.GetSummonerByName(summonerName, forceUpdate)
 	if err != nil {
 		return nil, fmt.Errorf("Error getting SummonerByName data")
 	}
@@ -35,9 +35,11 @@ func (s *Storage) prepareSummonerResponse(summonerName string) (*SummonerRespons
 		Timestamp:     summoner.Timestamp,
 	}
 
-	leagues, err := s.riotClient.LeaguesForSummoner(summoner.ID)
+	leagues, err := s.GetLeaguesForSummonerBySummonerID(summoner.ID, forceUpdate)
 	if err == nil {
-		summonerResponse.LeagueRankings = *leagues
+		summonerResponse.LeagueRankings = leagues
+	} else {
+		s.log.Warnf("Unable to get League Data for Summoner %s: %s", summoner.Name, err)
 	}
 
 	return &summonerResponse, nil
@@ -60,7 +62,7 @@ func (s *Storage) summonerByNameEndpoint(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	summonerResponse, err := s.prepareSummonerResponse(summonerName)
+	summonerResponse, err := s.prepareSummonerResponse(summonerName, checkParamterForceUpdate(r.URL.Query()))
 	if err != nil {
 		s.log.Warnf("Error preparing Summoner Response: %s", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

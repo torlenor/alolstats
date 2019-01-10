@@ -47,11 +47,16 @@ func (c *RiotClientV4) LeaguesForSummoner(encSummonerID string) (*riotclient.Lea
 		return nil, fmt.Errorf("Error in API call: %s", err)
 	}
 
-	leaguePositions := riotclient.LeaguePositionDTOList{}
+	leaguePositions := []riotclient.LeaguePositionDTO{}
 	err = json.Unmarshal(data, &leaguePositions)
 	if err != nil {
 		return nil, err
 	}
 
-	return &leaguePositions, nil
+	timestamp := now()
+	for i := range leaguePositions {
+		leaguePositions[i].Timestamp = timestamp
+	}
+
+	return &riotclient.LeaguePositionDTOList{LeaguePosition: leaguePositions}, nil
 }

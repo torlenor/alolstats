@@ -3,7 +3,6 @@ package statsrunner
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -291,8 +290,8 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 		},
 	)
 
-	champions := sr.storage.GetChampions()
-	for _, val := range champions.Champions {
+	champions := sr.storage.GetChampions(false)
+	for _, val := range champions {
 		if val.Key == strconv.FormatUint(champID, 10) {
 			championStats.ChampionName = val.Name
 			championStats.ChampionRealID = val.ID
@@ -460,9 +459,9 @@ func (sr *StatsRunner) championByNameEndpoint(w http.ResponseWriter, r *http.Req
 		gameVersion = val[0]
 	}
 
-	champions := sr.storage.GetChampions()
+	champions := sr.storage.GetChampions(false)
 	champID := uint64(0)
-	for _, val := range champions.Champions {
+	for _, val := range champions {
 		if strings.ToLower(val.ID) == strings.ToLower(championName) {
 			id, err := strconv.ParseUint(val.Key, 10, 32)
 			if err != nil {
@@ -518,10 +517,10 @@ func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http
 		gameVersion = val[0]
 	}
 
-	champions := sr.storage.GetChampions()
+	champions := sr.storage.GetChampions(false)
 	champID := uint64(0)
 	var champRealID string
-	for _, val := range champions.Champions {
+	for _, val := range champions {
 		if strings.ToLower(val.ID) == strings.ToLower(championName) {
 			id, err := strconv.ParseUint(val.Key, 10, 32)
 			if err != nil {
@@ -556,58 +555,4 @@ func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http
 	io.Copy(w, img)
 
 	atomic.AddUint64(&sr.stats.handledRequests, 1)
-}
-
-func (sr *StatsRunner) championStatsListingEndpoint(w http.ResponseWriter, r *http.Request) {
-	t := template.New("champions list")
-	t, _ = t.Parse(`
-			<head>
-			<h1>Champion Stats</h1>
-			<style>
-			// table {
-			// 	width:100%;
-			// }
-			table, th, td {
-				border: 1px solid black;
-				border-collapse: collapse;
-			}
-			th, td {
-				padding: 15px;
-				text-align: left;
-			}
-			table#t01 tr:nth-child(even) {
-				background-color: #eee;
-			}
-			table#t01 tr:nth-child(odd) {
-			   background-color: #fff;
-			}
-			table#t01 th {
-				background-color: black;
-				color: white;
-			}
-			</style>
-			</head>
-			<body>
-			<table id="t01">
-			<tr>
-			  <th>Champion</th>
-			  <th>Role Distribution</th> 
-			</tr>
-			{{range .Champions}}
-			<tr>
-			  <td>{{.Name}}</td>
-			  <td><a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.23">Patch 8.23</a> <a href="/v1/stats/plots/champion/byname?name={{.ID}}&gameversion=8.24">Patch 8.24</a> </td>
-			</tr>
-			{{end}}
-		  </table>
-
-			</body>
-			`)
-
-	champions := sr.storage.GetChampions()
-
-	err := t.Execute(w, champions)
-	if err != nil {
-		sr.log.Errorf("Error in using the Template for building the Stats overview: %s", err)
-	}
 }

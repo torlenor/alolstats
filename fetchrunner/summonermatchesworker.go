@@ -12,7 +12,7 @@ func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, a
 	}
 
 	for _, leagueEntry := range leagueData.Entries {
-		summoner, err := f.storage.GetSummonerBySummonerID(leagueEntry.SummonerID)
+		summoner, err := f.storage.GetSummonerBySummonerID(leagueEntry.SummonerID, false)
 		if err != nil {
 			f.log.Warnf("Could not get Summoner for Summoner ID %s: %s", leagueEntry.SummonerID, err)
 			continue
@@ -24,7 +24,7 @@ func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, a
 }
 
 func (f *FetchRunner) fetchSummonerMatchesByName(summonerName string, number uint32) {
-	summoner, err := f.storage.GetSummonerByName(summonerName)
+	summoner, err := f.storage.GetSummonerByName(summonerName, false)
 	if err != nil {
 		f.log.Errorf("Error fetching summoner matches: Could not get Summoner Data for Summoner %s", summonerName)
 		return

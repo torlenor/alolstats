@@ -74,19 +74,19 @@ func (b *Backend) GetSummonerByNameTimeStamp(name string) time.Time {
 	return summoner.SummonerDTO.Timestamp
 }
 
-// GetSummonerByName retreives a summoner by name
+// GetSummonerByName retrieves a summoner by name
 func (b *Backend) GetSummonerByName(name string) (*storage.Summoner, error) {
 	query := &bson.D{{Key: "summonername", Value: strings.ToLower(name)}}
 	return b.summonerQuery(query)
 }
 
-// GetSummonerBySummonerID retreives a summoner identified by its Summoner ID
+// GetSummonerBySummonerID retrieves a summoner identified by its Summoner ID
 func (b *Backend) GetSummonerBySummonerID(summonerID string) (*storage.Summoner, error) {
 	query := &bson.D{{Key: "summonerdto.id", Value: summonerID}}
 	return b.summonerQuery(query)
 }
 
-// GetSummonerBySummonerIDTimeStamp retreives a summoners time stamp by its Summoner ID
+// GetSummonerBySummonerIDTimeStamp retrieves a summoners time stamp by its Summoner ID
 func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID string) time.Time {
 	summoner, err := b.GetSummonerBySummonerID(summonerID)
 	if err != nil {
@@ -95,13 +95,13 @@ func (b *Backend) GetSummonerBySummonerIDTimeStamp(summonerID string) time.Time 
 	return summoner.SummonerDTO.Timestamp
 }
 
-// GetSummonerByAccountID retreives a summoner identified by its Account ID
+// GetSummonerByAccountID retrieves a summoner identified by its Account ID
 func (b *Backend) GetSummonerByAccountID(accountID string) (*storage.Summoner, error) {
 	query := &bson.D{{Key: "summonerdto.accountid", Value: accountID}}
 	return b.summonerQuery(query)
 }
 
-// GetSummonerByAccountIDTimeStamp retreives a summoners time stamp by its Account ID
+// GetSummonerByAccountIDTimeStamp retrieves a summoners time stamp by its Account ID
 func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID string) time.Time {
 	summoner, err := b.GetSummonerByAccountID(accountID)
 	if err != nil {
@@ -110,18 +110,51 @@ func (b *Backend) GetSummonerByAccountIDTimeStamp(accountID string) time.Time {
 	return summoner.SummonerDTO.Timestamp
 }
 
+// GetSummonerByPUUID retrieves a summoner identified by its PUUID
+func (b *Backend) GetSummonerByPUUID(PUUID string) (*storage.Summoner, error) {
+	query := &bson.D{{Key: "summonerdto.puuid", Value: PUUID}}
+	return b.summonerQuery(query)
+}
+
+// GetSummonerByPUUIDTimeStamp retrieves a summoners time stamp by its PUUID
+func (b *Backend) GetSummonerByPUUIDTimeStamp(PUUID string) time.Time {
+	summoner, err := b.GetSummonerByPUUID(PUUID)
+	if err != nil {
+		return time.Time{}
+	}
+	return summoner.SummonerDTO.Timestamp
+}
+
 // StoreSummoner stores new Summoner data
 func (b *Backend) StoreSummoner(data *storage.Summoner) error {
-	b.log.Debugf("Storing Summoner %s in storage", data.SummonerDTO.Name)
+	b.log.Debugf("Storing Summoner %s in storage", data.SummonerName)
+
+	c := b.client.Database(b.config.Database).Collection("summoners")
+
+	// Make sure we clean possible old entries with same ids first
+	filter := bson.D{{Key: "accountid", Value: data.AccountID}}
+	_, err := c.DeleteOne(context.Background(), filter)
+	if err != nil {
+		b.log.Debugf("%d", err)
+	}
+	filter = bson.D{{Key: "puuid", Value: data.PUUID}}
+	_, err = c.DeleteOne(context.Background(), filter)
+	if err != nil {
+		b.log.Debugf("%d", err)
+	}
+	filter = bson.D{{Key: "summonerid", Value: data.SummonerID}}
+	_, err = c.DeleteOne(context.Background(), filter)
+	if err != nil {
+		b.log.Debugf("%d", err)
+	}
 
 	upsert := true
 	updateOptions := options.UpdateOptions{Upsert: &upsert}
 
-	query := bson.D{{Key: "summonerdto.accountid", Value: data.SummonerDTO.AccountID}}
+	query := bson.D{{Key: "summonername", Value: data.SummonerName}}
 	update := bson.D{{Key: "$set", Value: data}}
 
-	c := b.client.Database(b.config.Database).Collection("summoners")
-	_, err := c.UpdateOne(context.Background(), query, update, &updateOptions)
+	_, err = c.UpdateOne(context.Background(), query, update, &updateOptions)
 	if err != nil {
 		return err
 	}

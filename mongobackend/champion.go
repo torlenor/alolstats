@@ -7,11 +7,12 @@ import (
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo/options"
+
 	"github.com/torlenor/alolstats/riotclient"
 )
 
 // GetChampions gets the champions list from storage
-func (b *Backend) GetChampions() (*riotclient.ChampionList, error) {
+func (b *Backend) GetChampions() (riotclient.ChampionsList, error) {
 
 	c := b.client.Database(b.config.Database).Collection("champions")
 
@@ -25,8 +26,7 @@ func (b *Backend) GetChampions() (*riotclient.ChampionList, error) {
 
 	defer cur.Close(context.Background())
 
-	var championsList riotclient.ChampionList
-	championsList.Champions = make(map[string]riotclient.Champion)
+	championsList := make(riotclient.ChampionsList)
 
 	for cur.Next(nil) {
 		champion := riotclient.Champion{}
@@ -35,14 +35,14 @@ func (b *Backend) GetChampions() (*riotclient.ChampionList, error) {
 			b.log.Warnln("Decode error ", err)
 			continue
 		}
-		championsList.Champions[champion.ID] = champion
+		championsList[champion.ID] = champion
 	}
 
 	if err := cur.Err(); err != nil {
 		b.log.Warnln("Cursor error ", err)
 	}
 
-	return &championsList, nil
+	return championsList, nil
 }
 
 // GetChampionsCount gets the number of champions from storage
@@ -69,13 +69,13 @@ func (b *Backend) GetChampionsTimeStamp() time.Time {
 		return time.Time{}
 	}
 
-	if len(championList.Champions) == 0 {
+	if len(championList) == 0 {
 		return time.Time{}
 	}
 
 	// Find oldest champ time
 	oldest := time.Now()
-	for _, champion := range championList.Champions {
+	for _, champion := range championList {
 		if oldest.Sub(champion.Timestamp) > 0 {
 			oldest = champion.Timestamp
 		}
@@ -85,14 +85,14 @@ func (b *Backend) GetChampionsTimeStamp() time.Time {
 }
 
 // StoreChampions stores a new champions list
-func (b *Backend) StoreChampions(championList *riotclient.ChampionList) error {
+func (b *Backend) StoreChampions(championList riotclient.ChampionsList) error {
 	b.log.Debugf("Storing Champions in storage")
 
 	upsert := true
 	updateOptions := options.UpdateOptions{Upsert: &upsert}
 
 	hadErrors := false
-	for _, champion := range championList.Champions {
+	for _, champion := range championList {
 		query := bson.D{{Key: "key", Value: champion.Key}}
 		update := bson.D{{Key: "$set", Value: champion}}
 

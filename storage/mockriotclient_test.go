@@ -8,7 +8,7 @@ import (
 
 type mockClient struct {
 	failChampions      bool
-	champions          riotclient.ChampionList
+	champions          riotclient.ChampionsList
 	championsRetrieved bool
 
 	failFreeRotation      bool
@@ -84,7 +84,7 @@ func (c *mockClient) LeagueByQueue(league string, queue string) (*riotclient.Lea
 
 func (c *mockClient) reset() {
 	c.failChampions = false
-	c.champions = riotclient.ChampionList{}
+	c.champions = make(riotclient.ChampionsList)
 	c.championsRetrieved = false
 
 	c.failFreeRotation = false
@@ -96,7 +96,7 @@ func (c *mockClient) reset() {
 	c.wasSummonerRetrieved = false
 }
 
-func (c *mockClient) setChampions(champions riotclient.ChampionList) {
+func (c *mockClient) setChampions(champions riotclient.ChampionsList) {
 	c.champions = champions
 }
 
@@ -108,14 +108,14 @@ func (c *mockClient) getChampionsRetrieved() bool {
 	return c.championsRetrieved
 }
 
-func (c *mockClient) Champions() (s *riotclient.ChampionList, err error) {
+func (c *mockClient) Champions() (s riotclient.ChampionsList, err error) {
 	c.championsRetrieved = true
 
 	if c.failChampions {
-		return &riotclient.ChampionList{}, fmt.Errorf("Error retreiving champions")
+		return nil, fmt.Errorf("Error retreiving champions")
 	}
 
-	return &c.champions, nil
+	return c.champions, nil
 }
 
 func (c *mockClient) setFreeRotation(freeRotation riotclient.FreeRotation) {

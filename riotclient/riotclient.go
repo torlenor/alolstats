@@ -9,7 +9,7 @@ type ClientBase interface {
 
 // ClientChampion defines an interface to Champion API calls
 type ClientChampion interface {
-	Champions() (s *ChampionList, err error)
+	Champions() (s ChampionsList, err error)
 	ChampionRotations() (s *FreeRotation, err error)
 }
 

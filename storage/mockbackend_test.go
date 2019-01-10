@@ -9,10 +9,10 @@ import (
 
 type mockBackend struct {
 	failChampions        bool
-	champions            riotclient.ChampionList
+	champions            riotclient.ChampionsList
 	championsTimeStamp   time.Time
 	championsRetrieved   bool
-	championsStored      riotclient.ChampionList
+	championsStored      riotclient.ChampionsList
 	championsWhereStored bool
 
 	failFreeRotation        bool
@@ -30,10 +30,10 @@ type mockBackend struct {
 
 func (b *mockBackend) reset() {
 	b.failChampions = false
-	b.champions = riotclient.ChampionList{}
+	b.champions = make(riotclient.ChampionsList)
 	b.championsTimeStamp = time.Time{}
 	b.championsRetrieved = false
-	b.championsStored = riotclient.ChampionList{}
+	b.championsStored = make(riotclient.ChampionsList)
 	b.championsWhereStored = false
 
 	b.failFreeRotation = false
@@ -53,7 +53,7 @@ func (b *mockBackend) reset() {
 // Champions
 //
 
-func (b *mockBackend) setChampions(champions riotclient.ChampionList) {
+func (b *mockBackend) setChampions(champions riotclient.ChampionsList) {
 	b.champions = champions
 }
 func (b *mockBackend) setChampionsTimeStamp(time time.Time) {
@@ -72,14 +72,14 @@ func (b *mockBackend) getChampionsStored() bool {
 	return b.championsWhereStored
 }
 
-func (b *mockBackend) GetChampions() (*riotclient.ChampionList, error) {
+func (b *mockBackend) GetChampions() (riotclient.ChampionsList, error) {
 	b.championsRetrieved = true
 
 	if b.failChampions {
 		return nil, fmt.Errorf("Error retreiving champions")
 	}
 
-	return &b.champions, nil
+	return b.champions, nil
 }
 
 func (b *mockBackend) GetChampionsTimeStamp() time.Time {
@@ -92,8 +92,8 @@ func (b *mockBackend) GetChampionsTimeStamp() time.Time {
 	return b.championsTimeStamp
 }
 
-func (b *mockBackend) StoreChampions(championList *riotclient.ChampionList) error {
-	b.championsStored = *championList
+func (b *mockBackend) StoreChampions(championList riotclient.ChampionsList) error {
+	b.championsStored = championList
 	b.championsWhereStored = true
 	return nil
 }
@@ -250,4 +250,52 @@ func (b *mockBackend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVe
 
 func (b *mockBackend) GetStorageSummary() (Summary, error) {
 	return Summary{}, nil
+}
+
+func (b *mockBackend) GetLeagueByQueue(league string, queue string) (*riotclient.LeagueListDTO, error) {
+	return &riotclient.LeagueListDTO{}, nil
+}
+
+func (b *mockBackend) GetLeagueByQueueTimeStamp(league string, queue string) (time.Time, error) {
+	return time.Time{}, nil
+}
+
+func (b *mockBackend) StoreLeague(*riotclient.LeagueListDTO) error {
+	return nil
+}
+
+func (b *mockBackend) GetLeaguesForSummoner(summonerName string) (*SummonerLeagues, error) {
+	return &SummonerLeagues{}, nil
+}
+
+func (b *mockBackend) GetLeaguesForSummonerBySummonerID(summonerID string) (*SummonerLeagues, error) {
+	return &SummonerLeagues{}, nil
+}
+
+func (b *mockBackend) StoreLeaguesForSummoner(*SummonerLeagues) error {
+	return nil
+}
+
+func (b *mockBackend) GetLeaguesForSummonerTimeStamp(summonerName string) (time.Time, error) {
+	return time.Time{}, nil
+}
+
+func (b *mockBackend) GetLeaguesForSummonerBySummonerIDTimeStamp(summonerID string) (time.Time, error) {
+	return time.Time{}, nil
+}
+
+func (b *mockBackend) GetMatchTimeLine(matchID uint64) (*riotclient.MatchTimelineDTO, error) {
+	return &riotclient.MatchTimelineDTO{}, nil
+}
+
+func (b *mockBackend) StoreMatchTimeLine(data *riotclient.MatchTimelineDTO) error {
+	return nil
+}
+
+func (b *mockBackend) GetSummonerByPUUID(PUUID string) (*Summoner, error) {
+	return &Summoner{}, nil
+}
+
+func (b *mockBackend) GetSummonerByPUUIDTimeStamp(PUUID string) time.Time {
+	return time.Time{}
 }
