@@ -40,6 +40,7 @@ func (s *Storage) prepareSummonerResponse(summonerName string, forceUpdate bool)
 		summonerResponse.LeagueRankings = leagues
 	} else {
 		s.log.Warnf("Unable to get League Data for Summoner %s: %s", summoner.Name, err)
+		summonerResponse.LeagueRankings = riotclient.LeaguePositionDTOList{}
 	}
 
 	return &summonerResponse, nil

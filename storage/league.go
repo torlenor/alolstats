@@ -28,11 +28,15 @@ type SummonerLeagues struct {
 }
 
 func (s *Storage) storeLeaguesForSummoner(leagues *riotclient.LeaguePositionDTOList) error {
-	return s.backend.StoreLeaguesForSummoner(&SummonerLeagues{
-		LeaguePositionDTOList: *leagues,
-		SummonerName:          utils.CleanUpSummonerName(leagues.LeaguePosition[0].SummonerName),
-		SummonerID:            leagues.LeaguePosition[0].SummonerID,
-	})
+	if len(leagues.LeaguePosition) > 0 {
+		return s.backend.StoreLeaguesForSummoner(&SummonerLeagues{
+			LeaguePositionDTOList: *leagues,
+			SummonerName:          utils.CleanUpSummonerName(leagues.LeaguePosition[0].SummonerName),
+			SummonerID:            leagues.LeaguePosition[0].SummonerID,
+		})
+	} else {
+		return nil
+	}
 }
 
 // GetLeaguesForSummonerBySummonerID returns all Leagues a Summoner is placed in, identified by Summoner ID
