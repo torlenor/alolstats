@@ -41,6 +41,7 @@ type RiotClientV4 struct {
 
 type dataDragon interface {
 	GetDataDragonChampions() ([]byte, error)
+	GetLoLVersions() ([]byte, error)
 }
 
 func checkConfig(cfg config.RiotClient) error {

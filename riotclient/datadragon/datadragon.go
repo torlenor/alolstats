@@ -107,6 +107,18 @@ func (c *RiotClientDD) getVersions() (*currentVersions, error) {
 	return &versions, nil
 }
 
+// GetLolVersions returns all currenctly known LoL Versions
+func (c *RiotClientDD) GetLoLVersions() ([]byte, error) {
+	versionsURL := "https://ddragon.leagueoflegends.com/api/versions.json"
+
+	body, err := c.downloadFile(versionsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Verions data from Data Dragon: %s", err)
+	}
+
+	return body, nil
+}
+
 // GetDataDragonChampions returns the current champions available for the live game version
 func (c *RiotClientDD) GetDataDragonChampions() ([]byte, error) {
 	versions, err := c.getVersions()

@@ -14,3 +14,7 @@ func (c *MockRiotClientDD) GetDataDragonChampions() ([]byte, error) {
 
 	return c.championsJSON, nil
 }
+
+func (c *MockRiotClientDD) GetLoLVersions() ([]byte, error) {
+	return nil, nil
+}

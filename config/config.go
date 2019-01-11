@@ -82,6 +82,7 @@ type StatsRunner struct {
 
 	RScriptsUpdateInterval uint32 // Update Interval for running the R scripts in minutes > 0
 
+	GameVersion string // We want to do stats calculations for the following versions, must be valid game versions, see https://ddragon.leagueoflegends.com/api/versions.json, e.g., 9.1.1, 8.24.1
 }
 
 // Config holds the complete ALolStats config
