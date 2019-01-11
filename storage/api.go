@@ -28,6 +28,10 @@ func (s *Storage) registerAPIStorage(api *api.API) {
 	api.AttachModuleGet("/storage/summary", s.storageSummaryEndpoint)
 }
 
+func (s *Storage) registerAPIStats(api *api.API) {
+	api.AttachModuleGet("/stats/champion/byid", s.championStatsByIDEndpoint)
+}
+
 // RegisterAPI registers all endpoints from storage to the RestAPI
 func (s *Storage) RegisterAPI(api *api.API) {
 	s.registerAPIChampions(api)
@@ -35,4 +39,5 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	s.registerAPISpectator(api)
 	s.registerAPISummoner(api)
 	s.registerAPIStorage(api)
+	s.registerAPIStats(api)
 }

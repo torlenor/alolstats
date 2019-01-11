@@ -180,3 +180,11 @@ func (b *Backend) GetStorageSummary() (storage.Summary, error) {
 
 	return summary, nil
 }
+
+func (b *Backend) StoreChampionStats(data *storage.ChampionStatsStorage) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*storage.ChampionStatsStorage, error) {
+	return &storage.ChampionStatsStorage{}, nil
+}

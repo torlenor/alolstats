@@ -50,10 +50,10 @@ func NewStatsRunner(cfg config.StatsRunner, storage *storage.Storage) (*StatsRun
 
 // RegisterAPI registers all endpoints from StatsRunner to the RestAPI
 func (sr *StatsRunner) RegisterAPI(api *api.API) {
-	api.AttachModuleGet("/stats/champion/byid", sr.championByIDEndpoint)
-	api.AttachModuleGet("/stats/champion/byname", sr.championByNameEndpoint)
+	// api.AttachModuleGet("/stats/champion/byid", sr.championByIDEndpoint)
+	// api.AttachModuleGet("/stats/champion/byname", sr.championByNameEndpoint)
 
-	api.AttachModuleGet("/stats/plots/champion/byname", sr.championByNamePlotEndpoint)
+	// api.AttachModuleGet("/stats/plots/champion/byname", sr.championByNamePlotEndpoint)
 
 }
 
@@ -73,6 +73,7 @@ func (sr *StatsRunner) Start() {
 		} else {
 			sr.log.Info("Not running R scripts (deactivated in config)")
 		}
+		go sr.champStatsCalcWorker()
 		sr.isStarted = true
 	} else {
 		sr.log.Println("StatsRunner already running")

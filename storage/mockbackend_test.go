@@ -299,3 +299,11 @@ func (b *mockBackend) GetSummonerByPUUID(PUUID string) (*Summoner, error) {
 func (b *mockBackend) GetSummonerByPUUIDTimeStamp(PUUID string) time.Time {
 	return time.Time{}
 }
+
+func (b *mockBackend) StoreChampionStats(data *ChampionStatsStorage) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*ChampionStatsStorage, error) {
+	return &ChampionStatsStorage{}, nil
+}

@@ -1,108 +1,25 @@
 package statsrunner
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
-	"sync/atomic"
 	"time"
 
-	"github.com/torlenor/alolstats/utils"
+	"github.com/torlenor/alolstats/storage"
 )
 
-type laneRolePercentage struct {
-	Lane string `json:"lane"`
-	Role string `json:"role"`
+func (sr *StatsRunner) getChampionStatsByID(champID uint64, majorVersion uint32, minorVersion uint32) (*storage.ChampionStats, error) {
 
-	Percentage float64 `json:"percentage"`
-	Wins       uint32  `json:"wins"`
-	NGames     uint32  `json:"ngames"`
-}
+	majorMinor := fmt.Sprintf("%d\\.%d\\.", majorVersion, minorVersion)
+	gameVersion := fmt.Sprintf("%d.%d", majorVersion, minorVersion)
 
-type championStats struct {
-	ChampionID     uint64 `json:"championid"`
-	ChampionRealID string `json:"championrealid"`
-	ChampionName   string `json:"championname"`
-	GameVersion    string `json:"gameversion"`
-
-	Timestamp time.Time `json:"timestamp"`
-
-	SampleSize uint64 `json:"samplesize"`
-
-	AvgK    float64 `json:"averagekills"`
-	StdDevK float64 `json:"stddevkills"`
-	MedianK float64 `json:"mediankills"`
-
-	AvgD    float64 `json:"averagedeaths"`
-	StdDevD float64 `json:"stddevdeaths"`
-	MedianD float64 `json:"mediandeaths"`
-
-	AvgA    float64 `json:"averageassists"`
-	StdDevA float64 `json:"stddevassists"`
-	MedianA float64 `json:"medianassists"`
-
-	WinLossRatio float64 `json:"winlossratio"`
-
-	LaneRolePercentage []laneRolePercentage `json:"lanerolepercentage"`
-
-	LaneRolePercentagePlotly []laneRolePercentagePlotly `json:"lanerolepercentageplotly"`
-}
-
-type laneRolePercentagePlotly struct {
-	X []string  `json:"x"` // ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
-	Y []float64 `json:"y"` // [2.2058823529411766, 2.941176470588235, 0.7352941176470588, 0, 0],
-
-	Name string `json:"name"` // 'Solo',
-	Type string `json:"type"` // 'bar'
-}
-
-// var solo = {
-// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
-// 	y: [2.2058823529411766, 2.941176470588235, 0.7352941176470588, 0, 0],
-// 	name: 'Solo',
-// 	type: 'bar'
-//   };
-
-//   var carry = {
-// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
-// 	y: [0, 0, 0, 77.20588235294117, 0],
-// 	name: 'Carry',
-// 	type: 'bar'
-//   };
-
-//   var support = {
-// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
-// 	y: [0, 0, 0, 5, 0],
-// 	name: 'Support',
-// 	type: 'bar'
-//   };
-
-//   var unknown = {
-// 	x: ['TOP', 'MIDDLE', 'JUNGLE', 'BOT', 'UNKNOWN'],
-// 	y: [0, 0, 0, 5.88235294117647, 11.029411764705882],
-// 	name: 'Unknown',
-// 	type: 'bar'
-//   };
-
-func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) (*championStats, error) {
-
-	start := time.Now()
-
-	matches, err := sr.storage.GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersion, champID, 11, 440, 400)
+	matches, err := sr.storage.GetStoredMatchesByGameVersionChampionIDMapBetweenQueueIDs(majorMinor, champID, 11, 440, 400)
 	if err != nil {
 		return nil, fmt.Errorf("Could not get GetStoredMatchesByGameVersionAndChampionID: %s", err)
 	}
 	if len(matches.Matches) == 0 {
-		return nil, fmt.Errorf("Error in getting matches for game version = %s and Champion ID %d", gameVersion, champID)
+		return nil, fmt.Errorf("Error in getting matches for game version = %s and Champion ID %d", majorMinor, champID)
 	}
-
-	elapsed := time.Since(start)
-	sr.log.Debugf("Got Matches from storage for Champion Stats calculation. Took %s", elapsed)
 
 	var total uint64
 	var kills, deaths, assists []float64
@@ -192,7 +109,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 		}
 	}
 
-	championStats := championStats{}
+	championStats := storage.ChampionStats{}
 	championStats.ChampionID = champID
 	championStats.GameVersion = gameVersion
 	championStats.SampleSize = total
@@ -214,7 +131,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	}
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		laneRolePercentage{
+		storage.LaneRolePercentage{
 			Lane: "TOP",
 			Role: "Solo",
 
@@ -225,7 +142,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		laneRolePercentage{
+		storage.LaneRolePercentage{
 			Lane: "MIDDLE",
 			Role: "Solo",
 
@@ -236,7 +153,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		laneRolePercentage{
+		storage.LaneRolePercentage{
 			Lane: "JUNGLE",
 			Role: "Solo",
 
@@ -247,7 +164,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		laneRolePercentage{
+		storage.LaneRolePercentage{
 			Lane: "BOT",
 			Role: "Carry",
 
@@ -258,7 +175,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		laneRolePercentage{
+		storage.LaneRolePercentage{
 			Lane: "BOT",
 			Role: "Support",
 
@@ -269,7 +186,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		laneRolePercentage{
+		storage.LaneRolePercentage{
 			Lane: "BOT",
 			Role: "Unknown",
 
@@ -280,7 +197,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		laneRolePercentage{
+		storage.LaneRolePercentage{
 			Lane: "UNKNOWN",
 			Role: "Unknown",
 
@@ -309,7 +226,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	// }
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		laneRolePercentagePlotly{
+		storage.LaneRolePercentagePlotly{
 			Name: "Uknown",
 			Type: "bar",
 
@@ -327,7 +244,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		laneRolePercentagePlotly{
+		storage.LaneRolePercentagePlotly{
 			Name: "Support",
 			Type: "bar",
 
@@ -345,7 +262,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		laneRolePercentagePlotly{
+		storage.LaneRolePercentagePlotly{
 			Name: "Carry",
 			Type: "bar",
 
@@ -363,7 +280,7 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 	)
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		laneRolePercentagePlotly{
+		storage.LaneRolePercentagePlotly{
 			Name: "Solo",
 			Type: "bar",
 
@@ -382,177 +299,71 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, gameVersion string) 
 
 	championStats.Timestamp = time.Now()
 
-	elapsed = time.Since(start)
-	sr.log.Debugf("Finished Champion Stats calculation. Took %s", elapsed)
+	// elapsed = time.Since(start)
+	// sr.log.Debugf("Finished Champion Stats calculation. Took %s", elapsed)
 
 	return &championStats, nil
 }
 
-func (sr *StatsRunner) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
-	sr.log.Debugln("Received Rest API championByID request from", r.RemoteAddr)
-	var champID uint64
-	var gameVersion string
+// func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http.Request) {
+// 	sr.log.Debugln("Received Rest API championByName request from", r.RemoteAddr)
+// 	var gameVersion string
 
-	if val, ok := r.URL.Query()["id"]; ok {
-		if len(val) == 0 {
-			sr.log.Warnf("id parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		var err error
-		champID, err = strconv.ParseUint(val[0], 10, 32)
-		if err != nil {
-			sr.log.Warnf("Could not convert value %s to GameID", val)
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-	}
+// 	var championName string
+// 	if val, ok := r.URL.Query()["name"]; ok {
+// 		if len(val) == 0 {
+// 			sr.log.Warnf("name parameter was empty in request")
+// 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+// 			return
+// 		}
+// 		championName = val[0]
+// 	}
 
-	if val, ok := r.URL.Query()["gameversion"]; ok {
-		if len(val) == 0 {
-			sr.log.Warnf("gameversion parameter was empty in request.")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		gameVersion = val[0]
-	}
+// 	if val, ok := r.URL.Query()["gameversion"]; ok {
+// 		if len(val) == 0 {
+// 			sr.log.Warnf("gameversion parameter was empty in request.")
+// 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+// 			return
+// 		}
+// 		gameVersion = val[0]
+// 	}
 
-	championStats, err := sr.getChampionStatsByID(champID, gameVersion)
-	if err != nil {
-		sr.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
+// 	champions := sr.storage.GetChampions(false)
+// 	champID := uint64(0)
+// 	var champRealID string
+// 	for _, val := range champions {
+// 		if strings.ToLower(val.ID) == strings.ToLower(championName) {
+// 			id, err := strconv.ParseUint(val.Key, 10, 32)
+// 			if err != nil {
+// 				sr.log.Warnf("Could not convert value %s to Champion ID", val.Key)
+// 				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+// 				return
+// 			}
+// 			champID = id
+// 			champRealID = val.ID
+// 			continue
+// 		}
+// 	}
 
-	out, err := json.Marshal(championStats)
-	if err != nil {
-		sr.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
+// 	if len(champRealID) == 0 {
+// 		sr.log.Warnf("Could not convert provided champ name %s to Champion ID", championName)
+// 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+// 		return
+// 	}
 
-	io.WriteString(w, string(out))
+// 	var path = sr.config.RPlotsOutputPath
+// 	var imageName = fmt.Sprintf("champion_role_%s_%d_%s.png", champRealID, champID, gameVersion)
+// 	filePath := path + string(filepath.Separator) + imageName
 
-	atomic.AddUint64(&sr.stats.handledRequests, 1)
-}
+// 	img, err := os.Open(filePath)
+// 	if err != nil {
+// 		sr.log.Warnf("Could not get plot for requested Champion %s and game version %s: %s", champRealID, gameVersion, err)
+// 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	defer img.Close()
+// 	w.Header().Set("Content-Type", "image/png")
+// 	io.Copy(w, img)
 
-func (sr *StatsRunner) championByNameEndpoint(w http.ResponseWriter, r *http.Request) {
-	sr.log.Debugln("Received Rest API championByName request from", r.RemoteAddr)
-	var gameVersion string
-
-	var championName string
-	if val, ok := r.URL.Query()["name"]; ok {
-		if len(val) == 0 {
-			sr.log.Warnf("name parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		championName = val[0]
-	}
-
-	if val, ok := r.URL.Query()["gameversion"]; ok {
-		if len(val) == 0 {
-			sr.log.Warnf("gameversion parameter was empty in request.")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		gameVersion = val[0]
-	}
-
-	champions := sr.storage.GetChampions(false)
-	champID := uint64(0)
-	for _, val := range champions {
-		if strings.ToLower(val.ID) == strings.ToLower(championName) {
-			id, err := strconv.ParseUint(val.Key, 10, 32)
-			if err != nil {
-				sr.log.Warnf("Could not convert value %s to Champion ID", val.Key)
-				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-				return
-			}
-			champID = id
-			continue
-		}
-	}
-
-	stats, err := sr.getChampionStatsByID(champID, gameVersion)
-	if err != nil {
-		sr.log.Errorf("Error in getting stats for champion: %s", err)
-		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, "Bad Request - Could not get data for the gameversion and champion id specified"),
-			http.StatusBadRequest)
-		return
-	}
-
-	out, err := json.Marshal(stats)
-	if err != nil {
-		sr.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	io.WriteString(w, string(out))
-
-	atomic.AddUint64(&sr.stats.handledRequests, 1)
-}
-
-func (sr *StatsRunner) championByNamePlotEndpoint(w http.ResponseWriter, r *http.Request) {
-	sr.log.Debugln("Received Rest API championByName request from", r.RemoteAddr)
-	var gameVersion string
-
-	var championName string
-	if val, ok := r.URL.Query()["name"]; ok {
-		if len(val) == 0 {
-			sr.log.Warnf("name parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		championName = val[0]
-	}
-
-	if val, ok := r.URL.Query()["gameversion"]; ok {
-		if len(val) == 0 {
-			sr.log.Warnf("gameversion parameter was empty in request.")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		gameVersion = val[0]
-	}
-
-	champions := sr.storage.GetChampions(false)
-	champID := uint64(0)
-	var champRealID string
-	for _, val := range champions {
-		if strings.ToLower(val.ID) == strings.ToLower(championName) {
-			id, err := strconv.ParseUint(val.Key, 10, 32)
-			if err != nil {
-				sr.log.Warnf("Could not convert value %s to Champion ID", val.Key)
-				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-				return
-			}
-			champID = id
-			champRealID = val.ID
-			continue
-		}
-	}
-
-	if len(champRealID) == 0 {
-		sr.log.Warnf("Could not convert provided champ name %s to Champion ID", championName)
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	var path = sr.config.RPlotsOutputPath
-	var imageName = fmt.Sprintf("champion_role_%s_%d_%s.png", champRealID, champID, gameVersion)
-	filePath := path + string(filepath.Separator) + imageName
-
-	img, err := os.Open(filePath)
-	if err != nil {
-		sr.log.Warnf("Could not get plot for requested Champion %s and game version %s: %s", champRealID, gameVersion, err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-	defer img.Close()
-	w.Header().Set("Content-Type", "image/png")
-	io.Copy(w, img)
-
-	atomic.AddUint64(&sr.stats.handledRequests, 1)
-}
+// 	atomic.AddUint64(&sr.stats.handledRequests, 1)
+// }

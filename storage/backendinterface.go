@@ -74,6 +74,16 @@ type BackendInternals interface {
 	GetStorageSummary() (Summary, error)
 }
 
+// BackendStats defines an interface to retrieve stored statistics from Backend
+type BackendStats interface {
+	// GetChampionStatisticsByID(champID string, gameVersion string)
+	// GetChampionStatisticsByKey(champKey string, gameVersion string)
+
+	GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*ChampionStatsStorage, error)
+
+	StoreChampionStats(stats *ChampionStatsStorage) error
+}
+
 // Backend defines an interface to store/retrieve data from Storage Backend
 type Backend interface {
 	BackendChampion
@@ -83,4 +93,6 @@ type Backend interface {
 	BackendLeague
 
 	BackendInternals
+
+	BackendStats
 }
