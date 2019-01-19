@@ -103,7 +103,7 @@ dist:
 	  mkdir -p $$distpath ; \
 	  CGO_ENABLED=$$3 GOOS=$$1 GOARCH=$$2 go build -v -o $$distpath/$(NAME)$$4 -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ${SRCPATH}/*.go ;\
 	  cp "README.md" "LICENSE" "CHANGELOG.md" "AUTHORS" $$distpath ;\
-	  cp "config/config.toml" $$distpath/config_example.toml ;\
+	  cp "cfg/config.toml" $$distpath/config_example.toml ;\
 	  if [ "$$1" = "linux" ]; then \
 		  cd $$distpath && tar -zcvf ../../${NAME}_${VERSION}_$$1_$$2.tar.gz * && cd - ;\
 	  else \
