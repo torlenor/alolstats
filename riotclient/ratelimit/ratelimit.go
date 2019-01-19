@@ -125,6 +125,11 @@ func (c *RiotClientRL) updateAppRateLimits(limits string) {
 					c.log.Warnf("Could not convert value %s to rate limit count", rate[0])
 					continue
 				}
+				if val, ok := c.appRateLimit.rateLimits[uint32(period)]; ok {
+					if val != uint32(calls) {
+						c.log.Infof("Updated rate limit: Period: %ds Allowed Requests: %d", uint32(period), uint32(calls))
+					}
+				}
 				c.appRateLimit.rateLimits[uint32(period)] = uint32(calls)
 			}
 		}

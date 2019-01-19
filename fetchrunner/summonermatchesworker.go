@@ -87,7 +87,7 @@ WaitLoop:
 			start := time.Now()
 
 			if len(f.config.FetchMatchesForSummoners) > 0 {
-				f.log.Infof("Fetching matches for specified Summoners...")
+				f.log.Infof("Fetching matches for specified Summoners")
 				for _, summonerName := range f.config.FetchMatchesForSummoners {
 					f.fetchSummonerMatchesByName(summonerName, uint32(f.config.FetchMatchesForSummonersNumber))
 					if f.shouldWorkersStop {
@@ -99,12 +99,13 @@ WaitLoop:
 				}
 			}
 
+			f.log.Infof("Fetching matches for specified Leagues")
 			accountIDs := make(map[string]bool)
 			for _, league := range f.config.FetchMatchesForLeagues {
 				if len(f.config.FetchMatchesForLeagueQueues) > 0 {
-					f.log.Infof("Fetching matches for specified %s Leagues...", league)
 
 					for _, queue := range f.config.FetchMatchesForLeagueQueues {
+						f.log.Infof("Getting Summoner Account IDs for League %s and Queue %s", league, queue)
 						err := f.getLeagueSummonerAccountIDs(league, queue, accountIDs)
 						if err != nil {
 							f.log.Errorf("Error fetching Account IDs for league %s queue %s: %s", league, queue, err)
@@ -120,7 +121,7 @@ WaitLoop:
 				}
 			}
 
-			f.log.Infof("Found %d unique Account IDs in specified Leagues. Fetching matches...", len(accountIDs))
+			f.log.Infof("Found %d unique Account IDs in specified Leagues. Fetching matches", len(accountIDs))
 			for accountID := range accountIDs {
 				f.fetchSummonerMatchesByAccountID(accountID, uint32(f.config.FetchMatchesForLeaguesNumber))
 				if f.shouldWorkersStop {

@@ -25,7 +25,7 @@ func checkParamterForceUpdate(values url.Values) bool {
 }
 
 func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Received Rest API Champions request from", r.RemoteAddr)
+	s.log.Debugln("Received Rest API Champions request from", r.RemoteAddr)
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 
 	champions := s.GetChampions(checkParamterForceUpdate(r.URL.Query()))
@@ -41,7 +41,7 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Received Rest API Champion by Key request from", r.RemoteAddr)
+	s.log.Debugln("Received Rest API Champion by Key request from", r.RemoteAddr)
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 
 	if val, ok := r.URL.Query()["key"]; ok {
@@ -75,7 +75,7 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *Storage) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Received Rest API Champion by ID request from", r.RemoteAddr)
+	s.log.Debugln("Received Rest API Champion by ID request from", r.RemoteAddr)
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 
 	if val, ok := r.URL.Query()["id"]; ok {

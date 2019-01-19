@@ -32,7 +32,6 @@ func (s *Storage) GetMatch(id uint64) (riotclient.MatchDTO, error) {
 func (s *Storage) FetchAndStoreMatch(id uint64) error {
 	_, err := s.backend.GetMatch(id)
 	if err != nil {
-		s.log.Warnln(err)
 		match, err := s.riotClient.MatchByID(id)
 		if err != nil {
 			s.log.Warnln(err)

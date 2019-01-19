@@ -47,7 +47,7 @@ func (s *Storage) prepareSummonerResponse(summonerName string, forceUpdate bool)
 }
 
 func (s *Storage) summonerByNameEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Println("Received Rest API SummonerByName request from", r.RemoteAddr)
+	s.log.Debugln("Received Rest API SummonerByName request from", r.RemoteAddr)
 
 	var summonerName string
 	if val, ok := r.URL.Query()["name"]; ok {

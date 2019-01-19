@@ -51,7 +51,7 @@ func (c *RiotClientV4) worker(workQueue workQueue) {
 				err = c.checkRateLimited(response, work.method)
 				if err != nil {
 					tryAgain = true
-					c.log.Debugln("Worker: Repeating request")
+					c.log.Warnln("Worker: Was rate limited, repeating request")
 					continue
 				}
 				err = c.checkResponseCodeOK(response)
