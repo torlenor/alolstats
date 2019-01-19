@@ -111,7 +111,9 @@ func (c *RiotClientRL) updateAppRateLimits(limits string) {
 
 	if len(limits) > 0 {
 		values := strings.Split(limits, ",")
-		c.appRateLimit.rateLimits = make(map[uint32]uint32)
+		if c.appRateLimit.rateLimits == nil {
+			c.appRateLimit.rateLimits = make(map[uint32]uint32)
+		}
 		for _, entry := range values {
 			rate := strings.Split(entry, ":")
 			if len(rate) == 2 {
@@ -129,6 +131,8 @@ func (c *RiotClientRL) updateAppRateLimits(limits string) {
 					if val != uint32(calls) {
 						c.log.Infof("Updated rate limit: Period: %ds Allowed Requests: %d", uint32(period), uint32(calls))
 					}
+				} else {
+					c.log.Infof("Added rate limit: Period: %ds Allowed Requests: %d", uint32(period), uint32(calls))
 				}
 				c.appRateLimit.rateLimits[uint32(period)] = uint32(calls)
 			}
