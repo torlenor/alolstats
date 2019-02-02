@@ -18,6 +18,8 @@ type Champion struct {
 	Partype string        `json:"partype"`
 	Stats   ChampionStats `json:"stats"`
 
+	Roles []string `json:"roles"`
+
 	Timestamp time.Time `json:"timestamp"`
 }
 

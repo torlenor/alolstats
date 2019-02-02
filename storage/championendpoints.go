@@ -30,6 +30,14 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	champions := s.GetChampions(checkParamterForceUpdate(r.URL.Query()))
 
+	for key, val := range champions {
+		stats, err := s.GetChampionStatsByIDGameVersion(val.ID, "9.2")
+		if err == nil {
+			val.Roles = stats.Roles
+		}
+		champions[key] = val
+	}
+
 	out, err := json.Marshal(champions)
 	if err != nil {
 		s.log.Errorln(err)
@@ -57,6 +65,11 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 			s.log.Warnf("Could not get Champion with Key %s", key)
 			http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, fmt.Sprintf("Could not get Champion with Key %s", key)), http.StatusBadRequest)
 			return
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, "9.2")
+		if err == nil {
+			champion.Roles = stats.Roles
 		}
 
 		out, err := json.Marshal(champion)
@@ -91,6 +104,11 @@ func (s *Storage) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
 			s.log.Warnf("Could not get Champion with ID %s", id)
 			http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, fmt.Sprintf("Could not get Champion with ID %s", id)), http.StatusBadRequest)
 			return
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, "9.2")
+		if err == nil {
+			champion.Roles = stats.Roles
 		}
 
 		out, err := json.Marshal(champion)

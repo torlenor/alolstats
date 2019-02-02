@@ -47,13 +47,15 @@ type ChampionStats struct {
 	WinLossRatio float64 `json:"winlossratio"`
 	WinRate      float64 `json:"winrate"`
 
+	Roles []string `json:"roles"`
+
 	LaneRolePercentage []LaneRolePercentage `json:"lanerolepercentage"`
 
 	LaneRolePercentagePlotly []LaneRolePercentagePlotly `json:"lanerolepercentageplotly"`
 }
 
 type ChampionStatsStorage struct {
-	ChampionStats ChampionStats `json:"championstats`
+	ChampionStats ChampionStats `json:"championstats"`
 
 	ChampionID   string `json:"championid"`
 	ChampionKey  string `json:"championkey"`

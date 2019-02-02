@@ -135,6 +135,41 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, majorVersion uint32,
 		championStats.WinRate = 0
 	}
 
+	topPercentage := float64(topWins+topLosses) / float64(total) * 100.0
+	midPercentage := float64(midWins+midLosses) / float64(total) * 100.0
+	junglePercentage := float64(jungleWins+jungleLosses) / float64(total) * 100.0
+	botCarryPercentage := float64(botCarryWins+botCarryLosses) / float64(total) * 100.0
+	botSupportPercentage := float64(botSupWins+botSupLosses) / float64(total) * 100.0
+	// unknownBotPercentage := float64(botUnknownWins+botUnknownLosses)/float64(total)*100.0 + float64(unknownWins+unknownLosses)/float64(total)*100.0
+	// unknownPercentage := float64(unknownWins+unknownLosses) / float64(total) * 100.0
+
+	totWithoutUnknownPercentage := topPercentage + midPercentage + junglePercentage + botCarryPercentage + botSupportPercentage
+
+	renormTopPercentage := topPercentage / totWithoutUnknownPercentage * 100.0
+	renormMidPercentage := midPercentage / totWithoutUnknownPercentage * 100.0
+	renormJunglePercentage := junglePercentage / totWithoutUnknownPercentage * 100.0
+	renormBotCarryPercentage := botCarryPercentage / totWithoutUnknownPercentage * 100.0
+	renormBotSupportPercentage := botSupportPercentage / totWithoutUnknownPercentage * 100.0
+
+	var roles []string
+	if renormTopPercentage > 33 {
+		roles = append(roles, "Top")
+	}
+	if renormMidPercentage > 33 {
+		roles = append(roles, "Mid")
+	}
+	if renormJunglePercentage > 33 {
+		roles = append(roles, "Jungle")
+	}
+	if renormBotCarryPercentage > 33 {
+		roles = append(roles, "Carry")
+	}
+	if renormBotSupportPercentage > 33 {
+		roles = append(roles, "Support")
+	}
+
+	championStats.Roles = roles
+
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
 		storage.LaneRolePercentage{
 			Lane: "TOP",
