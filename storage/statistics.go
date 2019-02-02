@@ -45,6 +45,7 @@ type ChampionStats struct {
 	MedianA float64 `json:"medianassists"`
 
 	WinLossRatio float64 `json:"winlossratio"`
+	WinRate      float64 `json:"winrate"`
 
 	LaneRolePercentage []LaneRolePercentage `json:"lanerolepercentage"`
 

@@ -129,6 +129,11 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, majorVersion uint32,
 	} else {
 		championStats.WinLossRatio = 0
 	}
+	if total > 0 {
+		championStats.WinRate = float64(wins) / float64(total)
+	} else {
+		championStats.WinRate = 0
+	}
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
 		storage.LaneRolePercentage{
