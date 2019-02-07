@@ -134,7 +134,7 @@ func (s *Storage) getStatLeaguesEndpoint(w http.ResponseWriter, r *http.Request)
 	}
 
 	// lea := leagues{Leagues: []string{"All", "≥Master", "Diamond", "Platinum", "Gold", "Silver", "≤Bronze"}}
-	lea := leagues{Leagues: []string{"All", "≥Master", "Diamond", "Platinum", "Gold", "Silver", "≤Bronze"}}
+	lea := leagues{Leagues: []string{"All"}}
 
 	out, err := json.Marshal(lea)
 	if err != nil {
