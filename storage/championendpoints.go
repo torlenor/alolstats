@@ -31,7 +31,15 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 	champions := s.GetChampions(checkParamterForceUpdate(r.URL.Query()))
 
 	for key, val := range champions {
-		stats, err := s.GetChampionStatsByIDGameVersion(val.ID, "9.2")
+		gameVersion := "9.3"
+		if val, ok := r.URL.Query()["gameversion"]; ok {
+			if len(val[0]) == 0 {
+				s.log.Warnf("gameversion parameter was empty in request, using default %s", gameVersion)
+			}
+			gameVersion = val[0]
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersion(val.ID, gameVersion)
 		if err == nil {
 			val.Roles = stats.Roles
 		}
@@ -67,7 +75,15 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, "9.2")
+		gameVersion := "9.3"
+		if val, ok := r.URL.Query()["gameversion"]; ok {
+			if len(val[0]) == 0 {
+				s.log.Warnf("gameversion parameter was empty in request, using default %s", gameVersion)
+			}
+			gameVersion = val[0]
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, gameVersion)
 		if err == nil {
 			champion.Roles = stats.Roles
 		}
@@ -106,7 +122,15 @@ func (s *Storage) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, "9.2")
+		gameVersion := "9.3"
+		if val, ok := r.URL.Query()["gameversion"]; ok {
+			if len(val[0]) == 0 {
+				s.log.Warnf("gameversion parameter was empty in request, using default %s", gameVersion)
+			}
+			gameVersion = val[0]
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, gameVersion)
 		if err == nil {
 			champion.Roles = stats.Roles
 		}
