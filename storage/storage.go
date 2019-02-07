@@ -104,3 +104,46 @@ func (s *Storage) storageSummaryEndpoint(w http.ResponseWriter, r *http.Request)
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 }
+
+func (s *Storage) getKnownVersionsEndpoint(w http.ResponseWriter, r *http.Request) {
+	s.log.Debugln("Received Rest API Known Versions request from", r.RemoteAddr)
+
+	type versions struct {
+		Versions []string `json:"versions"`
+	}
+
+	ver := versions{Versions: []string{"9.3", "9.2", "9.1", "8.24"}}
+
+	out, err := json.Marshal(ver)
+	if err != nil {
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	io.WriteString(w, string(out))
+
+	atomic.AddUint64(&s.stats.handledRequests, 1)
+}
+
+func (s *Storage) getStatLeaguesEndpoint(w http.ResponseWriter, r *http.Request) {
+	s.log.Debugln("Received Rest API StatLeagues request from", r.RemoteAddr)
+
+	type leagues struct {
+		Leagues []string `json:"leagues"`
+	}
+
+	// lea := leagues{Leagues: []string{"All", "≥Master", "Diamond", "Platinum", "Gold", "Silver", "≤Bronze"}}
+	lea := leagues{Leagues: []string{"All", "≥Master", "Diamond", "Platinum", "Gold", "Silver", "≤Bronze"}}
+
+	out, err := json.Marshal(lea)
+	if err != nil {
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	io.WriteString(w, string(out))
+
+	atomic.AddUint64(&s.stats.handledRequests, 1)
+}
