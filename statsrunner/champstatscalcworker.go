@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/torlenor/alolstats/storage"
 	"github.com/torlenor/alolstats/utils"
 )
 
@@ -63,6 +64,18 @@ func (sr *StatsRunner) champStatsCalcWorker() {
 				}
 				sr.log.Debugf("champStatsCalcWorker calculation for Game Version %s done", gameVersion)
 			}
+
+			gameVersions := storage.GameVersions{}
+			for _, val := range sr.config.GameVersion {
+				ver, err := utils.SplitNumericVersion(val)
+				if err != nil {
+					continue
+				}
+
+				verStr := fmt.Sprintf("%d.%d", ver[0], ver[1])
+				gameVersions.Versions = append(gameVersions.Versions, verStr)
+			}
+			sr.storage.StoreKnownGameVersions(&gameVersions)
 
 			nextUpdate = time.Minute * time.Duration(sr.config.RScriptsUpdateInterval)
 
