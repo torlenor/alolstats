@@ -84,6 +84,12 @@ type BackendStats interface {
 	StoreChampionStats(stats *ChampionStatsStorage) error
 }
 
+// BackendMisc defines an interface to generic storages from Backend
+type BackendMisc interface {
+	GetKnownGameVersions() (*GameVersions, error)
+	StoreKnownGameVersions(gameVersions *GameVersions) error
+}
+
 // Backend defines an interface to store/retrieve data from Storage Backend
 type Backend interface {
 	BackendChampion
@@ -95,4 +101,6 @@ type Backend interface {
 	BackendInternals
 
 	BackendStats
+
+	BackendMisc
 }

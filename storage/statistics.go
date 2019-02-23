@@ -102,3 +102,8 @@ func (s *Storage) StoreChampionStats(stats *ChampionStats) error {
 	s.backend.StoreChampionStats(&championstatsStorage)
 	return nil
 }
+
+// StoreKnownGameVersions stores a new list of known game versions
+func (s *Storage) StoreKnownGameVersions(gameVersions *GameVersions) error {
+	return s.backend.StoreKnownGameVersions(gameVersions)
+}

@@ -105,14 +105,20 @@ func (s *Storage) storageSummaryEndpoint(w http.ResponseWriter, r *http.Request)
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 }
 
+// GameVersions struct is a list of game versions in the format major.minor, e.g., 8.24 or 9.1.
+type GameVersions struct {
+	Versions []string `json:"versions"`
+}
+
 func (s *Storage) getKnownVersionsEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API Known Versions request from", r.RemoteAddr)
 
-	type versions struct {
-		Versions []string `json:"versions"`
+	ver, err := s.backend.GetKnownGameVersions()
+	if err != nil {
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
-
-	ver := versions{Versions: []string{"9.3", "9.2", "9.1", "8.24"}}
 
 	out, err := json.Marshal(ver)
 	if err != nil {

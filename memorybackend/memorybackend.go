@@ -186,5 +186,13 @@ func (b *Backend) StoreChampionStats(data *storage.ChampionStatsStorage) error {
 }
 
 func (b *Backend) GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*storage.ChampionStatsStorage, error) {
-	return &storage.ChampionStatsStorage{}, nil
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetKnownGameVersions() (*storage.GameVersions, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) StoreKnownGameVersions(gameVersions *storage.GameVersions) error {
+	return fmt.Errorf("Not implemented")
 }
