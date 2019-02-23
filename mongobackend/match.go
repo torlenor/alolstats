@@ -85,15 +85,27 @@ func (b *Backend) GetMatchesByGameVersion(gameVersion string) (*riotclient.Match
 		},
 	}}
 
+	matchesCount, err := c.Count(
+		context.Background(),
+		query,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("Find error: %s", err)
+	}
+
+	matches := riotclient.Matches{Matches: make([]riotclient.MatchDTO, 0, matchesCount)}
+
+	if matchesCount == 0 {
+		return &matches, nil
+	}
+
 	cur, err := c.Find(
 		context.Background(), query)
 	if err != nil {
-		return nil, fmt.Errorf("No match found for GameVersion %s: %s", gameVersion, err)
+		return nil, fmt.Errorf("Error finding matches for GameVersion %s: %s", gameVersion, err)
 	}
 
 	defer cur.Close(context.Background())
-
-	matches := riotclient.Matches{}
 
 	for cur.Next(nil) {
 		match := riotclient.MatchDTO{}
@@ -128,15 +140,27 @@ func (b *Backend) GetMatchesByGameVersionAndChampionID(gameVersion string, champ
 		},
 	}
 
+	matchesCount, err := c.Count(
+		context.Background(),
+		query,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("Find error: %s", err)
+	}
+
+	matches := riotclient.Matches{Matches: make([]riotclient.MatchDTO, 0, matchesCount)}
+
+	if matchesCount == 0 {
+		return &matches, nil
+	}
+
 	cur, err := c.Find(
 		context.Background(), query)
 	if err != nil {
-		return nil, fmt.Errorf("No match found for GameVersion %s and Champion ID %d: %s", gameVersion, championID, err)
+		return nil, fmt.Errorf("Error finding matches for GameVersion %s and Champion ID %d: %s", gameVersion, championID, err)
 	}
 
 	defer cur.Close(context.Background())
-
-	matches := riotclient.Matches{}
 
 	for cur.Next(nil) {
 		match := riotclient.MatchDTO{}
@@ -179,15 +203,27 @@ func (b *Backend) GetMatchesByGameVersionChampionIDMapQueue(gameVersion string, 
 		},
 	}
 
+	matchesCount, err := c.Count(
+		context.Background(),
+		query,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("Find error: %s", err)
+	}
+
+	matches := riotclient.Matches{Matches: make([]riotclient.MatchDTO, 0, matchesCount)}
+
+	if matchesCount == 0 {
+		return &matches, nil
+	}
+
 	cur, err := c.Find(
 		context.Background(), query)
 	if err != nil {
-		return nil, fmt.Errorf("No match found for GameVersion %s and Champion ID %d: %s", gameVersion, championID, err)
+		return nil, fmt.Errorf("Error finding matches for GameVersion %s, Champion ID %d, Map ID %d, Queue ID %d: %s", gameVersion, championID, mapID, queueID, err)
 	}
 
 	defer cur.Close(context.Background())
-
-	matches := riotclient.Matches{}
 
 	for cur.Next(nil) {
 		match := riotclient.MatchDTO{}
@@ -233,15 +269,27 @@ func (b *Backend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersio
 		},
 	}
 
+	matchesCount, err := c.Count(
+		context.Background(),
+		query,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("Find error: %s", err)
+	}
+
+	matches := riotclient.Matches{Matches: make([]riotclient.MatchDTO, 0, matchesCount)}
+
+	if matchesCount == 0 {
+		return &matches, nil
+	}
+
 	cur, err := c.Find(
 		context.Background(), query)
 	if err != nil {
-		return nil, fmt.Errorf("No match found for GameVersion %s and Champion ID %d: %s", gameVersion, championID, err)
+		return nil, fmt.Errorf("Error finding matches for GameVersion %s, Champion ID %d, Map ID %d, Queue ID  %d <= id <= %d: %s", gameVersion, championID, mapID, gtequeue, ltequeue, err)
 	}
 
 	defer cur.Close(context.Background())
-
-	matches := riotclient.Matches{}
 
 	for cur.Next(nil) {
 		match := riotclient.MatchDTO{}
