@@ -34,9 +34,9 @@ func (s *Storage) storeLeaguesForSummoner(leagues *riotclient.LeaguePositionDTOL
 			SummonerName:          utils.CleanUpSummonerName(leagues.LeaguePosition[0].SummonerName),
 			SummonerID:            leagues.LeaguePosition[0].SummonerID,
 		})
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
 // GetLeaguesForSummonerBySummonerID returns all Leagues a Summoner is placed in, identified by Summoner ID
