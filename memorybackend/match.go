@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/torlenor/alolstats/riotclient"
+	"github.com/torlenor/alolstats/storage"
 )
 
 // GetMatch retreives match data for given id
@@ -28,4 +29,8 @@ func (b *Backend) StoreMatch(data *riotclient.MatchDTO) error {
 	b.matches[uint64(data.GameID)] = *data
 
 	return nil
+}
+
+func (b *Backend) GetMatchesCursorByGameVersion(gameVersion string) (storage.QueryCursor, error) {
+	return nil, fmt.Errorf("Not implemented")
 }

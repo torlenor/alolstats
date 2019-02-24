@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/torlenor/alolstats/storage"
+
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/torlenor/alolstats/riotclient"
 )
@@ -313,4 +315,28 @@ func (b *Backend) GetMatchTimeLine(matchID uint64) (*riotclient.MatchTimelineDTO
 
 func (b *Backend) StoreMatchTimeLine(data *riotclient.MatchTimelineDTO) error {
 	return fmt.Errorf("Not implemented")
+}
+
+// GetMatchesCursorByGameVersion returns cursor to matches specific to a certain game version
+func (b *Backend) GetMatchesCursorByGameVersion(gameVersion string) (storage.QueryCursor, error) {
+	c := b.client.Database(b.config.Database).Collection("matches")
+
+	query := bson.D{{Key: "gameversion",
+		Value: bson.D{
+			{Key: "$regex", Value: "^" + gameVersion + ""},
+		},
+	}}
+
+	cur, err := c.Find(
+		context.Background(), query)
+	if err != nil {
+		return nil, fmt.Errorf("Error finding matches for GameVersion %s: %s", gameVersion, err)
+	}
+
+	matchCursor := MatchCursor{
+		cur: cur,
+		ctx: context.Background(),
+	}
+
+	return &matchCursor, nil
 }

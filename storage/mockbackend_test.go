@@ -315,3 +315,7 @@ func (b *mockBackend) GetKnownGameVersions() (*GameVersions, error) {
 func (b *mockBackend) StoreKnownGameVersions(gameVersions *GameVersions) error {
 	return fmt.Errorf("Not implemented")
 }
+
+func (b *mockBackend) GetMatchesCursorByGameVersion(gameVersion string) (QueryCursor, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
