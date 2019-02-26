@@ -12,6 +12,8 @@ import (
 	"github.com/torlenor/alolstats/utils"
 )
 
+var fallbackGameVersion = "9.4"
+
 func checkParamterForceUpdate(values url.Values) bool {
 	if val, ok := values["forceupdate"]; ok {
 		if len(val[0]) == 0 {
@@ -31,7 +33,7 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 	champions := s.GetChampions(checkParamterForceUpdate(r.URL.Query()))
 
 	for key, val := range champions {
-		gameVersion := "9.3"
+		gameVersion := fallbackGameVersion
 		if val, ok := r.URL.Query()["gameversion"]; ok {
 			if len(val[0]) == 0 {
 				s.log.Warnf("gameversion parameter was empty in request, using default %s", gameVersion)
@@ -75,7 +77,7 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		gameVersion := "9.3"
+		gameVersion := fallbackGameVersion
 		if val, ok := r.URL.Query()["gameversion"]; ok {
 			if len(val[0]) == 0 {
 				s.log.Warnf("gameversion parameter was empty in request, using default %s", gameVersion)
@@ -122,7 +124,7 @@ func (s *Storage) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		gameVersion := "9.3"
+		gameVersion := fallbackGameVersion
 		if val, ok := r.URL.Query()["gameversion"]; ok {
 			if len(val[0]) == 0 {
 				s.log.Warnf("gameversion parameter was empty in request, using default %s", gameVersion)
