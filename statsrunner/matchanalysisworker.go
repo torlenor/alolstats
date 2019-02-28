@@ -117,9 +117,6 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 			highQueueID := uint64(440)
 			lowQueueID := uint64(400)
 
-			totalGamesForGameVersion := uint64(0)
-			totalGamesForGameVersionTier := make(map[string]uint64)
-
 			for _, versionStr := range sr.config.GameVersion {
 				if sr.shouldWorkersStop {
 					return
@@ -136,6 +133,9 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 				// Prepare championsCountersPerTier
 				champsCountersPerTier := make(championsCountersPerTier)
 				champsCountersAllTiers := sr.newChampionsCounters(champions, gameVersion)
+
+				totalGamesForGameVersion := uint64(0)
+				totalGamesForGameVersionTier := make(map[string]uint64)
 
 				cur, err := sr.storage.GetMatchesCursorByGameVersionMapBetweenQueueIDs(majorMinor, mapID, highQueueID, lowQueueID)
 				if err != nil {
