@@ -13,6 +13,7 @@ import (
 )
 
 var fallbackGameVersion = "9.4"
+var fallbackTier = "ALL"
 
 func checkParamterForceUpdate(values url.Values) bool {
 	if val, ok := values["forceupdate"]; ok {
@@ -34,14 +35,21 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	for key, val := range champions {
 		gameVersion := fallbackGameVersion
+		tier := fallbackTier
 		if val, ok := r.URL.Query()["gameversion"]; ok {
 			if len(val[0]) == 0 {
 				s.log.Warnf("gameversion parameter was empty in request, using default %s", gameVersion)
 			}
 			gameVersion = val[0]
 		}
+		if val, ok := r.URL.Query()["tier"]; ok {
+			if len(val) == 0 {
+				s.log.Debugf("tier parameter was empty in request, assuming ALL.")
+			}
+			tier = val[0]
+		}
 
-		stats, err := s.GetChampionStatsByIDGameVersion(val.ID, gameVersion)
+		stats, err := s.GetChampionStatsByIDGameVersionTier(val.ID, gameVersion, tier)
 		if err == nil {
 			val.Roles = stats.Roles
 		}
@@ -85,7 +93,15 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 			gameVersion = val[0]
 		}
 
-		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, gameVersion)
+		tier := fallbackTier
+		if val, ok := r.URL.Query()["tier"]; ok {
+			if len(val) == 0 {
+				s.log.Debugf("tier parameter was empty in request, assuming ALL.")
+			}
+			tier = val[0]
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersionTier(champion.ID, gameVersion, tier)
 		if err == nil {
 			champion.Roles = stats.Roles
 		}
@@ -132,7 +148,15 @@ func (s *Storage) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
 			gameVersion = val[0]
 		}
 
-		stats, err := s.GetChampionStatsByIDGameVersion(champion.ID, gameVersion)
+		tier := fallbackTier
+		if val, ok := r.URL.Query()["tier"]; ok {
+			if len(val) == 0 {
+				s.log.Debugf("tier parameter was empty in request, assuming ALL.")
+			}
+			tier = val[0]
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersionTier(champion.ID, gameVersion, tier)
 		if err == nil {
 			champion.Roles = stats.Roles
 		}

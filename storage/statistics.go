@@ -72,25 +72,8 @@ type ChampionStatsStorage struct {
 	TimeStamp time.Time `json:"timestamp"`
 }
 
-// GetChampionStatsByIDGameVersion returns the Champion stats for a certain game version
-func (s *Storage) GetChampionStatsByIDGameVersion(championID string, gameVersion string) (*ChampionStats, error) {
-	s.log.Debugf("GetChampionStatsByIDGameVersion()")
-
-	stats, err := s.backend.GetChampionStatsByChampionIDGameVersion(championID, gameVersion)
-	if err != nil {
-		s.log.Warnln("Could not get data from Storage Backend:", err)
-		return nil, err
-	}
-
-	s.log.Debugf("Returned Champion Stats from Storage")
-	returnStats := &stats.ChampionStats
-	return returnStats, nil
-}
-
 // GetChampionStatsByIDGameVersionTier returns the Champion stats for a certain game version
 func (s *Storage) GetChampionStatsByIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStats, error) {
-	s.log.Debugf("GetChampionStatsByIDGameVersionTier()")
-
 	stats, err := s.backend.GetChampionStatsByChampionIDGameVersionTier(championID, gameVersion, tier)
 	if err != nil {
 		s.log.Warnln("Could not get data from Storage Backend:", err)

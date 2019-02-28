@@ -118,6 +118,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 			lowQueueID := uint64(400)
 
 			totalGamesForGameVersion := uint64(0)
+			totalGamesForGameVersionTier := make(map[string]uint64)
 
 			for _, versionStr := range sr.config.GameVersion {
 				if sr.shouldWorkersStop {
@@ -158,6 +159,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					totalGamesForGameVersion++
 
 					matchTier := determineMatchTier(currentMatch.Participants)
+					totalGamesForGameVersionTier[matchTier]++
 
 					// Champion Picks
 					for _, participant := range currentMatch.Participants {
@@ -255,7 +257,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					cnt++
 				}
 
-				// Prepare results for ChampionsStats
+				// Prepare results for ChampionsStats (ALL tiers)
 				for cid, champCounters := range champsCountersAllTiers {
 					stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], totalGamesForGameVersion, &champCounters)
 					stats.Tier = "ALL"
@@ -267,9 +269,35 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					}
 				}
 
+				// Prepare results for ChampionsStats (per tier)
+				for tier, champsCounters := range champsCountersPerTier {
+					for cid, champCounters := range champsCounters {
+						stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], totalGamesForGameVersionTier[tier], &champCounters)
+						stats.Tier = tier
+						if err == nil {
+							err = sr.storage.StoreChampionStats(stats)
+							if err != nil {
+								sr.log.Warnf("Something went wrong storing the Champion Stats: %s", err)
+							}
+						}
+					}
+				}
+
 				cur.Close()
 				sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s done. Analyzed %d matches", gameVersion, cnt)
 			}
+
+			gameVersions := storage.GameVersions{}
+			for _, val := range sr.config.GameVersion {
+				ver, err := utils.SplitNumericVersion(val)
+				if err != nil {
+					continue
+				}
+
+				verStr := fmt.Sprintf("%d.%d", ver[0], ver[1])
+				gameVersions.Versions = append(gameVersions.Versions, verStr)
+			}
+			sr.storage.StoreKnownGameVersions(&gameVersions)
 
 			nextUpdate = time.Minute * time.Duration(sr.config.RScriptsUpdateInterval)
 			elapsed := time.Since(start)
