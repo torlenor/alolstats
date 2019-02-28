@@ -73,7 +73,9 @@ func (sr *StatsRunner) Start() {
 		} else {
 			sr.log.Info("Not running R scripts (deactivated in config)")
 		}
-		go sr.champStatsCalcWorker()
+
+		go sr.matchAnalysisWorker()
+
 		sr.isStarted = true
 	} else {
 		sr.log.Println("StatsRunner already running")
