@@ -23,6 +23,23 @@ type roleCounters struct {
 	MatchKills   []float64
 	MatchDeaths  []float64
 	MatchAssists []float64
+
+	MatchGoldEarned         []float64
+	MatchTotalMinionsKilled []float64
+
+	MatchTotalDamageDealt               []float64
+	MatchTotalDamageDealtToChampions    []float64
+	MatchTotalDamageTaken               []float64
+	MatchMagicDamageDealt               []float64
+	MatchMagicDamageDealtToChampions    []float64
+	MatchPhysicalDamageDealt            []float64
+	MatchPhysicalDamageDealtToChampions []float64
+	MatchPhysicalDamageTaken            []float64
+	MatchTrueDamageDealt                []float64
+	MatchTrueDamageDealtToChampions     []float64
+	MatchTrueDamageTaken                []float64
+
+	MatchTotalHeal []float64
 }
 
 type championCounters struct {
@@ -42,6 +59,23 @@ type championCounters struct {
 	MatchKills   []float64
 	MatchDeaths  []float64
 	MatchAssists []float64
+
+	MatchGoldEarned         []float64
+	MatchTotalMinionsKilled []float64
+
+	MatchTotalDamageDealt               []float64
+	MatchTotalDamageDealtToChampions    []float64
+	MatchTotalDamageTaken               []float64
+	MatchMagicDamageDealt               []float64
+	MatchMagicDamageDealtToChampions    []float64
+	MatchPhysicalDamageDealt            []float64
+	MatchPhysicalDamageDealtToChampions []float64
+	MatchPhysicalDamageTaken            []float64
+	MatchTrueDamageDealt                []float64
+	MatchTrueDamageDealtToChampions     []float64
+	MatchTrueDamageTaken                []float64
+
+	MatchTotalHeal []float64
 
 	PerRole map[string]map[string]roleCounters // [lane][role]
 }
@@ -219,6 +253,66 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						perRoleAll.Assists = perRoleAll.Assists + uint64(participant.Stats.Assists)
 						perRoleAll.MatchAssists = append(perRoleAll.MatchAssists, float64(participant.Stats.Assists))
 
+						ccall.MatchGoldEarned = append(ccall.MatchGoldEarned, float64(participant.Stats.GoldEarned))
+						ccall.MatchTotalMinionsKilled = append(ccall.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
+						ccall.MatchTotalDamageDealt = append(ccall.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
+						ccall.MatchTotalDamageDealtToChampions = append(ccall.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
+						ccall.MatchTotalDamageTaken = append(ccall.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
+						ccall.MatchMagicDamageDealt = append(ccall.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
+						ccall.MatchMagicDamageDealtToChampions = append(ccall.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
+						ccall.MatchPhysicalDamageDealt = append(ccall.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
+						ccall.MatchPhysicalDamageDealtToChampions = append(ccall.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
+						ccall.MatchPhysicalDamageTaken = append(ccall.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
+						ccall.MatchTrueDamageDealt = append(ccall.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
+						ccall.MatchTrueDamageDealtToChampions = append(ccall.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
+						ccall.MatchTrueDamageTaken = append(ccall.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
+						ccall.MatchTotalHeal = append(ccall.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+
+						cc.MatchGoldEarned = append(cc.MatchGoldEarned, float64(participant.Stats.GoldEarned))
+						cc.MatchTotalMinionsKilled = append(cc.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
+						cc.MatchTotalDamageDealt = append(cc.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
+						cc.MatchTotalDamageDealtToChampions = append(cc.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
+						cc.MatchTotalDamageTaken = append(cc.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
+						cc.MatchMagicDamageDealt = append(cc.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
+						cc.MatchMagicDamageDealtToChampions = append(cc.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
+						cc.MatchPhysicalDamageDealt = append(cc.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
+						cc.MatchPhysicalDamageDealtToChampions = append(cc.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
+						cc.MatchPhysicalDamageTaken = append(cc.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
+						cc.MatchTrueDamageDealt = append(cc.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
+						cc.MatchTrueDamageDealtToChampions = append(cc.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
+						cc.MatchTrueDamageTaken = append(cc.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
+						cc.MatchTotalHeal = append(cc.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+
+						perRole.MatchGoldEarned = append(perRole.MatchGoldEarned, float64(participant.Stats.GoldEarned))
+						perRole.MatchTotalMinionsKilled = append(perRole.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
+						perRole.MatchTotalDamageDealt = append(perRole.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
+						perRole.MatchTotalDamageDealtToChampions = append(perRole.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
+						perRole.MatchTotalDamageTaken = append(perRole.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
+						perRole.MatchMagicDamageDealt = append(perRole.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
+						perRole.MatchMagicDamageDealtToChampions = append(perRole.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
+						perRole.MatchPhysicalDamageDealt = append(perRole.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
+						perRole.MatchPhysicalDamageDealtToChampions = append(perRole.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
+						perRole.MatchPhysicalDamageTaken = append(perRole.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
+						perRole.MatchTrueDamageDealt = append(perRole.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
+						perRole.MatchTrueDamageDealtToChampions = append(perRole.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
+						perRole.MatchTrueDamageTaken = append(perRole.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
+						perRole.MatchTotalHeal = append(perRole.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+
+						perRoleAll.MatchGoldEarned = append(perRoleAll.MatchGoldEarned, float64(participant.Stats.GoldEarned))
+						perRoleAll.MatchTotalMinionsKilled = append(perRoleAll.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
+						perRoleAll.MatchTotalDamageDealt = append(perRoleAll.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
+						perRoleAll.MatchTotalDamageDealtToChampions = append(perRoleAll.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
+						perRoleAll.MatchTotalDamageTaken = append(perRoleAll.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
+						perRoleAll.MatchMagicDamageDealt = append(perRoleAll.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
+						perRoleAll.MatchMagicDamageDealtToChampions = append(perRoleAll.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
+						perRoleAll.MatchPhysicalDamageDealt = append(perRoleAll.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
+						perRoleAll.MatchPhysicalDamageDealtToChampions = append(perRoleAll.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
+						perRoleAll.MatchPhysicalDamageTaken = append(perRoleAll.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
+						perRoleAll.MatchTrueDamageDealt = append(perRoleAll.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
+						perRoleAll.MatchTrueDamageDealtToChampions = append(perRoleAll.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
+						perRoleAll.MatchTrueDamageTaken = append(perRoleAll.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
+						perRoleAll.MatchTotalHeal = append(perRoleAll.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+
 						if participant.Stats.Win {
 							perRole.Wins++
 							perRoleAll.Wins++
@@ -318,6 +412,21 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	championStats.AvgK, championStats.StdDevK = calcMeanStdDev(champCounters.MatchKills, nil)
 	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(champCounters.MatchDeaths, nil)
 	championStats.AvgA, championStats.StdDevA = calcMeanStdDev(champCounters.MatchAssists, nil)
+
+	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = calcMeanStdDev(champCounters.MatchGoldEarned, nil)
+	championStats.AvgTotalMinionsKilled, championStats.StdDevTotalMinionsKilled = calcMeanStdDev(champCounters.MatchTotalMinionsKilled, nil)
+	championStats.AvgTotalDamageDealt, championStats.StdDevTotalDamageDealt = calcMeanStdDev(champCounters.MatchTotalDamageDealt, nil)
+	championStats.AvgTotalDamageDealtToChampions, championStats.StdDevTotalDamageDealtToChampions = calcMeanStdDev(champCounters.MatchTotalDamageDealtToChampions, nil)
+	championStats.AvgTotalDamageTaken, championStats.StdDevTotalDamageTaken = calcMeanStdDev(champCounters.MatchTotalDamageTaken, nil)
+	championStats.AvgMagicDamageDealt, championStats.StdDevMagicDamageDealt = calcMeanStdDev(champCounters.MatchMagicDamageDealt, nil)
+	championStats.AvgMagicDamageDealtToChampions, championStats.StdDevMagicDamageDealtToChampions = calcMeanStdDev(champCounters.MatchMagicDamageDealtToChampions, nil)
+	championStats.AvgPhysicalDamageDealt, championStats.StdDevPhysicalDamageDealt = calcMeanStdDev(champCounters.MatchPhysicalDamageDealt, nil)
+	championStats.AvgPhysicalDamageDealtToChampions, championStats.StdDevPhysicalDamageDealtToChampions = calcMeanStdDev(champCounters.MatchPhysicalDamageDealtToChampions, nil)
+	championStats.AvgPhysicalDamageTaken, championStats.StdDevPhysicalDamageTaken = calcMeanStdDev(champCounters.MatchPhysicalDamageTaken, nil)
+	championStats.AvgTrueDamageDealt, championStats.StdDevTrueDamageDealt = calcMeanStdDev(champCounters.MatchTrueDamageDealt, nil)
+	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = calcMeanStdDev(champCounters.MatchTrueDamageDealtToChampions, nil)
+	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = calcMeanStdDev(champCounters.MatchTrueDamageTaken, nil)
+	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = calcMeanStdDev(champCounters.MatchTotalHeal, nil)
 
 	var err error
 	championStats.MedianK, err = calcMedian(champCounters.MatchKills, nil)

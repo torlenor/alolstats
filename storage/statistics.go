@@ -45,6 +45,36 @@ type ChampionStats struct {
 	StdDevA float64 `json:"stddevassists"`
 	MedianA float64 `json:"medianassists"`
 
+	AvgGoldEarned                     float64 `json:"average_goldearned"`
+	AvgTotalMinionsKilled             float64 `json:"average_totalminionskilled"`
+	AvgTotalHeal                      float64 `json:"average_totalheal"`
+	AvgTotalDamageDealt               float64 `json:"average_totaldamagedealt"`
+	AvgTotalDamageDealtToChampions    float64 `json:"average_totaldamagedealttochampions"`
+	AvgTotalDamageTaken               float64 `json:"average_totaldamagetaken"`
+	AvgMagicDamageDealt               float64 `json:"average_magicdamagedealt"`
+	AvgMagicDamageDealtToChampions    float64 `json:"average_magicdamagedealttochampions"`
+	AvgPhysicalDamageDealt            float64 `json:"average_physicaldamagedealt"`
+	AvgPhysicalDamageDealtToChampions float64 `json:"average_physicaldamagedealttochampions"`
+	AvgPhysicalDamageTaken            float64 `json:"average_physicaldamagetaken"`
+	AvgTrueDamageDealt                float64 `json:"average_truedamagedealt"`
+	AvgTrueDamageDealtToChampions     float64 `json:"average_truedamagedealttochampions"`
+	AvgTrueDamageTaken                float64 `json:"average_truedamagetaken"`
+
+	StdDevGoldEarned                     float64 `json:"stddev_goldearned"`
+	StdDevTotalMinionsKilled             float64 `json:"stddev_totalminionskilled"`
+	StdDevTotalHeal                      float64 `json:"stddev_totalheal"`
+	StdDevTotalDamageDealt               float64 `json:"stddev_totaldamagedealt"`
+	StdDevTotalDamageDealtToChampions    float64 `json:"stddev_totaldamagedealttochampions"`
+	StdDevTotalDamageTaken               float64 `json:"stddev_totaldamagetaken"`
+	StdDevMagicDamageDealt               float64 `json:"stddev_magicdamagedealt"`
+	StdDevMagicDamageDealtToChampions    float64 `json:"stddev_magicdamagedealttochampions"`
+	StdDevPhysicalDamageDealt            float64 `json:"stddev_physicaldamagedealt"`
+	StdDevPhysicalDamageDealtToChampions float64 `json:"stddev_physicaldamagedealttochampions"`
+	StdDevPhysicalDamageTaken            float64 `json:"stddev_physicaldamagetaken"`
+	StdDevTrueDamageDealt                float64 `json:"stddev_truedamagedealt"`
+	StdDevTrueDamageDealtToChampions     float64 `json:"stddev_truedamagedealttochampions"`
+	StdDevTrueDamageTaken                float64 `json:"stddev_truedamagetaken"`
+
 	WinLossRatio float64 `json:"winlossratio"`
 	WinRate      float64 `json:"winrate"`
 
