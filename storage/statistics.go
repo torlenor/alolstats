@@ -50,6 +50,8 @@ type ChampionStats struct {
 
 	BanRate float64 `json:"banrate"`
 
+	PickRate float64 `json:"pickrate"`
+
 	Roles []string `json:"roles"`
 
 	LaneRolePercentage []LaneRolePercentage `json:"lanerolepercentage"`

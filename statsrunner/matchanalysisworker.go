@@ -356,6 +356,12 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 		championStats.BanRate = 0
 	}
 
+	if totalGamesForGameVersion > 0 {
+		championStats.PickRate = float64(champCounters.TotalPicks) / float64(totalGamesForGameVersion)
+	} else {
+		championStats.PickRate = 0
+	}
+
 	topWins := uint64(0)
 	topLosses := uint64(0)
 	midWins := uint64(0)
