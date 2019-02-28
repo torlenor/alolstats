@@ -34,3 +34,11 @@ func (b *Backend) StoreMatch(data *riotclient.MatchDTO) error {
 func (b *Backend) GetMatchesCursorByGameVersion(gameVersion string) (storage.QueryCursor, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
+
+func (b *Backend) GetMatchesCursorByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (storage.QueryCursor, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion string, mapID uint64, ltequeue uint64, gtequeue uint64) (storage.QueryCursor, error) {
+	return nil, fmt.Errorf("Not implemented")
+}

@@ -53,6 +53,8 @@ type BackendMatch interface {
 
 	// Cursor fetching functions
 	GetMatchesCursorByGameVersion(gameVersion string) (QueryCursor, error)
+	GetMatchesCursorByGameVersionChampionIDMapBetweenQueueIDs(gameVersion string, championID uint64, mapID uint64, ltequeue uint64, gtequeue uint64) (QueryCursor, error)
+	GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion string, mapID uint64, ltequeue uint64, gtequeue uint64) (QueryCursor, error)
 }
 
 // BackendSummoner defines an interface to store/retrieve Summoner data from Storage Backend
