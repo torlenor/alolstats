@@ -127,13 +127,14 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					continue
 				}
 				gameVersion := fmt.Sprintf("%d.%d", version[0], version[1])
+				majorMinor := fmt.Sprintf("%d\\.%d\\.", version[0], version[1])
 				sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s started", gameVersion)
 
 				// Prepare championsCountersPerTier
 				champsCountersPerTier := make(championsCountersPerTier)
 				champsCountersAllTiers := sr.newChampionsCounters(champions, gameVersion)
 
-				cur, err := sr.storage.GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion, mapID, highQueueID, lowQueueID)
+				cur, err := sr.storage.GetMatchesCursorByGameVersionMapBetweenQueueIDs(majorMinor, mapID, highQueueID, lowQueueID)
 				if err != nil {
 					sr.log.Errorf("Error performing matchAnalysisWorker calculation for Game Version %s: %s", gameVersion, err)
 					continue

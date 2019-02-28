@@ -323,7 +323,7 @@ func (b *Backend) GetMatchesCursorByGameVersion(gameVersion string) (storage.Que
 
 	query := bson.D{{Key: "gameversion",
 		Value: bson.D{
-			{Key: "$regex", Value: "^" + gameVersion + ""},
+			{Key: "$regex", Value: "^" + gameVersion},
 		},
 	}}
 
@@ -349,7 +349,7 @@ func (b *Backend) GetMatchesCursorByGameVersionChampionIDMapBetweenQueueIDs(game
 		{
 			Key: "gameversion",
 			Value: bson.D{
-				{Key: "$regex", Value: "^" + gameVersion + ""},
+				{Key: "$regex", Value: "^" + gameVersion},
 			},
 		},
 		{
@@ -391,7 +391,7 @@ func (b *Backend) GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion st
 		{
 			Key: "gameversion",
 			Value: bson.D{
-				{Key: "$regex", Value: "^" + gameVersion + ""},
+				{Key: "$regex", Value: "^" + gameVersion},
 			},
 		},
 		{
