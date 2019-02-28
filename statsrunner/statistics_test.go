@@ -89,14 +89,26 @@ func TestCalcMeanStdDev(t *testing.T) {
 
 func TestCalcMedian(t *testing.T) {
 	values := []float64{2, 2, 6, 6, 6, 6, 8, 10}
-	actualMedian := calcMedian(values, nil)
+	actualMedian, err := calcMedian(values, nil)
+	if err != nil {
+		t.Errorf("Got error where we didn't expect one")
+	}
 	if !almostEqual(actualMedian, 6) {
 		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 6.0)
 	}
 
 	values = []float64{3, 6, 7, 8, 8, 9, 10, 13, 15, 16, 20}
-	actualMedian = calcMedian(values, nil)
+	actualMedian, err = calcMedian(values, nil)
+	if err != nil {
+		t.Errorf("Got error where we didn't expect one")
+	}
 	if !almostEqual(actualMedian, 9) {
 		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 9.0)
+	}
+
+	values = []float64{}
+	actualMedian, err = calcMedian(values, nil)
+	if err == nil {
+		t.Errorf("Did not get error where we expected one")
 	}
 }

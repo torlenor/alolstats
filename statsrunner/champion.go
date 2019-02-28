@@ -118,9 +118,18 @@ func (sr *StatsRunner) getChampionStatsByID(champID uint64, majorVersion uint32,
 	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(deaths, nil)
 	championStats.AvgA, championStats.StdDevA = calcMeanStdDev(assists, nil)
 
-	championStats.MedianK = calcMedian(kills, nil)
-	championStats.MedianD = calcMedian(deaths, nil)
-	championStats.MedianA = calcMedian(assists, nil)
+	championStats.MedianK, err = calcMedian(kills, nil)
+	if err != nil {
+		sr.log.Debugf("Error calculating Median for MatchKills: %s", err)
+	}
+	championStats.MedianD, err = calcMedian(deaths, nil)
+	if err != nil {
+		sr.log.Debugf("Error calculating Median for MatchDeaths: %s", err)
+	}
+	championStats.MedianA, err = calcMedian(assists, nil)
+	if err != nil {
+		sr.log.Debugf("Error calculating Median for MatchAssists: %s", err)
+	}
 
 	if losses > 0 {
 		championStats.WinLossRatio = float64(wins) / float64(losses)
