@@ -261,6 +261,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					}
 				}
 
+				cur.Close()
 				sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s done. Analyzed %d matches", gameVersion, cnt)
 			}
 
