@@ -353,6 +353,11 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 					botUnknownLosses = botUnknownLosses + (role.Picks - role.Wins)
 				}
 			}
+		} else {
+			for _, role := range lane {
+				unknownWins = unknownWins + role.Wins
+				unknownLosses = unknownLosses + (role.Picks - role.Wins)
+			}
 		}
 	}
 
