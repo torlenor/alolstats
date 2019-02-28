@@ -305,7 +305,11 @@ func (b *mockBackend) StoreChampionStats(data *ChampionStatsStorage) error {
 }
 
 func (b *mockBackend) GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*ChampionStatsStorage, error) {
-	return &ChampionStatsStorage{}, nil
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetChampionStatsByChampionIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStatsStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
 }
 
 func (b *mockBackend) GetKnownGameVersions() (*GameVersions, error) {

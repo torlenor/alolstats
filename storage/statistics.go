@@ -27,6 +27,7 @@ type ChampionStats struct {
 	ChampionRealID string `json:"championrealid"`
 	ChampionName   string `json:"championname"`
 	GameVersion    string `json:"gameversion"`
+	Tier           string `json:"tier"`
 
 	Timestamp time.Time `json:"timestamp"`
 
@@ -47,6 +48,8 @@ type ChampionStats struct {
 	WinLossRatio float64 `json:"winlossratio"`
 	WinRate      float64 `json:"winrate"`
 
+	BanRate float64 `json:"banrate"`
+
 	Roles []string `json:"roles"`
 
 	LaneRolePercentage []LaneRolePercentage `json:"lanerolepercentage"`
@@ -61,6 +64,8 @@ type ChampionStatsStorage struct {
 	ChampionKey  string `json:"championkey"`
 	ChampionName string `json:"championname"`
 	GameVersion  string `json:"gameversion"`
+
+	Tier string `json:"tier"`
 
 	SampleSize uint64 `json:"samplesize"`
 
@@ -82,6 +87,21 @@ func (s *Storage) GetChampionStatsByIDGameVersion(championID string, gameVersion
 	return returnStats, nil
 }
 
+// GetChampionStatsByIDGameVersionTier returns the Champion stats for a certain game version
+func (s *Storage) GetChampionStatsByIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStats, error) {
+	s.log.Debugf("GetChampionStatsByIDGameVersionTier()")
+
+	stats, err := s.backend.GetChampionStatsByChampionIDGameVersionTier(championID, gameVersion, tier)
+	if err != nil {
+		s.log.Warnln("Could not get data from Storage Backend:", err)
+		return nil, err
+	}
+
+	s.log.Debugf("Returned Champion Stats from Storage")
+	returnStats := &stats.ChampionStats
+	return returnStats, nil
+}
+
 // StoreChampionStats stores the Champion stats for a certain game version
 func (s *Storage) StoreChampionStats(stats *ChampionStats) error {
 	key := fmt.Sprintf("%d", stats.ChampionID)
@@ -93,6 +113,8 @@ func (s *Storage) StoreChampionStats(stats *ChampionStats) error {
 		ChampionKey:  key,
 		ChampionName: stats.ChampionName,
 		GameVersion:  stats.GameVersion,
+
+		Tier: stats.Tier,
 
 		SampleSize: stats.SampleSize,
 

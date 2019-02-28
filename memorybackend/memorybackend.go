@@ -189,6 +189,10 @@ func (b *Backend) GetChampionStatsByChampionIDGameVersion(championID string, gam
 	return nil, fmt.Errorf("Not implemented")
 }
 
+func (b *Backend) GetChampionStatsByChampionIDGameVersionTier(championID string, gameVersion string, tier string) (*storage.ChampionStatsStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
 func (b *Backend) GetKnownGameVersions() (*storage.GameVersions, error) {
 	return nil, fmt.Errorf("Not implemented")
 }

@@ -11,6 +11,7 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 	s.log.Debugln("Received Rest API championByID request from", r.RemoteAddr)
 	var champID string
 	var gameVersion string
+	var tier string
 
 	if val, ok := r.URL.Query()["id"]; ok {
 		if len(val) == 0 {
@@ -29,7 +30,17 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 		}
 		gameVersion = val[0]
 	}
-	championStats, err := s.GetChampionStatsByIDGameVersion(champID, gameVersion)
+	if val, ok := r.URL.Query()["tier"]; ok {
+		if len(val) == 0 {
+			s.log.Debugf("tier parameter was empty in request, assuming ALL.")
+			tier = "ALL"
+		}
+		tier = val[0]
+	} else {
+		tier = "ALL"
+	}
+
+	championStats, err := s.GetChampionStatsByIDGameVersionTier(champID, gameVersion, tier)
 	if err != nil {
 		s.log.Errorln(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

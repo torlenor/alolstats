@@ -117,6 +117,8 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 			highQueueID := uint64(440)
 			lowQueueID := uint64(400)
 
+			totalGamesForGameVersion := uint64(0)
+
 			for _, versionStr := range sr.config.GameVersion {
 				if sr.shouldWorkersStop {
 					return
@@ -152,6 +154,8 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						sr.log.Warnf("Found match which should not have been returned from storage, skipping...")
 						continue
 					}
+
+					totalGamesForGameVersion++
 
 					matchTier := determineMatchTier(currentMatch.Participants)
 
@@ -253,7 +257,8 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 
 				// Prepare results for ChampionsStats
 				for cid, champCounters := range champsCountersAllTiers {
-					stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], &champCounters)
+					stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], totalGamesForGameVersion, &champCounters)
+					stats.Tier = "ALL"
 					if err == nil {
 						err = sr.storage.StoreChampionStats(stats)
 						if err != nil {
@@ -273,7 +278,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 	}
 }
 
-func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32, minorVersion uint32, champCounters *championCounters) (*storage.ChampionStats, error) {
+func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32, minorVersion uint32, totalGamesForGameVersion uint64, champCounters *championCounters) (*storage.ChampionStats, error) {
 
 	gameVersion := fmt.Sprintf("%d.%d", majorVersion, minorVersion)
 
@@ -310,10 +315,17 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	} else {
 		championStats.WinLossRatio = 0
 	}
+
 	if champCounters.TotalPicks > 0 {
 		championStats.WinRate = float64(wins) / float64(champCounters.TotalPicks)
 	} else {
 		championStats.WinRate = 0
+	}
+
+	if totalGamesForGameVersion > 0 {
+		championStats.BanRate = float64(champCounters.TotalBans) / float64(totalGamesForGameVersion)
+	} else {
+		championStats.BanRate = 0
 	}
 
 	topWins := uint64(0)
