@@ -40,6 +40,10 @@ type roleCounters struct {
 	MatchTrueDamageTaken                []float64
 
 	MatchTotalHeal []float64
+
+	MatchDamageDealtToObjectives []float64
+	MatchDamageDealtToTurrets    []float64
+	MatchTimeCCingOthers         []float64
 }
 
 type championCounters struct {
@@ -76,6 +80,10 @@ type championCounters struct {
 	MatchTrueDamageTaken                []float64
 
 	MatchTotalHeal []float64
+
+	MatchDamageDealtToObjectives []float64
+	MatchDamageDealtToTurrets    []float64
+	MatchTimeCCingOthers         []float64
 
 	PerRole map[string]map[string]roleCounters // [lane][role]
 }
@@ -267,6 +275,9 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						ccall.MatchTrueDamageDealtToChampions = append(ccall.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
 						ccall.MatchTrueDamageTaken = append(ccall.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
 						ccall.MatchTotalHeal = append(ccall.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+						ccall.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
+						ccall.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
+						ccall.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
 
 						cc.MatchGoldEarned = append(cc.MatchGoldEarned, float64(participant.Stats.GoldEarned))
 						cc.MatchTotalMinionsKilled = append(cc.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
@@ -282,6 +293,9 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						cc.MatchTrueDamageDealtToChampions = append(cc.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
 						cc.MatchTrueDamageTaken = append(cc.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
 						cc.MatchTotalHeal = append(cc.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+						cc.MatchDamageDealtToObjectives = append(cc.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
+						cc.MatchDamageDealtToTurrets = append(cc.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
+						cc.MatchTimeCCingOthers = append(cc.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
 
 						perRole.MatchGoldEarned = append(perRole.MatchGoldEarned, float64(participant.Stats.GoldEarned))
 						perRole.MatchTotalMinionsKilled = append(perRole.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
@@ -297,6 +311,9 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						perRole.MatchTrueDamageDealtToChampions = append(perRole.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
 						perRole.MatchTrueDamageTaken = append(perRole.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
 						perRole.MatchTotalHeal = append(perRole.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+						perRole.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
+						perRole.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
+						perRole.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
 
 						perRoleAll.MatchGoldEarned = append(perRoleAll.MatchGoldEarned, float64(participant.Stats.GoldEarned))
 						perRoleAll.MatchTotalMinionsKilled = append(perRoleAll.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
@@ -312,6 +329,9 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						perRoleAll.MatchTrueDamageDealtToChampions = append(perRoleAll.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
 						perRoleAll.MatchTrueDamageTaken = append(perRoleAll.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
 						perRoleAll.MatchTotalHeal = append(perRoleAll.MatchTotalHeal, float64(participant.Stats.TotalHeal))
+						perRoleAll.MatchDamageDealtToObjectives = append(perRoleAll.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
+						perRoleAll.MatchDamageDealtToTurrets = append(perRoleAll.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
+						perRoleAll.MatchTimeCCingOthers = append(perRoleAll.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
 
 						if participant.Stats.Win {
 							perRole.Wins++
@@ -427,6 +447,9 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = calcMeanStdDev(champCounters.MatchTrueDamageDealtToChampions, nil)
 	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = calcMeanStdDev(champCounters.MatchTrueDamageTaken, nil)
 	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = calcMeanStdDev(champCounters.MatchTotalHeal, nil)
+	championStats.AvgDamageDealtToObjectives, championStats.StdDevDamageDealtToObjectives = calcMeanStdDev(champCounters.MatchDamageDealtToObjectives, nil)
+	championStats.AvgDamageDealtToTurrets, championStats.StdDevDamageDealtToTurrets = calcMeanStdDev(champCounters.MatchDamageDealtToTurrets, nil)
+	championStats.AvgTimeCCingOthers, championStats.StdDevTimeCCingOthers = calcMeanStdDev(champCounters.MatchTimeCCingOthers, nil)
 
 	var err error
 	championStats.MedianK, err = calcMedian(champCounters.MatchKills, nil)

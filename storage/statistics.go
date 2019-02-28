@@ -75,6 +75,14 @@ type ChampionStats struct {
 	StdDevTrueDamageDealtToChampions     float64 `json:"stddev_truedamagedealttochampions"`
 	StdDevTrueDamageTaken                float64 `json:"stddev_truedamagetaken"`
 
+	AvgDamageDealtToObjectives float64 `json:"average_damagedealttoobjectives"`
+	AvgDamageDealtToTurrets    float64 `json:"average_damagedealttoturrets"`
+	AvgTimeCCingOthers         float64 `json:"average_timeccingothers"`
+
+	StdDevDamageDealtToObjectives float64 `json:"stddev_damagedealttoobjectives"`
+	StdDevDamageDealtToTurrets    float64 `json:"stddev_damagedealttoturrets"`
+	StdDevTimeCCingOthers         float64 `json:"stddev_timeccingothers"`
+
 	WinLossRatio float64 `json:"winlossratio"`
 	WinRate      float64 `json:"winrate"`
 
