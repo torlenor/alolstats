@@ -143,6 +143,10 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						continue
 					}
 
+					if currentMatch.MapID != 11 || currentMatch.QueueID < 400 || currentMatch.QueueID > 440 {
+						continue
+					}
+
 					matchTier := determineMatchTier(currentMatch.Participants)
 
 					// Champion Picks
