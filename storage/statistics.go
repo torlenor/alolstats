@@ -80,7 +80,6 @@ func (s *Storage) GetChampionStatsByIDGameVersionTier(championID string, gameVer
 		return nil, err
 	}
 
-	s.log.Debugf("Returned Champion Stats from Storage")
 	returnStats := &stats.ChampionStats
 	return returnStats, nil
 }
@@ -111,4 +110,9 @@ func (s *Storage) StoreChampionStats(stats *ChampionStats) error {
 // StoreKnownGameVersions stores a new list of known game versions
 func (s *Storage) StoreKnownGameVersions(gameVersions *GameVersions) error {
 	return s.backend.StoreKnownGameVersions(gameVersions)
+}
+
+// GetKnownGameVersions retrieves a list of known game versions
+func (s *Storage) GetKnownGameVersions() (*GameVersions, error) {
+	return s.backend.GetKnownGameVersions()
 }
