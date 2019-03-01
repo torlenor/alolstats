@@ -350,22 +350,25 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					}
 
 					// Champion Bans
+					bannedIDs := make(map[int]bool)
 					for _, team := range currentMatch.Teams {
 						for _, ban := range team.Bans {
 							cid := ban.ChampionID
-
-							// Get structs for counting
-							cc := champsCountersPerTier[matchTier][cid]
-							ccall := champsCountersAllTiers[cid]
-
-							// Do counts
-							cc.TotalBans++
-							ccall.TotalBans++
-
-							// Backassign structs
-							champsCountersPerTier[matchTier][cid] = cc
-							champsCountersAllTiers[cid] = ccall
+							bannedIDs[cid] = true
 						}
+					}
+					for cid := range bannedIDs {
+						// Get structs for counting
+						cc := champsCountersPerTier[matchTier][cid]
+						ccall := champsCountersAllTiers[cid]
+
+						// Do counts
+						cc.TotalBans++
+						ccall.TotalBans++
+
+						// Backassign structs
+						champsCountersPerTier[matchTier][cid] = cc
+						champsCountersAllTiers[cid] = ccall
 					}
 
 					cnt++
