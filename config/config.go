@@ -72,6 +72,9 @@ type FetchRunner struct {
 	FetchMatchesForLeagueQueues []string
 	// How many of the last matches shall be checked/pulled per account. 0 means all of them
 	FetchMatchesForLeaguesNumber uint64
+
+	// Specifies if for Summoners encountered in fetched matches an additional fetch run shall be performed (warning, can take a while)
+	FetchMatchesForSeenSummoners bool
 }
 
 // StatsRunner holds the settings for the StatsRunner

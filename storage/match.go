@@ -29,19 +29,19 @@ func (s *Storage) GetMatch(id uint64) (riotclient.MatchDTO, error) {
 }
 
 // FetchAndStoreMatch gets a match from Riot Client and stores it in storage backend if it doesn't exist, yet
-func (s *Storage) FetchAndStoreMatch(id uint64) error {
+func (s *Storage) FetchAndStoreMatch(id uint64) (*riotclient.MatchDTO, error) {
 	_, err := s.backend.GetMatch(id)
 	if err != nil {
 		match, err := s.riotClient.MatchByID(id)
 		if err != nil {
 			s.log.Warnln(err)
-			return err
+			return nil, err
 		}
 		s.log.Debugf("Storing Match %d from Riot API in Backend", id)
 		s.backend.StoreMatch(match)
-		return nil
+		return match, nil
 	}
-	return nil
+	return nil, nil
 }
 
 // GetStoredMatchesByGameVersionAndChampionID gets all matches for a specific game version and Champion ID

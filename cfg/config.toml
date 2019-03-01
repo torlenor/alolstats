@@ -26,14 +26,16 @@
         Database = "testdb" # Database to use
 
 [FetchRunner] #FetchRunner holds the settings for the FetchRunner
-	UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0
-    
-	FetchMatchesForSummoners = ["summoner1", "summoner2"] # Specifies Summoner names for which matches shall be fetched
-	FetchMatchesForSummonersNumber = 100 # How many of the last matches shall be checked/pulled per account. 0 means all of them
+    UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0
 
-	FetchMatchesForLeagues = ["masterleagues", "grandmasterleagues", "challengerleagues"] # Specified for which leagues matches shall be fetched. Currently implemented by Riot are "masterleagues", "grandmasterleagues", "challengerleagues"
-	FetchMatchesForLeagueQueues = ["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"] # Specified for queues matches shall be fetched. Allowed are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
-	FetchMatchesForLeaguesNumber = 100 # How many of the last matches shall be checked/pulled per account. 0 means all of them
+    FetchMatchesForSummoners = ["summoner1", "summoner2"] # Specifies Summoner names for which matches shall be fetched
+    FetchMatchesForSummonersNumber = 100 # How many of the last matches shall be checked/pulled per account. 0 means all of them
+
+    FetchMatchesForLeagues = ["masterleagues", "grandmasterleagues", "challengerleagues"] # Specified for which leagues matches shall be fetched. Currently implemented by Riot are "masterleagues", "grandmasterleagues", "challengerleagues"
+    FetchMatchesForLeagueQueues = ["RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"] # Specified for queues matches shall be fetched. Allowed are "RANKED_SOLO_5x5", "RANKED_FLEX_SR", "RANKED_FLEX_TT"
+    FetchMatchesForLeaguesNumber = 100 # How many of the last matches shall be checked/pulled per account. 0 means all of them
+
+    FetchMatchesForSeenSummoners = true # Specifies if for Summoners encountered in fetched matches an additional fetch run shall be performed (warning, can take a while)
 
 [StatsRunner]
 	RunRScripts = true # Specifies if R scripts shall be used (needs a running R installation)
