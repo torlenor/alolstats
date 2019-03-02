@@ -434,8 +434,17 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	championStats.SampleSize = champCounters.TotalPicks
 
 	championStats.AvgK, championStats.StdDevK = calcMeanStdDev(champCounters.MatchKills, nil)
+	if math.IsNaN(championStats.StdDevK) {
+		championStats.StdDevK = 0
+	}
 	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(champCounters.MatchDeaths, nil)
+	if math.IsNaN(championStats.StdDevD) {
+		championStats.StdDevD = 0
+	}
 	championStats.AvgA, championStats.StdDevA = calcMeanStdDev(champCounters.MatchAssists, nil)
+	if math.IsNaN(championStats.StdDevA) {
+		championStats.StdDevA = 0
+	}
 
 	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = calcMeanStdDev(champCounters.MatchGoldEarned, nil)
 	if math.IsNaN(championStats.StdDevGoldEarned) {
