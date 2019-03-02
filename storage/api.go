@@ -30,6 +30,7 @@ func (s *Storage) registerAPIStorage(api *api.API) {
 
 func (s *Storage) registerAPIStats(api *api.API) {
 	api.AttachModuleGet("/stats/champion/byid", s.championStatsByIDEndpoint)
+	api.AttachModuleGet("/stats/champions", s.championStats)
 	api.AttachModuleGet("/stats/versions", s.getKnownVersionsEndpoint)
 	api.AttachModuleGet("/stats/leagues", s.getStatLeaguesEndpoint)
 }
