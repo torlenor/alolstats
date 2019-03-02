@@ -20,6 +20,10 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		champID = val[0]
+	} else {
+		s.log.Warnf("id parameter was missing in request")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
 	}
 
 	if val, ok := r.URL.Query()["gameversion"]; ok {
@@ -29,6 +33,10 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		gameVersion = val[0]
+	} else {
+		s.log.Warnf("gameversion parameter was missing in request.")
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
 	}
 	if val, ok := r.URL.Query()["tier"]; ok {
 		if len(val) == 0 {
