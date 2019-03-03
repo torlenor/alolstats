@@ -22,15 +22,7 @@ type LaneRolePercentagePlotly struct {
 	Type string `json:"type"` // 'bar'
 }
 
-type ChampionStats struct {
-	ChampionID     uint64 `json:"championid"`
-	ChampionRealID string `json:"championrealid"`
-	ChampionName   string `json:"championname"`
-	GameVersion    string `json:"gameversion"`
-	Tier           string `json:"tier"`
-
-	Timestamp time.Time `json:"timestamp"`
-
+type StatsValues struct {
 	SampleSize uint64 `json:"samplesize"`
 
 	AvgK    float64 `json:"averagekills"`
@@ -85,12 +77,27 @@ type ChampionStats struct {
 
 	WinLossRatio float64 `json:"winlossratio"`
 	WinRate      float64 `json:"winrate"`
+}
+
+type ChampionStats struct {
+	ChampionID     uint64 `json:"championid"`
+	ChampionRealID string `json:"championrealid"`
+	ChampionName   string `json:"championname"`
+	GameVersion    string `json:"gameversion"`
+
+	Tier string `json:"tier"`
+
+	Timestamp time.Time `json:"timestamp"`
+
+	StatsValues
 
 	BanRate float64 `json:"banrate"`
 
 	PickRate float64 `json:"pickrate"`
 
 	Roles []string `json:"roles"`
+
+	StatsPerRole map[string]StatsValues `json:"statsperrole"`
 
 	LaneRolePercentage []LaneRolePercentage `json:"lanerolepercentage"`
 

@@ -58,6 +58,7 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 	out, err := json.Marshal(championStats)
 	if err != nil {
 		s.log.Errorln(err)
+		s.log.Errorf("Error in championByID with request %s: %s", r.URL.String(), err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -111,7 +112,7 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.Marshal(championsStats)
 	if err != nil {
-		s.log.Errorln(err)
+		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
