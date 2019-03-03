@@ -607,19 +607,19 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 
 	// Role determination
 	var roles []string
-	if renormTopPercentage > 33 {
+	if renormTopPercentage > sr.config.RoleThreshold {
 		roles = append(roles, "Top")
 	}
-	if renormMidPercentage > 33 {
+	if renormMidPercentage > sr.config.RoleThreshold {
 		roles = append(roles, "Mid")
 	}
-	if renormJunglePercentage > 33 {
+	if renormJunglePercentage > sr.config.RoleThreshold {
 		roles = append(roles, "Jungle")
 	}
-	if renormBotCarryPercentage > 33 {
+	if renormBotCarryPercentage > sr.config.RoleThreshold {
 		roles = append(roles, "Carry")
 	}
-	if renormBotSupportPercentage > 33 {
+	if renormBotSupportPercentage > sr.config.RoleThreshold {
 		roles = append(roles, "Support")
 	}
 	championStats.Roles = roles
