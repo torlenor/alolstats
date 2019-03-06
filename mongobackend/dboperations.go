@@ -41,28 +41,9 @@ func (b *Backend) checkMatches() error {
 	err := b.createIndex("matches", mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "gameid", Value: bsonx.Int32(1)},
-			{Key: "gameversion", Value: bsonx.Int32(1)}},
+			{Key: "platformid", Value: bsonx.Int32(1)},
+		},
 		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
-	})
-	if err != nil {
-		return fmt.Errorf("Error creating MongoDB indices: %s", err)
-	}
-
-	err = b.createIndex("matches", mongo.IndexModel{
-		Keys: bsonx.Doc{
-			{Key: "gameid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
-	})
-	if err != nil {
-		return fmt.Errorf("Error creating MongoDB indices: %s", err)
-	}
-
-	err = b.createIndex("matches", mongo.IndexModel{
-		Keys: bsonx.Doc{
-			{Key: "gameversion", Value: bsonx.Int32(1)},
-			{Key: "mapid", Value: bsonx.Int32(1)},
-			{Key: "queueid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -73,7 +54,7 @@ func (b *Backend) checkMatches() error {
 			{Key: "gameversion", Value: bsonx.Int32(1)},
 			{Key: "mapid", Value: bsonx.Int32(1)},
 			{Key: "queueid", Value: bsonx.Int32(1)},
-			{Key: "participants.championid", Value: bsonx.Int32(1)}},
+		},
 		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
 	})
 	if err != nil {
