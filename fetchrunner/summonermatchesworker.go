@@ -6,13 +6,13 @@ import (
 )
 
 func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, accountIDs map[string]bool) error {
-	leagueData, err := f.storage.GetLeagueByQueue(league, queue)
+	leagueData, err := f.storage.GetRegionalLeagueByQueue(f.config.Region, league, queue)
 	if err != nil {
 		return fmt.Errorf("Error getting League %s: %s", league, err)
 	}
 
 	for _, leagueEntry := range leagueData.Entries {
-		summoner, err := f.storage.GetSummonerBySummonerID(leagueEntry.SummonerID, false)
+		summoner, err := f.storage.GetRegionalSummonerBySummonerID(f.config.Region, leagueEntry.SummonerID, false)
 		if err != nil {
 			f.log.Warnf("Could not get Summoner for Summoner ID %s: %s", leagueEntry.SummonerID, err)
 			continue
@@ -24,7 +24,7 @@ func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, a
 }
 
 func (f *FetchRunner) fetchSummonerMatchesByName(summonerName string, number uint32, seenAccountIDs map[string]bool) {
-	summoner, err := f.storage.GetSummonerByName(summonerName, false)
+	summoner, err := f.storage.GetRegionalSummonerByName(f.config.Region, summonerName, false)
 	if err != nil {
 		f.log.Errorf("Error fetching summoner matches: Could not get Summoner Data for Summoner %s", summonerName)
 		return
@@ -42,13 +42,13 @@ func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number u
 		endIndex = number
 	}
 	for !stop {
-		matches, err := f.storage.GetMatchesByAccountID(accountID, startIndex, endIndex)
+		matches, err := f.storage.GetRegionalMatchesByAccountID(f.config.Region, accountID, startIndex, endIndex)
 		if err != nil {
 			f.log.Errorf("Error getting the current match list for Summoner: %s", err)
 			break
 		}
 		for _, matchInfo := range matches.Matches {
-			match, err := f.storage.FetchAndStoreMatch(uint64(matchInfo.GameID))
+			match, err := f.storage.RegionalFetchAndStoreMatch(f.config.Region, uint64(matchInfo.GameID))
 			if match != nil && err == nil && seenAccountIDs != nil {
 				for _, participant := range match.ParticipantIdentities {
 					if participant.Player.AccountID != accountID {

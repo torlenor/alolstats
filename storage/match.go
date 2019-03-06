@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -10,12 +11,12 @@ import (
 	"github.com/torlenor/alolstats/riotclient"
 )
 
-// GetMatch gets a match from storage or riot client based on GameID
-func (s *Storage) GetMatch(id uint64) (riotclient.MatchDTO, error) {
+// getMatch gets a match from storage or riot client based on GameID
+func (s *Storage) getMatchFromClient(client riotclient.Client, id uint64) (riotclient.MatchDTO, error) {
 	match, err := s.backend.GetMatch(id)
 	if err != nil {
 		s.log.Warnln(err)
-		match, err := s.riotClient.MatchByID(id)
+		match, err := client.MatchByID(id)
 		if err != nil {
 			s.log.Warnln(err)
 			return riotclient.MatchDTO{}, err
@@ -28,11 +29,24 @@ func (s *Storage) GetMatch(id uint64) (riotclient.MatchDTO, error) {
 	return *match, nil
 }
 
-// FetchAndStoreMatch gets a match from Riot Client and stores it in storage backend if it doesn't exist, yet
-func (s *Storage) FetchAndStoreMatch(id uint64) (*riotclient.MatchDTO, error) {
+// GetMatch gets a match from storage or riot client based on GameID
+func (s *Storage) GetMatch(id uint64) (riotclient.MatchDTO, error) {
+	return s.getMatchFromClient(s.riotClient, id)
+}
+
+// GetRegionalMatch gets a match from storage or riot client based on GameID for a specific region
+func (s *Storage) GetRegionalMatch(region string, id uint64) (riotclient.MatchDTO, error) {
+	if client, ok := s.riotClients[region]; ok {
+		return s.getMatchFromClient(client, id)
+	}
+	return riotclient.MatchDTO{}, fmt.Errorf("Invalid region specified: %s", region)
+}
+
+// fetchAndStoreMatchFromClient gets a match from Riot Client and stores it in storage backend if it doesn't exist, yet
+func (s *Storage) fetchAndStoreMatchFromClient(client riotclient.Client, id uint64) (*riotclient.MatchDTO, error) {
 	_, err := s.backend.GetMatch(id)
 	if err != nil {
-		match, err := s.riotClient.MatchByID(id)
+		match, err := client.MatchByID(id)
 		if err != nil {
 			s.log.Warnln(err)
 			return nil, err
@@ -42,6 +56,19 @@ func (s *Storage) FetchAndStoreMatch(id uint64) (*riotclient.MatchDTO, error) {
 		return match, nil
 	}
 	return nil, nil
+}
+
+// FetchAndStoreMatch gets a match from Riot Client and stores it in storage backend if it doesn't exist, yet
+func (s *Storage) FetchAndStoreMatch(id uint64) (*riotclient.MatchDTO, error) {
+	return s.fetchAndStoreMatchFromClient(s.riotClient, id)
+}
+
+// RegionalFetchAndStoreMatch gets a match from Riot Client for a specific region and stores it in storage backend if it doesn't exist, yet
+func (s *Storage) RegionalFetchAndStoreMatch(region string, id uint64) (*riotclient.MatchDTO, error) {
+	if client, ok := s.riotClients[region]; ok {
+		return s.fetchAndStoreMatchFromClient(client, id)
+	}
+	return nil, fmt.Errorf("Invalid region specified: %s", region)
 }
 
 // GetStoredMatchesByGameVersionAndChampionID gets all matches for a specific game version and Champion ID
@@ -71,11 +98,24 @@ func (s *Storage) GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion st
 	return s.backend.GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion, mapID, ltequeue, gtequeue)
 }
 
-// GetMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex
-func (s *Storage) GetMatchesByAccountID(accountID string, beginIndex uint32, endIndex uint32) (*riotclient.MatchlistDTO, error) {
+// getMatchesByAccountIDFromClient gets all match references for a specified Account ID and startIndex, endIndex
+func (s *Storage) getMatchesByAccountIDFromClient(client riotclient.Client, accountID string, beginIndex uint32, endIndex uint32) (*riotclient.MatchlistDTO, error) {
 	beginIndexStr := strconv.FormatInt(int64(beginIndex), 10)
 	endIndexStr := strconv.FormatInt(int64(endIndex), 10)
-	return s.riotClient.MatchesByAccountID(accountID, map[string]string{"beginIndex": beginIndexStr, "endIndex": endIndexStr})
+	return client.MatchesByAccountID(accountID, map[string]string{"beginIndex": beginIndexStr, "endIndex": endIndexStr})
+}
+
+// GetMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex
+func (s *Storage) GetMatchesByAccountID(accountID string, beginIndex uint32, endIndex uint32) (*riotclient.MatchlistDTO, error) {
+	return s.getMatchesByAccountIDFromClient(s.riotClient, accountID, beginIndex, endIndex)
+}
+
+// GetRegionalMatchesByAccountID gets all match references for a specified Account ID and startIndex, endIndex for a specific region
+func (s *Storage) GetRegionalMatchesByAccountID(region string, accountID string, beginIndex uint32, endIndex uint32) (*riotclient.MatchlistDTO, error) {
+	if client, ok := s.riotClients[region]; ok {
+		return s.getMatchesByAccountIDFromClient(client, accountID, beginIndex, endIndex)
+	}
+	return nil, fmt.Errorf("Invalid region specified: %s", region)
 }
 
 func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {

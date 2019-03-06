@@ -4,6 +4,7 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -22,11 +23,12 @@ type stats struct {
 
 // Storage LoL data storage
 type Storage struct {
-	config     config.LoLStorage
-	riotClient riotclient.Client
-	log        *logrus.Entry
-	stats      stats
-	backend    Backend
+	config      config.LoLStorage
+	riotClients map[string]riotclient.Client
+	riotClient  riotclient.Client // Default riotclient, should be removed at some point
+	log         *logrus.Entry
+	stats       stats
+	backend     Backend
 }
 
 // Summary gives an overview of the stored data in Storage/Backend
@@ -37,15 +39,19 @@ type Summary struct {
 }
 
 // NewStorage creates a new Riot LoL API client
-func NewStorage(cfg config.LoLStorage, riotClient riotclient.Client, backend Backend) (*Storage, error) {
-	s := &Storage{
-		config:     cfg,
-		riotClient: riotClient,
-		log:        logging.Get("Storage"),
-		backend:    backend,
-	}
+func NewStorage(cfg config.LoLStorage, riotClients map[string]riotclient.Client, backend Backend) (*Storage, error) {
+	if client, ok := riotClients[cfg.DefaultRiotClient]; ok {
+		s := &Storage{
+			config:      cfg,
+			riotClients: riotClients,
+			riotClient:  client,
+			log:         logging.Get("Storage"),
+			backend:     backend,
+		}
 
-	return s, nil
+		return s, nil
+	}
+	return nil, fmt.Errorf("Error creating Storage. Requested default region RiotAPI does not exist: %s", cfg.DefaultRiotClient)
 }
 
 // Start starts the storage runners

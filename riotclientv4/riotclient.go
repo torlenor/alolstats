@@ -66,10 +66,11 @@ func NewClient(httpClient httpClient, cfg config.RiotClient,
 		return nil, err
 	}
 
+	name := fmt.Sprintf("RiotClientV4 [%s]", cfg.Region)
 	c := &RiotClientV4{
 		config:      cfg,
 		httpClient:  httpClient,
-		log:         logging.Get("RiotClientV4"),
+		log:         logging.Get(name),
 		isStarted:   false,
 		workersWG:   sync.WaitGroup{},
 		stopWorkers: make(chan struct{}),

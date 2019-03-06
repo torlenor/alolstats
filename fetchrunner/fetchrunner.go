@@ -29,9 +29,10 @@ type FetchRunner struct {
 
 // NewFetchRunner creates a new FetchRunner
 func NewFetchRunner(cfg config.FetchRunner, storage *storage.Storage) (*FetchRunner, error) {
+	name := fmt.Sprintf("FetchRunner [%s]", cfg.Region)
 	sr := &FetchRunner{
 		storage:   storage,
-		log:       logging.Get("FetchRunner"),
+		log:       logging.Get(name),
 		isStarted: false,
 		workersWG: sync.WaitGroup{},
 	}
@@ -46,25 +47,25 @@ func NewFetchRunner(cfg config.FetchRunner, storage *storage.Storage) (*FetchRun
 // Start starts the FetchRunner and its workers
 func (f *FetchRunner) Start() {
 	if !f.isStarted {
-		f.log.Println("Starting FetchRunner")
+		f.log.Print("Starting FetchRunner")
 		f.shouldWorkersStop = false
 		f.stopWorkers = make(chan struct{})
 		go f.summonerMatchesWorker()
 		f.isStarted = true
 	} else {
-		f.log.Println("FetchRunner already running")
+		f.log.Print("FetchRunner already running")
 	}
 }
 
 // Stop stops the FetchRunner and its workers
 func (f *FetchRunner) Stop() {
 	if f.isStarted {
-		f.log.Println("Stopping FetchRunner")
+		f.log.Print("Stopping FetchRunner")
 		f.shouldWorkersStop = true
 		close(f.stopWorkers)
 		f.workersWG.Wait()
 		f.isStarted = false
 	} else {
-		f.log.Println("FetchRunner already stopped")
+		f.log.Printf("FetchRunner already stopped")
 	}
 }

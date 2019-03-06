@@ -20,6 +20,21 @@ func (s *Storage) GetLeagueByQueue(league string, queue string) (*riotclient.Lea
 	return leagueData, nil
 }
 
+// GetRegionalLeagueByQueue returns a league identified by its name for a specific queue name in a specific region
+func (s *Storage) GetRegionalLeagueByQueue(region string, league string, queue string) (*riotclient.LeagueListDTO, error) {
+	s.log.Debugf("GetRegionalLeagueByQueue(%s, %s, %s)", region, league, queue)
+	if client, ok := s.riotClients[region]; ok {
+		leagueData, errClient := client.LeagueByQueue(league, queue)
+		if errClient != nil {
+			s.log.Warnln("Could not get data from Riot API:", errClient)
+			return nil, errClient
+		}
+		s.log.Debugf("Returned %s for queue %s from Riot API", league, queue)
+		return leagueData, nil
+	}
+	return nil, fmt.Errorf("Invalid region specified: %s", region)
+}
+
 // SummonerLeagues is the storage type used for Summoner Leagues Data
 type SummonerLeagues struct {
 	LeaguePositionDTOList riotclient.LeaguePositionDTOList

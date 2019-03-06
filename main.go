@@ -143,18 +143,22 @@ func main() {
 	}
 	api.AttachModuleGet("/status", statusEndpoint)
 
-	client, err := riotClientCreator(cfg.RiotClient)
-	if err != nil {
-		log.Fatalln("Error creating the Riot Client:" + err.Error())
+	clients := make(map[string]riotclient.Client)
+	for name, clientConfig := range cfg.RiotClient {
+		client, err := riotClientCreator(clientConfig)
+		if err != nil {
+			log.Fatalf("Error creating the Riot Client %s: %s", name, err.Error())
+		}
+		client.Start()
+		clients[name] = client
 	}
-	client.Start()
 
 	backend, err := storageBackendCreator(cfg.StorageBackend)
 	if err != nil {
 		log.Fatalln("Error creating the Storage Backend:" + err.Error())
 	}
 
-	storage, err := storage.NewStorage(cfg.LoLStorage, client, backend)
+	storage, err := storage.NewStorage(cfg.LoLStorage, clients, backend)
 	if err != nil {
 		log.Fatalln("Error creating the Storage:" + err.Error())
 	}
@@ -167,15 +171,17 @@ func main() {
 	}
 	statsRunner.RegisterAPI(api)
 
-	fetchRunner, err := fetchrunner.NewFetchRunner(cfg.FetchRunner, storage)
-	if err != nil {
-		log.Fatalln("Error creating the FetchRunner:" + err.Error())
+	var fetchRunners []*fetchrunner.FetchRunner
+	for name, fetchRunnerConfig := range cfg.FetchRunner {
+		fetchRunner, err := fetchrunner.NewFetchRunner(fetchRunnerConfig, storage)
+		if err != nil {
+			log.Fatalf("Error creating the FetchRunner %s: %s", name, err.Error())
+		}
+		fetchRunner.Start()
+		fetchRunners = append(fetchRunners, fetchRunner)
 	}
 
-	fetchRunner.Start()
-
 	statsRunner.Start()
-
 	api.Start()
 
 	log.Println("ALoLStats (" + version + ") is READY")
@@ -185,9 +191,13 @@ func main() {
 		case <-interrupt:
 			api.Stop()
 			statsRunner.Stop()
-			fetchRunner.Stop()
+			for _, fetchRunner := range fetchRunners {
+				fetchRunner.Stop()
+			}
 			storage.Stop()
-			client.Stop()
+			for _, client := range clients {
+				client.Stop()
+			}
 			log.Printf("Storage handeled %d requests since startup", storage.GetHandeledRequests())
 			log.Printf("StatsRunner handeled %d requests since startup", statsRunner.GetHandeledRequests())
 			log.Println("ALoLStats gracefully shut down")

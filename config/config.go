@@ -54,10 +54,15 @@ type LoLStorage struct {
 	MaxAgeChampionRotation uint32
 	// Specified the maximum age for summoner data in minutes until it's invalidated. 0 means it is always fetched newly.
 	MaxAgeSummoner uint32
+	// Specifies a default RiotClient for use if not otherwise specified in requests or function calls
+	DefaultRiotClient string
 }
 
 // FetchRunner holds the settings for the FetchRunner
 type FetchRunner struct {
+	// Specifies the RiotAPI region to use
+	Region string
+
 	// Specified the update interval for fetching Summoner Matches in minutes > 0
 	UpdateIntervalSummonerMatches uint32
 
@@ -93,9 +98,9 @@ type StatsRunner struct {
 // Config holds the complete ALolStats config
 type Config struct {
 	API            API
-	RiotClient     RiotClient
+	RiotClient     map[string]RiotClient
 	LoLStorage     LoLStorage
 	StorageBackend StorageBackend
-	FetchRunner    FetchRunner
+	FetchRunner    map[string]FetchRunner
 	StatsRunner    StatsRunner
 }
