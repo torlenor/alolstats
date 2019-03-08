@@ -60,46 +60,29 @@ func (b *Backend) GetChampionStatsByChampionIDGameVersionTier(championID string,
 
 	query := bson.D{
 		{
-			Key: "gameversion", Value: gameVersion,
+			Key: "championid", Value: championID,
 		},
 		{
-			Key: "championid", Value: championID,
+			Key: "gameversion", Value: gameVersion,
 		},
 		{
 			Key: "tier", Value: tier,
 		},
 	}
 
-	cur, err := c.Find(
+	doc := c.FindOne(
 		context.Background(), query)
+	if doc == nil {
+		return nil, fmt.Errorf("No Champion Stats found for Champion ID %s, GameVersion %s and Tier %s", championID, gameVersion, tier)
+	}
+
+	stat := storage.ChampionStatsStorage{}
+	err := doc.Decode(&stat)
 	if err != nil {
-		return nil, fmt.Errorf("No Champion Stats found for GameVersion %s, Champion ID %s and Tier %s: %s", gameVersion, championID, tier, err)
+		return nil, fmt.Errorf("Decode error when trying to Decode Champion Stats for Champion ID %s, GameVersion %s and Tier %s: %s", championID, gameVersion, tier, err)
 	}
 
-	defer cur.Close(context.Background())
-
-	stats := []storage.ChampionStatsStorage{}
-
-	for cur.Next(nil) {
-		stat := storage.ChampionStatsStorage{}
-		err := cur.Decode(&stat)
-		if err != nil {
-			b.log.Warnln("Decode error ", err)
-		}
-		stats = append(stats, stat)
-	}
-
-	if err := cur.Err(); err != nil {
-		b.log.Warnln("Cursor error ", err)
-	}
-
-	if len(stats) == 1 {
-		return &stats[0], nil
-	} else if len(stats) > 1 {
-		return nil, fmt.Errorf("Found one than more Champion Stats (namely %d) in storage backend", len(stats))
-	}
-
-	return nil, fmt.Errorf("Could not find statistics for Champion %s, Game Version %s and tier %s", championID, gameVersion, tier)
+	return &stat, nil
 }
 
 // StoreChampionStats stores new champion stats in storage
@@ -137,36 +120,19 @@ func (b *Backend) GetChampionStatsSummaryByGameVersionTier(gameVersion string, t
 		},
 	}
 
-	cur, err := c.Find(
+	doc := c.FindOne(
 		context.Background(), query)
+	if doc == nil {
+		return nil, fmt.Errorf("No Champion Stats Summary found for GameVersion %s and Tier %s", gameVersion, tier)
+	}
+
+	stat := storage.ChampionStatsSummaryStorage{}
+	err := doc.Decode(&stat)
 	if err != nil {
-		return nil, fmt.Errorf("No Champion Stats Summary found for GameVersion %s and Tier %s: %s", gameVersion, tier, err)
+		return nil, fmt.Errorf("Decode error when trying to Decode Champion Stats Summary for GameVersion %s and Tier %s: %s", gameVersion, tier, err)
 	}
 
-	defer cur.Close(context.Background())
-
-	stats := []storage.ChampionStatsSummaryStorage{}
-
-	for cur.Next(nil) {
-		stat := storage.ChampionStatsSummaryStorage{}
-		err := cur.Decode(&stat)
-		if err != nil {
-			b.log.Warnln("Decode error ", err)
-		}
-		stats = append(stats, stat)
-	}
-
-	if err := cur.Err(); err != nil {
-		b.log.Warnln("Cursor error ", err)
-	}
-
-	if len(stats) == 1 {
-		return &stats[0], nil
-	} else if len(stats) > 1 {
-		return nil, fmt.Errorf("Found one than more Champion Stats Summary (namely %d) for Game Version %s and Tier %s in storage backend", len(stats), gameVersion, tier)
-	}
-
-	return nil, fmt.Errorf("Could not find statistics summary for Game Version %s and tier %s", gameVersion, tier)
+	return &stat, nil
 }
 
 // StoreChampionStatsSummary stores a Champion Statistics Summary in the db
