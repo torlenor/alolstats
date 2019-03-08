@@ -119,6 +119,37 @@ type ChampionStatsStorage struct {
 	TimeStamp time.Time `json:"timestamp"`
 }
 
+type ChampionStatsSummary struct {
+	ChampionID     uint64 `json:"championid"`
+	ChampionRealID string `json:"championrealid"`
+	ChampionName   string `json:"championname"`
+
+	GameVersion string `json:"gameversion"`
+	Tier        string `json:"tier"`
+
+	Timestamp time.Time `json:"timestamp"`
+
+	SampleSize uint64 `json:"samplesize"`
+
+	WinRate float64 `json:"winrate"`
+
+	AvgK float64 `json:"averagekills"`
+	AvgD float64 `json:"averagedeaths"`
+	AvgA float64 `json:"averageassists"`
+
+	BanRate  float64 `json:"banrate"`
+	PickRate float64 `json:"pickrate"`
+
+	Roles []string `json:"roles"`
+}
+
+type ChampionStatsSummaryStorage struct {
+	ChampionsStatsSummary []ChampionStatsSummary `json:"championstatssummary"`
+
+	GameVersion string `json:"gameversion"`
+	Tier        string `json:"tier"`
+}
+
 // GetChampionStatsByIDGameVersionTier returns the Champion stats for a certain game version
 func (s *Storage) GetChampionStatsByIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStats, error) {
 	stats, err := s.backend.GetChampionStatsByChampionIDGameVersionTier(championID, gameVersion, tier)
@@ -162,4 +193,22 @@ func (s *Storage) StoreKnownGameVersions(gameVersions *GameVersions) error {
 // GetKnownGameVersions retrieves a list of known game versions
 func (s *Storage) GetKnownGameVersions() (*GameVersions, error) {
 	return s.backend.GetKnownGameVersions()
+}
+
+// GetChampionStatsSummaryByGameVersionTier returns the Champion stats for a certain game version
+func (s *Storage) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*ChampionStatsSummaryStorage, error) {
+	stats, err := s.backend.GetChampionStatsSummaryByGameVersionTier(gameVersion, tier)
+	if err != nil {
+		s.log.Warnln("Could not get data from Storage Backend:", err)
+		return nil, err
+	}
+
+	return stats, nil
+}
+
+// StoreChampionStatsSummary stores the Champion stats Summary
+func (s *Storage) StoreChampionStatsSummary(statsSummary *ChampionStatsSummaryStorage) error {
+
+	s.backend.StoreChampionStatsSummary(statsSummary)
+	return nil
 }

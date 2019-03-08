@@ -95,22 +95,14 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 		tier = "ALL"
 	}
 
-	var championsStats []ChampionStats
-
-	champions := s.GetChampions(false)
-	for _, champ := range champions {
-		championStats, err := s.GetChampionStatsByIDGameVersionTier(champ.ID, gameVersion, tier)
-		if err != nil {
-			s.log.Errorln(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-		if championStats.SampleSize > 0 {
-			championsStats = append(championsStats, *championStats)
-		}
+	statsSummary, err := s.GetChampionStatsSummaryByGameVersionTier(gameVersion, tier)
+	if err != nil {
+		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
-	out, err := json.Marshal(championsStats)
+	out, err := json.Marshal(statsSummary.ChampionsStatsSummary)
 	if err != nil {
 		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

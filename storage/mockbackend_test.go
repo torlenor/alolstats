@@ -331,3 +331,11 @@ func (b *mockBackend) GetMatchesCursorByGameVersionChampionIDMapBetweenQueueIDs(
 func (b *mockBackend) GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion string, mapID uint64, ltequeue uint64, gtequeue uint64) (QueryCursor, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
+
+func (b *mockBackend) StoreChampionStatsSummary(statsSummary *ChampionStatsSummaryStorage) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*ChampionStatsSummaryStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
+}

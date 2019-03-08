@@ -85,6 +85,10 @@ type BackendStats interface {
 	GetChampionStatsByChampionIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStatsStorage, error)
 
 	StoreChampionStats(stats *ChampionStatsStorage) error
+
+	GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*ChampionStatsSummaryStorage, error)
+
+	StoreChampionStatsSummary(statsSummary *ChampionStatsSummaryStorage) error
 }
 
 // BackendMisc defines an interface to generic storages from Backend

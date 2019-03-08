@@ -398,6 +398,21 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 			}
 			sr.storage.StoreKnownGameVersions(&gameVersions)
 
+			type leagues struct {
+				Leagues []string `json:"leagues"`
+			}
+			leas := leagues{Leagues: []string{"All", "Master", "Diamond", "Platinum", "Gold", "Silver", "Bronze"}}
+			for _, gameVersion := range gameVersions.Versions {
+				for _, tier := range leas.Leagues {
+					statsSummary, err := sr.generateChampionsSummary(gameVersion, strings.ToUpper(tier))
+					if err != nil {
+						sr.log.Errorf("Error generating statistics summary: %s", err)
+						continue
+					}
+					sr.storage.StoreChampionStatsSummary(statsSummary)
+				}
+			}
+
 			nextUpdate = time.Minute * time.Duration(sr.config.RScriptsUpdateInterval)
 			elapsed := time.Since(start)
 			sr.log.Infof("Finished matchAnalysisWorker run. Took %s. Next run in %s", elapsed, nextUpdate)
@@ -496,19 +511,9 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 		championStats.StdDevTimeCCingOthers = 0
 	}
 
-	var err error
-	championStats.MedianK, err = calcMedian(champCounters.MatchKills, nil)
-	if err != nil {
-		sr.log.Debugf("Error calculating Median for MatchKills: %s", err)
-	}
-	championStats.MedianD, err = calcMedian(champCounters.MatchDeaths, nil)
-	if err != nil {
-		sr.log.Debugf("Error calculating Median for MatchDeaths: %s", err)
-	}
-	championStats.MedianA, err = calcMedian(champCounters.MatchAssists, nil)
-	if err != nil {
-		sr.log.Debugf("Error calculating Median for MatchAssists: %s", err)
-	}
+	championStats.MedianK, _ = calcMedian(champCounters.MatchKills, nil)
+	championStats.MedianD, _ = calcMedian(champCounters.MatchDeaths, nil)
+	championStats.MedianA, _ = calcMedian(champCounters.MatchAssists, nil)
 
 	losses := champCounters.TotalPicks - champCounters.TotalWins
 	wins := champCounters.TotalWins
@@ -915,19 +920,9 @@ func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) storage.Sta
 		}
 	}
 
-	var err error
-	statsValues.MedianK, err = calcMedian(counters.MatchKills, nil)
-	if err != nil {
-		sr.log.Debugf("Error calculating Median for MatchKills: %s", err)
-	}
-	statsValues.MedianD, err = calcMedian(counters.MatchDeaths, nil)
-	if err != nil {
-		sr.log.Debugf("Error calculating Median for MatchDeaths: %s", err)
-	}
-	statsValues.MedianA, err = calcMedian(counters.MatchAssists, nil)
-	if err != nil {
-		sr.log.Debugf("Error calculating Median for MatchAssists: %s", err)
-	}
+	statsValues.MedianK, _ = calcMedian(counters.MatchKills, nil)
+	statsValues.MedianD, _ = calcMedian(counters.MatchDeaths, nil)
+	statsValues.MedianA, _ = calcMedian(counters.MatchAssists, nil)
 
 	wins := counters.Wins
 

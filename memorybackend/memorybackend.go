@@ -200,3 +200,11 @@ func (b *Backend) GetKnownGameVersions() (*storage.GameVersions, error) {
 func (b *Backend) StoreKnownGameVersions(gameVersions *storage.GameVersions) error {
 	return fmt.Errorf("Not implemented")
 }
+
+func (b *Backend) StoreChampionStatsSummary(statsSummary *storage.ChampionStatsSummaryStorage) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*storage.ChampionStatsSummaryStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
+}

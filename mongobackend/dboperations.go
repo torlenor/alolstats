@@ -135,7 +135,7 @@ func (b *Backend) checkChampionStats() error {
 	err := b.createIndex(collection, mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "championid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -143,8 +143,8 @@ func (b *Backend) checkChampionStats() error {
 
 	err = b.createIndex(collection, mongo.IndexModel{
 		Keys: bsonx.Doc{
-			{Key: "championname", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+			{Key: "championid", Value: bsonx.Int32(1)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -153,7 +153,7 @@ func (b *Backend) checkChampionStats() error {
 	err = b.createIndex(collection, mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "championkey", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -162,8 +162,54 @@ func (b *Backend) checkChampionStats() error {
 	err = b.createIndex(collection, mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "championkey", Value: bsonx.Int32(1)},
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "tier", Value: bsonx.Int32(1)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "championid", Value: bsonx.Int32(1)},
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "tier", Value: bsonx.Int32(1)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	return nil
+}
+
+// checkChampionStatsSummary checks the championstatssummary collection and sets the correct indices
+func (b *Backend) checkChampionStatsSummary() error {
+	collection := "championstatssummary"
+	err := b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
 			{Key: "gameversion", Value: bsonx.Int32(1)}},
 		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "tier", Value: bsonx.Int32(1)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "tier", Value: bsonx.Int32(1)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -190,6 +236,16 @@ func (b *Backend) checkCollections() error {
 	}
 
 	err = b.checkSummonerLeagues()
+	if err != nil {
+		return err
+	}
+
+	err = b.checkChampionStats()
+	if err != nil {
+		return err
+	}
+
+	err = b.checkChampionStatsSummary()
 	if err != nil {
 		return err
 	}
