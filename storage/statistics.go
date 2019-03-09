@@ -150,6 +150,32 @@ type ChampionStatsSummaryStorage struct {
 	Tier        string `json:"tier"`
 }
 
+type ChampionStatsSingleHistory struct {
+	Versions        []string  `json:"versions"`
+	WinRateHistory  []float64 `json:"winRateHistory"`
+	PickRateHistory []float64 `json:"pickRateHistory"`
+	BanRateHistory  []float64 `json:"banRateHistory"`
+}
+
+type ChampionStatsPerRoleSingleHistory struct {
+	Versions       []string  `json:"versions"`
+	WinRateHistory []float64 `json:"winRateHistory"`
+}
+
+type ChampionStatsHistory struct {
+	ChampionID     uint64 `json:"championid"`
+	ChampionRealID string `json:"championrealid"`
+	ChampionName   string `json:"championname"`
+
+	Tier string `json:"tier"`
+
+	Timestamp time.Time `json:"timestamp"`
+
+	ChampionStatsSingleHistory
+
+	HistoryPeRrole map[string]ChampionStatsPerRoleSingleHistory `json:"historyperrole"`
+}
+
 // GetChampionStatsByIDGameVersionTier returns the Champion stats for a certain game version
 func (s *Storage) GetChampionStatsByIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStats, error) {
 	stats, err := s.backend.GetChampionStatsByChampionIDGameVersionTier(championID, gameVersion, tier)
