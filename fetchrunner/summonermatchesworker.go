@@ -58,11 +58,11 @@ func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number u
 						seenAccountIDs[participant.Player.AccountID] = true
 					}
 				}
-				if f.config.FetchOnlyLatestGameVersion {
-					if !f.checkGameVersionsEqual(match.GameVersion, knownLatestVersion) {
-						f.log.Debugf("Skipping remaining matches for Summoner %s because we encountered a game version not beeing the latest (latest: %s, seen %s)", accountID, knownLatestVersion, match.GameVersion)
-						return
-					}
+			}
+			if f.config.FetchOnlyLatestGameVersion && match != nil && err == nil {
+				if !f.checkGameVersionsEqual(match.GameVersion, knownLatestVersion) {
+					f.log.Debugf("Skipping remaining matches for Summoner %s because we encountered a game version not beeing the latest (latest: %s, seen %s)", accountID, knownLatestVersion, match.GameVersion)
+					return
 				}
 			}
 		}
@@ -125,6 +125,7 @@ WaitLoop:
 					f.config.FetchOnlyLatestGameVersion = false
 				} else {
 					knownLatestVersion = fmt.Sprintf("%d.%d", versions[0], versions[1])
+					f.log.Infof("Fetching only for latest known game version %s", knownLatestVersion)
 				}
 			}
 
