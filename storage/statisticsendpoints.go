@@ -143,14 +143,6 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		tier = "ALL"
 	}
 
-	// championStats, err := s.GetChampionStatsByIDGameVersionTier(champID, gameVersion, tier)
-	// if err != nil {
-	// 	s.log.Errorln(err)
-	// 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// TODO build history
 	gameVersions, err := s.GetKnownGameVersions()
 	if err != nil {
 		s.log.Errorf("Error in championStatsHistoryByID with request %s: %s", r.URL.String(), err)
@@ -165,6 +157,12 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		if err != nil {
 			continue
 		}
+
+		if championStats.SampleSize == 0 {
+			s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s: Skipping Game Version %s, no champion data", champID, tier, gameVersion)
+			continue
+		}
+
 		championStatsHistory.Versions = append(championStatsHistory.Versions, gameVersion)
 		championStatsHistory.PickRateHistory = append(championStatsHistory.PickRateHistory, championStats.PickRate)
 		championStatsHistory.BanRateHistory = append(championStatsHistory.BanRateHistory, championStats.BanRate)
