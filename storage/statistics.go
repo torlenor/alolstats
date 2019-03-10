@@ -155,11 +155,25 @@ type ChampionStatsSingleHistory struct {
 	WinRateHistory  []float64 `json:"winRateHistory"`
 	PickRateHistory []float64 `json:"pickRateHistory"`
 	BanRateHistory  []float64 `json:"banRateHistory"`
+
+	AvgKHistory    []float64 `json:"averagekillsHistory"`
+	StdDevKHistory []float64 `json:"stddevkillsHistory"`
+	AvgDHistory    []float64 `json:"averagedeathsHistory"`
+	StdDevDHistory []float64 `json:"stddevdeathsHistory"`
+	AvgAHistory    []float64 `json:"averageassistsHistory"`
+	StdDevAHistory []float64 `json:"stddevassistsHistory"`
 }
 
 type ChampionStatsPerRoleSingleHistory struct {
 	Versions       []string  `json:"versions"`
 	WinRateHistory []float64 `json:"winRateHistory"`
+
+	AvgKHistory    []float64 `json:"averagekillsHistory"`
+	StdDevKHistory []float64 `json:"stddevkillsHistory"`
+	AvgDHistory    []float64 `json:"averagedeathsHistory"`
+	StdDevDHistory []float64 `json:"stddevdeathsHistory"`
+	AvgAHistory    []float64 `json:"averageassistsHistory"`
+	StdDevAHistory []float64 `json:"stddevassistsHistory"`
 }
 
 type ChampionStatsHistory struct {

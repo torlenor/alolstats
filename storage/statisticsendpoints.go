@@ -169,11 +169,25 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		championStatsHistory.PickRateHistory = append(championStatsHistory.PickRateHistory, championStats.PickRate)
 		championStatsHistory.BanRateHistory = append(championStatsHistory.BanRateHistory, championStats.BanRate)
 		championStatsHistory.WinRateHistory = append(championStatsHistory.WinRateHistory, championStats.WinRate)
+		championStatsHistory.AvgKHistory = append(championStatsHistory.AvgKHistory, championStats.AvgK)
+		championStatsHistory.AvgDHistory = append(championStatsHistory.AvgDHistory, championStats.AvgD)
+		championStatsHistory.AvgAHistory = append(championStatsHistory.AvgAHistory, championStats.AvgA)
+		championStatsHistory.StdDevKHistory = append(championStatsHistory.StdDevKHistory, championStats.StdDevK)
+		championStatsHistory.StdDevDHistory = append(championStatsHistory.StdDevDHistory, championStats.StdDevD)
+		championStatsHistory.StdDevAHistory = append(championStatsHistory.StdDevAHistory, championStats.StdDevA)
+
 		for role, stats := range championStats.StatsPerRole {
 			currentRoleStatsHistory := championStatsHistory.HistoryPeRrole[role]
 
 			currentRoleStatsHistory.Versions = append(currentRoleStatsHistory.Versions, gameVersion)
 			currentRoleStatsHistory.WinRateHistory = append(currentRoleStatsHistory.WinRateHistory, stats.WinRate)
+
+			currentRoleStatsHistory.AvgKHistory = append(currentRoleStatsHistory.AvgKHistory, stats.AvgK)
+			currentRoleStatsHistory.AvgDHistory = append(currentRoleStatsHistory.AvgDHistory, stats.AvgD)
+			currentRoleStatsHistory.AvgAHistory = append(currentRoleStatsHistory.AvgAHistory, stats.AvgA)
+			currentRoleStatsHistory.StdDevKHistory = append(currentRoleStatsHistory.StdDevKHistory, stats.StdDevK)
+			currentRoleStatsHistory.StdDevDHistory = append(currentRoleStatsHistory.StdDevDHistory, stats.StdDevD)
+			currentRoleStatsHistory.StdDevAHistory = append(currentRoleStatsHistory.StdDevAHistory, stats.StdDevA)
 
 			championStatsHistory.HistoryPeRrole[role] = currentRoleStatsHistory
 		}
