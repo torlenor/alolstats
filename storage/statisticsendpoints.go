@@ -159,7 +159,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		}
 
 		if championStats.SampleSize == 0 {
-			s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s: Skipping Game Version %s, no champion data", champID, tier, gameVersion)
+			s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s: Skipping Game Version %s, no data", champID, tier, gameVersion)
 			continue
 		}
 
@@ -176,6 +176,11 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 
 		for role, stats := range championStats.StatsPerRole {
 			currentRoleStatsHistory := championStatsHistory.HistoryPeRrole[role]
+
+			if stats.SampleSize == 0 {
+				s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s: Skipping Role %s, no data", champID, tier, role)
+				continue
+			}
 
 			currentRoleStatsHistory.Versions = append(currentRoleStatsHistory.Versions, gameVersion)
 			currentRoleStatsHistory.WinRateHistory = append(currentRoleStatsHistory.WinRateHistory, stats.WinRate)
