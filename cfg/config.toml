@@ -46,6 +46,9 @@
 
         FetchMatchesForSeenSummoners = true # Specifies if for Summoners encountered in fetched matches an additional fetch run shall be performed (warning, can take a while)
 
+        FetchOnlyLatestGameVersion = true # If true stops fetching matches for a summoner if it encounters a game version != latest known game version
+        LatestGameVersionForFetching = "9.5.1" # Specify what the latest game version for fetching is, see config parameter below for details
+
     [FetchRunner.eun1]
         Region = "eun1" # Specified the RiotAPI region to use (must exist as RiotAPI defined above)
         UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0
@@ -59,6 +62,8 @@
 
         FetchMatchesForSeenSummoners = true # Specifies if for Summoners encountered in fetched matches an additional fetch run shall be performed (warning, can take a while)
 
+        FetchOnlyLatestGameVersion = false # If true stops fetching matches for a summoner if it encounters a game version != latest known game version
+
 [StatsRunner]
 	RunRScripts = true # Specifies if R scripts shall be used (needs a running R installation)
 	RScriptPath = "./R" # Path to the R scripts (distributed with alolstats)
@@ -68,7 +73,7 @@
                 "8.19.1","8.18.2","8.18.1","8.17.1","8.16.1","8.15.1",
                 "8.14.1","8.13.1","8.12.1","8.11.1","8.10.1","8.9.1",
                 "8.8.2","8.8.1","8.7.1","8.6.1","8.5.2","8.5.1","8.4.1",
-                "8.3.1","8.2.1","8.1.1"] # We want to do stats calculations for the following versions, must be valid game versions, see https://ddragon.leagueoflegends.com/api/versions.json
+                "8.3.1","8.2.1","8.1.1"] # We want to do stats calculations for the following versions, must be valid game versions, ordered decending, e.g. 9.5, 9.4, ..., see https://ddragon.leagueoflegends.com/api/versions.json
 
     RoleThreshold = 30.0 # Percent value over which a role is considered relevant for the Champion
     

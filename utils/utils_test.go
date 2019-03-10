@@ -69,3 +69,76 @@ func TestSplitNumericVersion(t *testing.T) {
 		})
 	}
 }
+
+func TestSplitNumericMatchVersion(t *testing.T) {
+	type args struct {
+		version string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []uint32
+		wantErr bool
+	}{
+		{
+			name: "Test 1 - Valid version",
+			args: args{
+				version: "9.1.1.123",
+			},
+			want:    []uint32{9, 1, 1, 123},
+			wantErr: false,
+		},
+		{
+			name: "Test 2 - Valid version",
+			args: args{
+				version: "4.18.1.2",
+			},
+			want:    []uint32{4, 18, 1, 2},
+			wantErr: false,
+		},
+		{
+			name: "Test 3a - Invalid version, not enough digits",
+			args: args{
+				version: "4.18",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Test 3b - Invalid version, not enough digits",
+			args: args{
+				version: "4.18.2",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Test 4 - Invalid version, contains chars",
+			args: args{
+				version: "4.18a.2.123",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Test 5 - Invalid version, too long",
+			args: args{
+				version: "4.18.2.123.555",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := SplitNumericMatchVersion(tt.args.version)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SplitNumericMatchVersion() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SplitNumericMatchVersion() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

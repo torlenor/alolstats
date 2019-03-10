@@ -48,3 +48,29 @@ func SplitNumericVersion(version string) ([]uint32, error) {
 
 	return versions, nil
 }
+
+// SplitNumericMatchVersion splits a match game version string into major, minor, patch, additional version,
+// e.g., 9.1.3.123 or 5.74.11.432 are valid versions.
+func SplitNumericMatchVersion(version string) ([]uint32, error) {
+	versionRegex, _ := regexp.Compile(`^(\d+)\.(\d+)\.(\d+)\.(\d+)$`)
+
+	if !versionRegex.MatchString(version) {
+		return nil, fmt.Errorf("%s is not a valid version string", version)
+	}
+
+	versionStrings := versionRegex.FindAllStringSubmatch(version, 4)
+	if len(versionStrings) != 1 && len(versionStrings[0]) != 5 {
+		return nil, fmt.Errorf("Something bad happened parsing version string %s", version)
+	}
+
+	versions := []uint32{}
+	for _, str := range versionStrings[0][1:] {
+		i, err := strconv.Atoi(str)
+		if err != nil || i < 0 {
+			return nil, fmt.Errorf("Could not convert %s to a valid unsigned version integer", str)
+		}
+		versions = append(versions, uint32(i))
+	}
+
+	return versions, nil
+}

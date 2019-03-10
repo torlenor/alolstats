@@ -2,7 +2,10 @@ package fetchrunner
 
 import (
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/torlenor/alolstats/utils"
 )
 
 func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, accountIDs map[string]bool) error {
@@ -23,7 +26,7 @@ func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, a
 	return nil
 }
 
-func (f *FetchRunner) fetchSummonerMatchesByName(summonerName string, number uint32, seenAccountIDs map[string]bool) {
+func (f *FetchRunner) fetchSummonerMatchesByName(summonerName string, number uint32, seenAccountIDs map[string]bool, knownLatestVersion string) {
 	summoner, err := f.storage.GetRegionalSummonerByName(f.config.Region, summonerName, false)
 	if err != nil {
 		f.log.Errorf("Error fetching summoner matches: Could not get Summoner Data for Summoner %s", summonerName)
@@ -31,10 +34,10 @@ func (f *FetchRunner) fetchSummonerMatchesByName(summonerName string, number uin
 	}
 	accountID := summoner.AccountID
 
-	f.fetchSummonerMatchesByAccountID(accountID, number, seenAccountIDs)
+	f.fetchSummonerMatchesByAccountID(accountID, number, seenAccountIDs, knownLatestVersion)
 }
 
-func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number uint32, seenAccountIDs map[string]bool) {
+func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number uint32, seenAccountIDs map[string]bool, knownLatestVersion string) {
 	stop := false
 	startIndex := uint32(0)
 	endIndex := uint32(100)
@@ -55,6 +58,12 @@ func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number u
 						seenAccountIDs[participant.Player.AccountID] = true
 					}
 				}
+				if f.config.FetchOnlyLatestGameVersion {
+					if !f.checkGameVersionsEqual(match.GameVersion, knownLatestVersion) {
+						f.log.Debugf("Skipping remaining matches for Summoner %s because we encountered a game version not beeing the latest (latest: %s, seen %s)", accountID, knownLatestVersion, match.GameVersion)
+						return
+					}
+				}
 			}
 		}
 		if len(matches.Matches) == 0 || (endIndex+1) >= uint32(matches.TotalGames) {
@@ -69,6 +78,21 @@ func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number u
 			endIndex = number
 		}
 	}
+}
+
+func (f *FetchRunner) checkGameVersionsEqual(latestSeenGameVersion string, knownLatestVersion string) bool {
+	version, err := utils.SplitNumericMatchVersion(latestSeenGameVersion)
+	if err != nil {
+		f.log.Warnf("Could not extract Match Game Version from string %s: %s", latestSeenGameVersion, err)
+		return true
+	}
+	seenVersionStr := fmt.Sprintf("%d.%d", version[0], version[1])
+	if err == nil {
+		if strings.Compare(seenVersionStr, knownLatestVersion) != 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func (f *FetchRunner) summonerMatchesWorker() {
@@ -93,17 +117,28 @@ WaitLoop:
 
 			start := time.Now()
 
+			var knownLatestVersion string
+			if f.config.FetchOnlyLatestGameVersion {
+				versions, err := utils.SplitNumericVersion(f.config.LatestGameVersionForFetching)
+				if err != nil {
+					f.log.Warnf("LatestGameVersionForFetching specified in config is invalid, disabling FetchOnlyLatestGameVersion, err was: %s", err)
+					f.config.FetchOnlyLatestGameVersion = false
+				} else {
+					knownLatestVersion = fmt.Sprintf("%d.%d", versions[0], versions[1])
+				}
+			}
+
 			additionalAccountIDs := make(map[string]bool)
 			if len(f.config.FetchMatchesForSummoners) > 0 {
 				f.log.Infof("Fetching matches for specified Summoners")
 				for _, summonerName := range f.config.FetchMatchesForSummoners {
-					f.fetchSummonerMatchesByName(summonerName, uint32(f.config.FetchMatchesForSummonersNumber), additionalAccountIDs)
 					if f.shouldWorkersStop {
 						elapsed := time.Since(start)
 						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
 						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
 						continue WaitLoop
 					}
+					f.fetchSummonerMatchesByName(summonerName, uint32(f.config.FetchMatchesForSummonersNumber), additionalAccountIDs, knownLatestVersion)
 				}
 			}
 
@@ -131,13 +166,13 @@ WaitLoop:
 
 			f.log.Infof("Found %d unique Account IDs in specified Leagues. Fetching matches", len(accountIDs))
 			for accountID := range accountIDs {
-				f.fetchSummonerMatchesByAccountID(accountID, uint32(f.config.FetchMatchesForLeaguesNumber), additionalAccountIDs)
 				if f.shouldWorkersStop {
 					elapsed := time.Since(start)
 					f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
 					nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
 					continue WaitLoop
 				}
+				f.fetchSummonerMatchesByAccountID(accountID, uint32(f.config.FetchMatchesForLeaguesNumber), additionalAccountIDs, knownLatestVersion)
 			}
 
 			for accountID := range accountIDs {
@@ -147,13 +182,13 @@ WaitLoop:
 			if f.config.FetchMatchesForSeenSummoners {
 				f.log.Infof("Found %d additional unique Account IDs in fetched matches. Fetching matches", len(additionalAccountIDs))
 				for accountID := range additionalAccountIDs {
-					f.fetchSummonerMatchesByAccountID(accountID, uint32(f.config.FetchMatchesForLeaguesNumber), nil)
 					if f.shouldWorkersStop {
 						elapsed := time.Since(start)
 						f.log.Infof("Canceled SummonerMatchesWorker run. Took %s", elapsed)
 						nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
 						continue WaitLoop
 					}
+					f.fetchSummonerMatchesByAccountID(accountID, uint32(f.config.FetchMatchesForLeaguesNumber), nil, knownLatestVersion)
 				}
 			}
 
