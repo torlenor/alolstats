@@ -631,7 +631,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 
 	// Calculation of stats per Role
 	championStats.StatsPerRole = make(map[string]storage.StatsValues)
-	for _, role := range championStats.Roles {
+	for _, role := range []string{"Top", "Mid", "Jungle", "Carry", "Support"} {
 		statsValues := sr.calculateRoleStats(champCounters, role)
 		championStats.StatsPerRole[role] = statsValues
 	}
