@@ -36,6 +36,7 @@
     [FetchRunner.euw1]
         Region = "euw1" # Specified the RiotAPI region to use (must exist as RiotAPI defined above)
         UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0
+        UpdateIntervalFreeRotation = 220 # Specified the update interval for fetching Free Rotation in minutes > 0 (disabled if = 0)
 
         FetchMatchesForSummoners = ["summoner1", "summoner2"] # Specifies Summoner names for which matches shall be fetched
         FetchMatchesForSummonersNumber = 100 # How many of the last matches shall be checked/pulled per account. 0 means all of them
@@ -52,6 +53,7 @@
     [FetchRunner.eun1]
         Region = "eun1" # Specified the RiotAPI region to use (must exist as RiotAPI defined above)
         UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0
+        UpdateIntervalFreeRotation = 0 # Specified the update interval for fetching Free Rotation in minutes > 0 (disabled if = 0)
 
         FetchMatchesForSummoners = ["summoner1", "summoner2"] # Specifies Summoner names for which matches shall be fetched
         FetchMatchesForSummonersNumber = 100 # How many of the last matches shall be checked/pulled per account. 0 means all of them

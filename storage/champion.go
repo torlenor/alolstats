@@ -27,7 +27,6 @@ func (s *Storage) GetChampions(forceUpdate bool) riotclient.ChampionsList {
 		if err != nil {
 			s.log.Warnln("Could not store Champions in storage backend:", err)
 		}
-		// s.log.Debugf("Returned Champions from Client")
 		return champions
 	}
 	champions, err := s.backend.GetChampions()
@@ -44,7 +43,6 @@ func (s *Storage) GetChampions(forceUpdate bool) riotclient.ChampionsList {
 		}
 		return champions
 	}
-	// s.log.Debugf("Returned Champions from Storage Backend")
 	return champions
 }
 

@@ -65,6 +65,8 @@ type FetchRunner struct {
 
 	// Specified the update interval for fetching Summoner Matches in minutes > 0
 	UpdateIntervalSummonerMatches uint32
+	// Specified the update interval for fetching Free Rotation in minutes > 0 (disabled if = 0)
+	UpdateIntervalFreeRotation uint32
 
 	// Specifies Summoner names for which matches shall be fetched
 	FetchMatchesForSummoners []string

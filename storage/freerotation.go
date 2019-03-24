@@ -10,9 +10,13 @@ import (
 	"github.com/torlenor/alolstats/riotclient"
 )
 
-func (s *Storage) getFreeRotation() riotclient.FreeRotation {
+// GetFreeRotation returns the current free rotation from storage
+// When forceUpdate is true, it always fetches it vom Riot API, if
+// it is false it depends on how old the free rotation is if it gets fetched
+// from Riot API
+func (s *Storage) GetFreeRotation(forceUpdate bool) riotclient.FreeRotation {
 	duration := time.Since(s.backend.GetFreeRotationTimeStamp())
-	if duration.Minutes() > float64(s.config.MaxAgeChampionRotation) {
+	if duration.Minutes() > float64(s.config.MaxAgeChampionRotation) || forceUpdate {
 		freeRotation, err := s.riotClient.ChampionRotations()
 		if err != nil {
 			s.log.Warnln(err)
@@ -37,7 +41,7 @@ func (s *Storage) getFreeRotation() riotclient.FreeRotation {
 
 func (s *Storage) freeRotationEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API Free Rotation request from", r.RemoteAddr)
-	freeRotation := s.getFreeRotation()
+	freeRotation := s.GetFreeRotation(false)
 
 	out, err := json.Marshal(freeRotation)
 	if err != nil {

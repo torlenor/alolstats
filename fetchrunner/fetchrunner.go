@@ -51,6 +51,9 @@ func (f *FetchRunner) Start() {
 		f.shouldWorkersStop = false
 		f.stopWorkers = make(chan struct{})
 		go f.summonerMatchesWorker()
+		if f.config.UpdateIntervalFreeRotation > 0 {
+			go f.freeRotationWorker()
+		}
 		f.isStarted = true
 	} else {
 		f.log.Print("FetchRunner already running")

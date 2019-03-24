@@ -44,7 +44,7 @@ func TestGettingFreeRotation(t *testing.T) {
 	riotClient.setFreeRotation(freeRotationClient)
 
 	// No stored list in backend should get it from client and store it
-	actualFreeRotation := storage.getFreeRotation()
+	actualFreeRotation := storage.GetFreeRotation(false)
 
 	if backend.getFreeRotationRetrieved() != false {
 		t.Errorf("Storage got FreeRotation from backend even though it shouldn't")
@@ -86,7 +86,7 @@ func TestGettingFreeRotation(t *testing.T) {
 	backend.reset()
 	backend.setFreeRotation(freeRotationBackend)
 
-	actualFreeRotation = storage.getFreeRotation()
+	actualFreeRotation = storage.GetFreeRotation(false)
 
 	if backend.getFreeRotationRetrieved() != true {
 		t.Errorf("Storage got did not get FreeRotation from backend even though it should have")
@@ -129,7 +129,7 @@ func TestGettingFreeRotation(t *testing.T) {
 	freeRotationBackend.Timestamp = time.Now().Add(-time.Minute * time.Duration(config.MaxAgeChampion+1))
 	backend.setFreeRotation(freeRotationBackend)
 
-	actualFreeRotation = storage.getFreeRotation()
+	actualFreeRotation = storage.GetFreeRotation(false)
 
 	if backend.getFreeRotationRetrieved() != false {
 		t.Errorf("Storage got FreeRotation from backend even though it shouldn't")
@@ -173,7 +173,7 @@ func TestGettingFreeRotation(t *testing.T) {
 	backend.setFreeRotation(freeRotationBackend)
 	riotClient.setFailFreeRotation(true)
 
-	actualFreeRotation = storage.getFreeRotation()
+	actualFreeRotation = storage.GetFreeRotation(false)
 
 	if backend.getFreeRotationRetrieved() != true {
 		t.Errorf("Storage got did not get FreeRotation from backend even though it should have")
@@ -217,7 +217,7 @@ func TestGettingFreeRotation(t *testing.T) {
 	backend.setFreeRotation(freeRotationBackend)
 	backend.setFailFreeRotation(true)
 
-	actualFreeRotation = storage.getFreeRotation()
+	actualFreeRotation = storage.GetFreeRotation(false)
 
 	if backend.getFreeRotationRetrieved() != false {
 		t.Errorf("Storage got FreeRotation from backend even though it shouldn't")
@@ -262,7 +262,7 @@ func TestGettingFreeRotation(t *testing.T) {
 	backend.setFailFreeRotation(true)
 	riotClient.setFailFreeRotation(true)
 
-	actualFreeRotation = storage.getFreeRotation()
+	actualFreeRotation = storage.GetFreeRotation(false)
 
 	if backend.getFreeRotationRetrieved() != true {
 		t.Errorf("Storage should have tried to get FreeRotation from backend")
