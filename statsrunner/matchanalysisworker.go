@@ -14,30 +14,30 @@ import (
 )
 
 type matchCounters struct {
-	MatchKills   []float64
-	MatchDeaths  []float64
-	MatchAssists []float64
+	MatchKills   []uint16
+	MatchDeaths  []uint16
+	MatchAssists []uint16
 
-	MatchGoldEarned         []float64
-	MatchTotalMinionsKilled []float64
+	MatchGoldEarned         []uint32
+	MatchTotalMinionsKilled []uint32
 
-	MatchTotalDamageDealt               []float64
-	MatchTotalDamageDealtToChampions    []float64
-	MatchTotalDamageTaken               []float64
-	MatchMagicDamageDealt               []float64
-	MatchMagicDamageDealtToChampions    []float64
-	MatchPhysicalDamageDealt            []float64
-	MatchPhysicalDamageDealtToChampions []float64
-	MatchPhysicalDamageTaken            []float64
-	MatchTrueDamageDealt                []float64
-	MatchTrueDamageDealtToChampions     []float64
-	MatchTrueDamageTaken                []float64
+	MatchTotalDamageDealt               []uint32
+	MatchTotalDamageDealtToChampions    []uint32
+	MatchTotalDamageTaken               []uint32
+	MatchMagicDamageDealt               []uint32
+	MatchMagicDamageDealtToChampions    []uint32
+	MatchPhysicalDamageDealt            []uint32
+	MatchPhysicalDamageDealtToChampions []uint32
+	MatchPhysicalDamageTaken            []uint32
+	MatchTrueDamageDealt                []uint32
+	MatchTrueDamageDealtToChampions     []uint32
+	MatchTrueDamageTaken                []uint32
 
-	MatchTotalHeal []float64
+	MatchTotalHeal []uint32
 
-	MatchDamageDealtToObjectives []float64
-	MatchDamageDealtToTurrets    []float64
-	MatchTimeCCingOthers         []float64
+	MatchDamageDealtToObjectives []uint32
+	MatchDamageDealtToTurrets    []uint32
+	MatchTimeCCingOthers         []uint32
 }
 
 type roleCounters struct {
@@ -213,107 +213,107 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 						ccall.TotalPicks++
 
 						cc.TotalKills = cc.TotalKills + uint64(participant.Stats.Kills)
-						cc.MatchKills = append(cc.MatchKills, float64(participant.Stats.Kills))
+						cc.MatchKills = append(cc.MatchKills, uint16(participant.Stats.Kills))
 						cc.TotalDeaths = cc.TotalDeaths + uint64(participant.Stats.Deaths)
-						cc.MatchDeaths = append(cc.MatchDeaths, float64(participant.Stats.Deaths))
+						cc.MatchDeaths = append(cc.MatchDeaths, uint16(participant.Stats.Deaths))
 						cc.TotalAssists = cc.TotalAssists + uint64(participant.Stats.Assists)
-						cc.MatchAssists = append(cc.MatchAssists, float64(participant.Stats.Assists))
+						cc.MatchAssists = append(cc.MatchAssists, uint16(participant.Stats.Assists))
 
 						ccall.TotalKills = ccall.TotalKills + uint64(participant.Stats.Kills)
-						ccall.MatchKills = append(ccall.MatchKills, float64(participant.Stats.Kills))
+						ccall.MatchKills = append(ccall.MatchKills, uint16(participant.Stats.Kills))
 						ccall.TotalDeaths = ccall.TotalDeaths + uint64(participant.Stats.Deaths)
-						ccall.MatchDeaths = append(ccall.MatchDeaths, float64(participant.Stats.Deaths))
+						ccall.MatchDeaths = append(ccall.MatchDeaths, uint16(participant.Stats.Deaths))
 						ccall.TotalAssists = ccall.TotalAssists + uint64(participant.Stats.Assists)
-						ccall.MatchAssists = append(ccall.MatchAssists, float64(participant.Stats.Assists))
+						ccall.MatchAssists = append(ccall.MatchAssists, uint16(participant.Stats.Assists))
 
 						perRole.Picks++
 						perRoleAll.Picks++
 
 						perRole.Kills = perRole.Kills + uint64(participant.Stats.Kills)
-						perRole.MatchKills = append(perRole.MatchKills, float64(participant.Stats.Kills))
+						perRole.MatchKills = append(perRole.MatchKills, uint16(participant.Stats.Kills))
 						perRole.Deaths = perRole.Deaths + uint64(participant.Stats.Deaths)
-						perRole.MatchDeaths = append(perRole.MatchDeaths, float64(participant.Stats.Deaths))
+						perRole.MatchDeaths = append(perRole.MatchDeaths, uint16(participant.Stats.Deaths))
 						perRole.Assists = perRole.Assists + uint64(participant.Stats.Assists)
-						perRole.MatchAssists = append(perRole.MatchAssists, float64(participant.Stats.Assists))
+						perRole.MatchAssists = append(perRole.MatchAssists, uint16(participant.Stats.Assists))
 
 						perRoleAll.Kills = perRoleAll.Kills + uint64(participant.Stats.Kills)
-						perRoleAll.MatchKills = append(perRoleAll.MatchKills, float64(participant.Stats.Kills))
+						perRoleAll.MatchKills = append(perRoleAll.MatchKills, uint16(participant.Stats.Kills))
 						perRoleAll.Deaths = perRoleAll.Deaths + uint64(participant.Stats.Deaths)
-						perRoleAll.MatchDeaths = append(perRoleAll.MatchDeaths, float64(participant.Stats.Deaths))
+						perRoleAll.MatchDeaths = append(perRoleAll.MatchDeaths, uint16(participant.Stats.Deaths))
 						perRoleAll.Assists = perRoleAll.Assists + uint64(participant.Stats.Assists)
-						perRoleAll.MatchAssists = append(perRoleAll.MatchAssists, float64(participant.Stats.Assists))
+						perRoleAll.MatchAssists = append(perRoleAll.MatchAssists, uint16(participant.Stats.Assists))
 
-						ccall.MatchGoldEarned = append(ccall.MatchGoldEarned, float64(participant.Stats.GoldEarned))
-						ccall.MatchTotalMinionsKilled = append(ccall.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
-						ccall.MatchTotalDamageDealt = append(ccall.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
-						ccall.MatchTotalDamageDealtToChampions = append(ccall.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
-						ccall.MatchTotalDamageTaken = append(ccall.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
-						ccall.MatchMagicDamageDealt = append(ccall.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
-						ccall.MatchMagicDamageDealtToChampions = append(ccall.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
-						ccall.MatchPhysicalDamageDealt = append(ccall.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
-						ccall.MatchPhysicalDamageDealtToChampions = append(ccall.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
-						ccall.MatchPhysicalDamageTaken = append(ccall.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
-						ccall.MatchTrueDamageDealt = append(ccall.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
-						ccall.MatchTrueDamageDealtToChampions = append(ccall.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
-						ccall.MatchTrueDamageTaken = append(ccall.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
-						ccall.MatchTotalHeal = append(ccall.MatchTotalHeal, float64(participant.Stats.TotalHeal))
-						ccall.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
-						ccall.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
-						ccall.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
+						ccall.MatchGoldEarned = append(ccall.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
+						ccall.MatchTotalMinionsKilled = append(ccall.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
+						ccall.MatchTotalDamageDealt = append(ccall.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
+						ccall.MatchTotalDamageDealtToChampions = append(ccall.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
+						ccall.MatchTotalDamageTaken = append(ccall.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
+						ccall.MatchMagicDamageDealt = append(ccall.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
+						ccall.MatchMagicDamageDealtToChampions = append(ccall.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
+						ccall.MatchPhysicalDamageDealt = append(ccall.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
+						ccall.MatchPhysicalDamageDealtToChampions = append(ccall.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
+						ccall.MatchPhysicalDamageTaken = append(ccall.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
+						ccall.MatchTrueDamageDealt = append(ccall.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
+						ccall.MatchTrueDamageDealtToChampions = append(ccall.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
+						ccall.MatchTrueDamageTaken = append(ccall.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
+						ccall.MatchTotalHeal = append(ccall.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
+						ccall.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
+						ccall.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
+						ccall.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
 
-						cc.MatchGoldEarned = append(cc.MatchGoldEarned, float64(participant.Stats.GoldEarned))
-						cc.MatchTotalMinionsKilled = append(cc.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
-						cc.MatchTotalDamageDealt = append(cc.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
-						cc.MatchTotalDamageDealtToChampions = append(cc.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
-						cc.MatchTotalDamageTaken = append(cc.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
-						cc.MatchMagicDamageDealt = append(cc.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
-						cc.MatchMagicDamageDealtToChampions = append(cc.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
-						cc.MatchPhysicalDamageDealt = append(cc.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
-						cc.MatchPhysicalDamageDealtToChampions = append(cc.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
-						cc.MatchPhysicalDamageTaken = append(cc.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
-						cc.MatchTrueDamageDealt = append(cc.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
-						cc.MatchTrueDamageDealtToChampions = append(cc.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
-						cc.MatchTrueDamageTaken = append(cc.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
-						cc.MatchTotalHeal = append(cc.MatchTotalHeal, float64(participant.Stats.TotalHeal))
-						cc.MatchDamageDealtToObjectives = append(cc.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
-						cc.MatchDamageDealtToTurrets = append(cc.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
-						cc.MatchTimeCCingOthers = append(cc.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
+						cc.MatchGoldEarned = append(cc.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
+						cc.MatchTotalMinionsKilled = append(cc.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
+						cc.MatchTotalDamageDealt = append(cc.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
+						cc.MatchTotalDamageDealtToChampions = append(cc.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
+						cc.MatchTotalDamageTaken = append(cc.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
+						cc.MatchMagicDamageDealt = append(cc.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
+						cc.MatchMagicDamageDealtToChampions = append(cc.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
+						cc.MatchPhysicalDamageDealt = append(cc.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
+						cc.MatchPhysicalDamageDealtToChampions = append(cc.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
+						cc.MatchPhysicalDamageTaken = append(cc.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
+						cc.MatchTrueDamageDealt = append(cc.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
+						cc.MatchTrueDamageDealtToChampions = append(cc.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
+						cc.MatchTrueDamageTaken = append(cc.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
+						cc.MatchTotalHeal = append(cc.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
+						cc.MatchDamageDealtToObjectives = append(cc.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
+						cc.MatchDamageDealtToTurrets = append(cc.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
+						cc.MatchTimeCCingOthers = append(cc.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
 
-						perRole.MatchGoldEarned = append(perRole.MatchGoldEarned, float64(participant.Stats.GoldEarned))
-						perRole.MatchTotalMinionsKilled = append(perRole.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
-						perRole.MatchTotalDamageDealt = append(perRole.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
-						perRole.MatchTotalDamageDealtToChampions = append(perRole.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
-						perRole.MatchTotalDamageTaken = append(perRole.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
-						perRole.MatchMagicDamageDealt = append(perRole.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
-						perRole.MatchMagicDamageDealtToChampions = append(perRole.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
-						perRole.MatchPhysicalDamageDealt = append(perRole.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
-						perRole.MatchPhysicalDamageDealtToChampions = append(perRole.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
-						perRole.MatchPhysicalDamageTaken = append(perRole.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
-						perRole.MatchTrueDamageDealt = append(perRole.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
-						perRole.MatchTrueDamageDealtToChampions = append(perRole.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
-						perRole.MatchTrueDamageTaken = append(perRole.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
-						perRole.MatchTotalHeal = append(perRole.MatchTotalHeal, float64(participant.Stats.TotalHeal))
-						perRole.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
-						perRole.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
-						perRole.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
+						perRole.MatchGoldEarned = append(perRole.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
+						perRole.MatchTotalMinionsKilled = append(perRole.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
+						perRole.MatchTotalDamageDealt = append(perRole.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
+						perRole.MatchTotalDamageDealtToChampions = append(perRole.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
+						perRole.MatchTotalDamageTaken = append(perRole.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
+						perRole.MatchMagicDamageDealt = append(perRole.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
+						perRole.MatchMagicDamageDealtToChampions = append(perRole.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
+						perRole.MatchPhysicalDamageDealt = append(perRole.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
+						perRole.MatchPhysicalDamageDealtToChampions = append(perRole.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
+						perRole.MatchPhysicalDamageTaken = append(perRole.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
+						perRole.MatchTrueDamageDealt = append(perRole.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
+						perRole.MatchTrueDamageDealtToChampions = append(perRole.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
+						perRole.MatchTrueDamageTaken = append(perRole.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
+						perRole.MatchTotalHeal = append(perRole.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
+						perRole.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
+						perRole.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
+						perRole.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
 
-						perRoleAll.MatchGoldEarned = append(perRoleAll.MatchGoldEarned, float64(participant.Stats.GoldEarned))
-						perRoleAll.MatchTotalMinionsKilled = append(perRoleAll.MatchTotalMinionsKilled, float64(participant.Stats.TotalMinionsKilled))
-						perRoleAll.MatchTotalDamageDealt = append(perRoleAll.MatchTotalDamageDealt, float64(participant.Stats.TotalDamageDealt))
-						perRoleAll.MatchTotalDamageDealtToChampions = append(perRoleAll.MatchTotalDamageDealtToChampions, float64(participant.Stats.TotalDamageDealtToChampions))
-						perRoleAll.MatchTotalDamageTaken = append(perRoleAll.MatchTotalDamageTaken, float64(participant.Stats.TotalDamageTaken))
-						perRoleAll.MatchMagicDamageDealt = append(perRoleAll.MatchMagicDamageDealt, float64(participant.Stats.MagicDamageDealt))
-						perRoleAll.MatchMagicDamageDealtToChampions = append(perRoleAll.MatchMagicDamageDealtToChampions, float64(participant.Stats.MagicDamageDealtToChampions))
-						perRoleAll.MatchPhysicalDamageDealt = append(perRoleAll.MatchPhysicalDamageDealt, float64(participant.Stats.PhysicalDamageDealt))
-						perRoleAll.MatchPhysicalDamageDealtToChampions = append(perRoleAll.MatchPhysicalDamageDealtToChampions, float64(participant.Stats.PhysicalDamageDealtToChampions))
-						perRoleAll.MatchPhysicalDamageTaken = append(perRoleAll.MatchPhysicalDamageTaken, float64(participant.Stats.PhysicalDamageTaken))
-						perRoleAll.MatchTrueDamageDealt = append(perRoleAll.MatchTrueDamageDealt, float64(participant.Stats.TrueDamageDealt))
-						perRoleAll.MatchTrueDamageDealtToChampions = append(perRoleAll.MatchTrueDamageDealtToChampions, float64(participant.Stats.TrueDamageDealtToChampions))
-						perRoleAll.MatchTrueDamageTaken = append(perRoleAll.MatchTrueDamageTaken, float64(participant.Stats.TrueDamageTaken))
-						perRoleAll.MatchTotalHeal = append(perRoleAll.MatchTotalHeal, float64(participant.Stats.TotalHeal))
-						perRoleAll.MatchDamageDealtToObjectives = append(perRoleAll.MatchDamageDealtToObjectives, float64(participant.Stats.DamageDealtToObjectives))
-						perRoleAll.MatchDamageDealtToTurrets = append(perRoleAll.MatchDamageDealtToTurrets, float64(participant.Stats.DamageDealtToTurrets))
-						perRoleAll.MatchTimeCCingOthers = append(perRoleAll.MatchTimeCCingOthers, float64(participant.Stats.TimeCCingOthers))
+						perRoleAll.MatchGoldEarned = append(perRoleAll.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
+						perRoleAll.MatchTotalMinionsKilled = append(perRoleAll.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
+						perRoleAll.MatchTotalDamageDealt = append(perRoleAll.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
+						perRoleAll.MatchTotalDamageDealtToChampions = append(perRoleAll.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
+						perRoleAll.MatchTotalDamageTaken = append(perRoleAll.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
+						perRoleAll.MatchMagicDamageDealt = append(perRoleAll.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
+						perRoleAll.MatchMagicDamageDealtToChampions = append(perRoleAll.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
+						perRoleAll.MatchPhysicalDamageDealt = append(perRoleAll.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
+						perRoleAll.MatchPhysicalDamageDealtToChampions = append(perRoleAll.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
+						perRoleAll.MatchPhysicalDamageTaken = append(perRoleAll.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
+						perRoleAll.MatchTrueDamageDealt = append(perRoleAll.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
+						perRoleAll.MatchTrueDamageDealtToChampions = append(perRoleAll.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
+						perRoleAll.MatchTrueDamageTaken = append(perRoleAll.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
+						perRoleAll.MatchTotalHeal = append(perRoleAll.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
+						perRoleAll.MatchDamageDealtToObjectives = append(perRoleAll.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
+						perRoleAll.MatchDamageDealtToTurrets = append(perRoleAll.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
+						perRoleAll.MatchTimeCCingOthers = append(perRoleAll.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
 
 						if participant.Stats.Win {
 							perRole.Wins++
@@ -429,91 +429,91 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	championStats.GameVersion = gameVersion
 	championStats.SampleSize = champCounters.TotalPicks
 
-	championStats.AvgK, championStats.StdDevK = calcMeanStdDev(champCounters.MatchKills, nil)
+	championStats.AvgK, championStats.StdDevK = calcMeanStdDevUint16(champCounters.MatchKills, nil)
 	if math.IsNaN(championStats.StdDevK) {
 		championStats.StdDevK = 0
 	}
-	championStats.AvgD, championStats.StdDevD = calcMeanStdDev(champCounters.MatchDeaths, nil)
+	championStats.AvgD, championStats.StdDevD = calcMeanStdDevUint16(champCounters.MatchDeaths, nil)
 	if math.IsNaN(championStats.StdDevD) {
 		championStats.StdDevD = 0
 	}
-	championStats.AvgA, championStats.StdDevA = calcMeanStdDev(champCounters.MatchAssists, nil)
+	championStats.AvgA, championStats.StdDevA = calcMeanStdDevUint16(champCounters.MatchAssists, nil)
 	if math.IsNaN(championStats.StdDevA) {
 		championStats.StdDevA = 0
 	}
 
-	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = calcMeanStdDev(champCounters.MatchGoldEarned, nil)
+	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = calcMeanStdDevUint32(champCounters.MatchGoldEarned, nil)
 	if math.IsNaN(championStats.StdDevGoldEarned) {
 		championStats.StdDevGoldEarned = 0
 	}
-	championStats.AvgTotalMinionsKilled, championStats.StdDevTotalMinionsKilled = calcMeanStdDev(champCounters.MatchTotalMinionsKilled, nil)
+	championStats.AvgTotalMinionsKilled, championStats.StdDevTotalMinionsKilled = calcMeanStdDevUint32(champCounters.MatchTotalMinionsKilled, nil)
 	if math.IsNaN(championStats.StdDevTotalMinionsKilled) {
 		championStats.StdDevTotalMinionsKilled = 0
 	}
-	championStats.AvgTotalDamageDealt, championStats.StdDevTotalDamageDealt = calcMeanStdDev(champCounters.MatchTotalDamageDealt, nil)
+	championStats.AvgTotalDamageDealt, championStats.StdDevTotalDamageDealt = calcMeanStdDevUint32(champCounters.MatchTotalDamageDealt, nil)
 	if math.IsNaN(championStats.StdDevTotalDamageDealt) {
 		championStats.StdDevTotalDamageDealt = 0
 	}
-	championStats.AvgTotalDamageDealtToChampions, championStats.StdDevTotalDamageDealtToChampions = calcMeanStdDev(champCounters.MatchTotalDamageDealtToChampions, nil)
+	championStats.AvgTotalDamageDealtToChampions, championStats.StdDevTotalDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchTotalDamageDealtToChampions, nil)
 	if math.IsNaN(championStats.StdDevTotalDamageDealtToChampions) {
 		championStats.StdDevTotalDamageDealtToChampions = 0
 	}
-	championStats.AvgTotalDamageTaken, championStats.StdDevTotalDamageTaken = calcMeanStdDev(champCounters.MatchTotalDamageTaken, nil)
+	championStats.AvgTotalDamageTaken, championStats.StdDevTotalDamageTaken = calcMeanStdDevUint32(champCounters.MatchTotalDamageTaken, nil)
 	if math.IsNaN(championStats.StdDevTotalDamageTaken) {
 		championStats.StdDevTotalDamageTaken = 0
 	}
-	championStats.AvgMagicDamageDealt, championStats.StdDevMagicDamageDealt = calcMeanStdDev(champCounters.MatchMagicDamageDealt, nil)
+	championStats.AvgMagicDamageDealt, championStats.StdDevMagicDamageDealt = calcMeanStdDevUint32(champCounters.MatchMagicDamageDealt, nil)
 	if math.IsNaN(championStats.StdDevMagicDamageDealt) {
 		championStats.StdDevMagicDamageDealt = 0
 	}
-	championStats.AvgMagicDamageDealtToChampions, championStats.StdDevMagicDamageDealtToChampions = calcMeanStdDev(champCounters.MatchMagicDamageDealtToChampions, nil)
+	championStats.AvgMagicDamageDealtToChampions, championStats.StdDevMagicDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchMagicDamageDealtToChampions, nil)
 	if math.IsNaN(championStats.StdDevMagicDamageDealtToChampions) {
 		championStats.StdDevMagicDamageDealtToChampions = 0
 	}
-	championStats.AvgPhysicalDamageDealt, championStats.StdDevPhysicalDamageDealt = calcMeanStdDev(champCounters.MatchPhysicalDamageDealt, nil)
+	championStats.AvgPhysicalDamageDealt, championStats.StdDevPhysicalDamageDealt = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageDealt, nil)
 	if math.IsNaN(championStats.StdDevPhysicalDamageDealt) {
 		championStats.StdDevPhysicalDamageDealt = 0
 	}
-	championStats.AvgPhysicalDamageDealtToChampions, championStats.StdDevPhysicalDamageDealtToChampions = calcMeanStdDev(champCounters.MatchPhysicalDamageDealtToChampions, nil)
+	championStats.AvgPhysicalDamageDealtToChampions, championStats.StdDevPhysicalDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageDealtToChampions, nil)
 	if math.IsNaN(championStats.StdDevPhysicalDamageDealtToChampions) {
 		championStats.StdDevPhysicalDamageDealtToChampions = 0
 	}
-	championStats.AvgPhysicalDamageTaken, championStats.StdDevPhysicalDamageTaken = calcMeanStdDev(champCounters.MatchPhysicalDamageTaken, nil)
+	championStats.AvgPhysicalDamageTaken, championStats.StdDevPhysicalDamageTaken = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageTaken, nil)
 	if math.IsNaN(championStats.StdDevPhysicalDamageTaken) {
 		championStats.StdDevPhysicalDamageTaken = 0
 	}
-	championStats.AvgTrueDamageDealt, championStats.StdDevTrueDamageDealt = calcMeanStdDev(champCounters.MatchTrueDamageDealt, nil)
+	championStats.AvgTrueDamageDealt, championStats.StdDevTrueDamageDealt = calcMeanStdDevUint32(champCounters.MatchTrueDamageDealt, nil)
 	if math.IsNaN(championStats.StdDevTrueDamageDealt) {
 		championStats.StdDevTrueDamageDealt = 0
 	}
-	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = calcMeanStdDev(champCounters.MatchTrueDamageDealtToChampions, nil)
+	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchTrueDamageDealtToChampions, nil)
 	if math.IsNaN(championStats.StdDevTrueDamageDealtToChampions) {
 		championStats.StdDevTrueDamageDealtToChampions = 0
 	}
-	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = calcMeanStdDev(champCounters.MatchTrueDamageTaken, nil)
+	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = calcMeanStdDevUint32(champCounters.MatchTrueDamageTaken, nil)
 	if math.IsNaN(championStats.StdDevTrueDamageTaken) {
 		championStats.StdDevTrueDamageTaken = 0
 	}
-	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = calcMeanStdDev(champCounters.MatchTotalHeal, nil)
+	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = calcMeanStdDevUint32(champCounters.MatchTotalHeal, nil)
 	if math.IsNaN(championStats.StdDevTotalHeal) {
 		championStats.StdDevTotalHeal = 0
 	}
-	championStats.AvgDamageDealtToObjectives, championStats.StdDevDamageDealtToObjectives = calcMeanStdDev(champCounters.MatchDamageDealtToObjectives, nil)
+	championStats.AvgDamageDealtToObjectives, championStats.StdDevDamageDealtToObjectives = calcMeanStdDevUint32(champCounters.MatchDamageDealtToObjectives, nil)
 	if math.IsNaN(championStats.StdDevDamageDealtToObjectives) {
 		championStats.StdDevDamageDealtToObjectives = 0
 	}
-	championStats.AvgDamageDealtToTurrets, championStats.StdDevDamageDealtToTurrets = calcMeanStdDev(champCounters.MatchDamageDealtToTurrets, nil)
+	championStats.AvgDamageDealtToTurrets, championStats.StdDevDamageDealtToTurrets = calcMeanStdDevUint32(champCounters.MatchDamageDealtToTurrets, nil)
 	if math.IsNaN(championStats.StdDevDamageDealtToTurrets) {
 		championStats.StdDevDamageDealtToTurrets = 0
 	}
-	championStats.AvgTimeCCingOthers, championStats.StdDevTimeCCingOthers = calcMeanStdDev(champCounters.MatchTimeCCingOthers, nil)
+	championStats.AvgTimeCCingOthers, championStats.StdDevTimeCCingOthers = calcMeanStdDevUint32(champCounters.MatchTimeCCingOthers, nil)
 	if math.IsNaN(championStats.StdDevTimeCCingOthers) {
 		championStats.StdDevTimeCCingOthers = 0
 	}
 
-	championStats.MedianK, _ = calcMedian(champCounters.MatchKills, nil)
-	championStats.MedianD, _ = calcMedian(champCounters.MatchDeaths, nil)
-	championStats.MedianA, _ = calcMedian(champCounters.MatchAssists, nil)
+	championStats.MedianK, _ = calcMedianUint16(champCounters.MatchKills, nil)
+	championStats.MedianD, _ = calcMedianUint16(champCounters.MatchDeaths, nil)
+	championStats.MedianA, _ = calcMedianUint16(champCounters.MatchAssists, nil)
 
 	losses := champCounters.TotalPicks - champCounters.TotalWins
 	wins := champCounters.TotalWins
@@ -837,92 +837,92 @@ func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) storage.Sta
 	statsValues.SampleSize = counters.Picks
 
 	if (counters.Picks) > 1 {
-		statsValues.AvgK, statsValues.StdDevK = calcMeanStdDev(counters.MatchKills, nil)
+		statsValues.AvgK, statsValues.StdDevK = calcMeanStdDevUint16(counters.MatchKills, nil)
 		if math.IsNaN(statsValues.StdDevK) {
 			statsValues.StdDevK = 0
 		}
-		statsValues.AvgD, statsValues.StdDevD = calcMeanStdDev(counters.MatchDeaths, nil)
+		statsValues.AvgD, statsValues.StdDevD = calcMeanStdDevUint16(counters.MatchDeaths, nil)
 		if math.IsNaN(statsValues.StdDevD) {
 			statsValues.StdDevD = 0
 		}
-		statsValues.AvgA, statsValues.StdDevA = calcMeanStdDev(counters.MatchAssists, nil)
+		statsValues.AvgA, statsValues.StdDevA = calcMeanStdDevUint16(counters.MatchAssists, nil)
 		if math.IsNaN(statsValues.StdDevA) {
 			statsValues.StdDevA = 0
 		}
 
-		statsValues.AvgGoldEarned, statsValues.StdDevGoldEarned = calcMeanStdDev(counters.MatchGoldEarned, nil)
+		statsValues.AvgGoldEarned, statsValues.StdDevGoldEarned = calcMeanStdDevUint32(counters.MatchGoldEarned, nil)
 		if math.IsNaN(statsValues.StdDevGoldEarned) {
 			statsValues.StdDevGoldEarned = 0
 		}
-		statsValues.AvgTotalMinionsKilled, statsValues.StdDevTotalMinionsKilled = calcMeanStdDev(counters.MatchTotalMinionsKilled, nil)
+		statsValues.AvgTotalMinionsKilled, statsValues.StdDevTotalMinionsKilled = calcMeanStdDevUint32(counters.MatchTotalMinionsKilled, nil)
 		if math.IsNaN(statsValues.StdDevTotalMinionsKilled) {
 			statsValues.StdDevTotalMinionsKilled = 0
 		}
-		statsValues.AvgTotalDamageDealt, statsValues.StdDevTotalDamageDealt = calcMeanStdDev(counters.MatchTotalDamageDealt, nil)
+		statsValues.AvgTotalDamageDealt, statsValues.StdDevTotalDamageDealt = calcMeanStdDevUint32(counters.MatchTotalDamageDealt, nil)
 		if math.IsNaN(statsValues.StdDevTotalDamageDealt) {
 			statsValues.StdDevTotalDamageDealt = 0
 		}
-		statsValues.AvgTotalDamageDealtToChampions, statsValues.StdDevTotalDamageDealtToChampions = calcMeanStdDev(counters.MatchTotalDamageDealtToChampions, nil)
+		statsValues.AvgTotalDamageDealtToChampions, statsValues.StdDevTotalDamageDealtToChampions = calcMeanStdDevUint32(counters.MatchTotalDamageDealtToChampions, nil)
 		if math.IsNaN(statsValues.StdDevTotalDamageDealtToChampions) {
 			statsValues.StdDevTotalDamageDealtToChampions = 0
 		}
-		statsValues.AvgTotalDamageTaken, statsValues.StdDevTotalDamageTaken = calcMeanStdDev(counters.MatchTotalDamageTaken, nil)
+		statsValues.AvgTotalDamageTaken, statsValues.StdDevTotalDamageTaken = calcMeanStdDevUint32(counters.MatchTotalDamageTaken, nil)
 		if math.IsNaN(statsValues.StdDevTotalDamageTaken) {
 			statsValues.StdDevTotalDamageTaken = 0
 		}
-		statsValues.AvgMagicDamageDealt, statsValues.StdDevMagicDamageDealt = calcMeanStdDev(counters.MatchMagicDamageDealt, nil)
+		statsValues.AvgMagicDamageDealt, statsValues.StdDevMagicDamageDealt = calcMeanStdDevUint32(counters.MatchMagicDamageDealt, nil)
 		if math.IsNaN(statsValues.StdDevMagicDamageDealt) {
 			statsValues.StdDevMagicDamageDealt = 0
 		}
-		statsValues.AvgMagicDamageDealtToChampions, statsValues.StdDevMagicDamageDealtToChampions = calcMeanStdDev(counters.MatchMagicDamageDealtToChampions, nil)
+		statsValues.AvgMagicDamageDealtToChampions, statsValues.StdDevMagicDamageDealtToChampions = calcMeanStdDevUint32(counters.MatchMagicDamageDealtToChampions, nil)
 		if math.IsNaN(statsValues.StdDevMagicDamageDealtToChampions) {
 			statsValues.StdDevMagicDamageDealtToChampions = 0
 		}
-		statsValues.AvgPhysicalDamageDealt, statsValues.StdDevPhysicalDamageDealt = calcMeanStdDev(counters.MatchPhysicalDamageDealt, nil)
+		statsValues.AvgPhysicalDamageDealt, statsValues.StdDevPhysicalDamageDealt = calcMeanStdDevUint32(counters.MatchPhysicalDamageDealt, nil)
 		if math.IsNaN(statsValues.StdDevPhysicalDamageDealt) {
 			statsValues.StdDevPhysicalDamageDealt = 0
 		}
-		statsValues.AvgPhysicalDamageDealtToChampions, statsValues.StdDevPhysicalDamageDealtToChampions = calcMeanStdDev(counters.MatchPhysicalDamageDealtToChampions, nil)
+		statsValues.AvgPhysicalDamageDealtToChampions, statsValues.StdDevPhysicalDamageDealtToChampions = calcMeanStdDevUint32(counters.MatchPhysicalDamageDealtToChampions, nil)
 		if math.IsNaN(statsValues.StdDevPhysicalDamageDealtToChampions) {
 			statsValues.StdDevPhysicalDamageDealtToChampions = 0
 		}
-		statsValues.AvgPhysicalDamageTaken, statsValues.StdDevPhysicalDamageTaken = calcMeanStdDev(counters.MatchPhysicalDamageTaken, nil)
+		statsValues.AvgPhysicalDamageTaken, statsValues.StdDevPhysicalDamageTaken = calcMeanStdDevUint32(counters.MatchPhysicalDamageTaken, nil)
 		if math.IsNaN(statsValues.StdDevPhysicalDamageTaken) {
 			statsValues.StdDevPhysicalDamageTaken = 0
 		}
-		statsValues.AvgTrueDamageDealt, statsValues.StdDevTrueDamageDealt = calcMeanStdDev(counters.MatchTrueDamageDealt, nil)
+		statsValues.AvgTrueDamageDealt, statsValues.StdDevTrueDamageDealt = calcMeanStdDevUint32(counters.MatchTrueDamageDealt, nil)
 		if math.IsNaN(statsValues.StdDevTrueDamageDealt) {
 			statsValues.StdDevTrueDamageDealt = 0
 		}
-		statsValues.AvgTrueDamageDealtToChampions, statsValues.StdDevTrueDamageDealtToChampions = calcMeanStdDev(counters.MatchTrueDamageDealtToChampions, nil)
+		statsValues.AvgTrueDamageDealtToChampions, statsValues.StdDevTrueDamageDealtToChampions = calcMeanStdDevUint32(counters.MatchTrueDamageDealtToChampions, nil)
 		if math.IsNaN(statsValues.StdDevTrueDamageDealtToChampions) {
 			statsValues.StdDevTrueDamageDealtToChampions = 0
 		}
-		statsValues.AvgTrueDamageTaken, statsValues.StdDevTrueDamageTaken = calcMeanStdDev(counters.MatchTrueDamageTaken, nil)
+		statsValues.AvgTrueDamageTaken, statsValues.StdDevTrueDamageTaken = calcMeanStdDevUint32(counters.MatchTrueDamageTaken, nil)
 		if math.IsNaN(statsValues.StdDevTrueDamageTaken) {
 			statsValues.StdDevTrueDamageTaken = 0
 		}
-		statsValues.AvgTotalHeal, statsValues.StdDevTotalHeal = calcMeanStdDev(counters.MatchTotalHeal, nil)
+		statsValues.AvgTotalHeal, statsValues.StdDevTotalHeal = calcMeanStdDevUint32(counters.MatchTotalHeal, nil)
 		if math.IsNaN(statsValues.StdDevTotalHeal) {
 			statsValues.StdDevTotalHeal = 0
 		}
-		statsValues.AvgDamageDealtToObjectives, statsValues.StdDevDamageDealtToObjectives = calcMeanStdDev(counters.MatchDamageDealtToObjectives, nil)
+		statsValues.AvgDamageDealtToObjectives, statsValues.StdDevDamageDealtToObjectives = calcMeanStdDevUint32(counters.MatchDamageDealtToObjectives, nil)
 		if math.IsNaN(statsValues.StdDevDamageDealtToObjectives) {
 			statsValues.StdDevDamageDealtToObjectives = 0
 		}
-		statsValues.AvgDamageDealtToTurrets, statsValues.StdDevDamageDealtToTurrets = calcMeanStdDev(counters.MatchDamageDealtToTurrets, nil)
+		statsValues.AvgDamageDealtToTurrets, statsValues.StdDevDamageDealtToTurrets = calcMeanStdDevUint32(counters.MatchDamageDealtToTurrets, nil)
 		if math.IsNaN(statsValues.StdDevDamageDealtToTurrets) {
 			statsValues.StdDevDamageDealtToTurrets = 0
 		}
-		statsValues.AvgTimeCCingOthers, statsValues.StdDevTimeCCingOthers = calcMeanStdDev(counters.MatchTimeCCingOthers, nil)
+		statsValues.AvgTimeCCingOthers, statsValues.StdDevTimeCCingOthers = calcMeanStdDevUint32(counters.MatchTimeCCingOthers, nil)
 		if math.IsNaN(statsValues.StdDevTimeCCingOthers) {
 			statsValues.StdDevTimeCCingOthers = 0
 		}
 	}
 
-	statsValues.MedianK, _ = calcMedian(counters.MatchKills, nil)
-	statsValues.MedianD, _ = calcMedian(counters.MatchDeaths, nil)
-	statsValues.MedianA, _ = calcMedian(counters.MatchAssists, nil)
+	statsValues.MedianK, _ = calcMedianUint16(counters.MatchKills, nil)
+	statsValues.MedianD, _ = calcMedianUint16(counters.MatchDeaths, nil)
+	statsValues.MedianA, _ = calcMedianUint16(counters.MatchAssists, nil)
 
 	wins := counters.Wins
 

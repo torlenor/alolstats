@@ -87,6 +87,28 @@ func TestCalcMeanStdDev(t *testing.T) {
 	}
 }
 
+func TestCalcMeanStdDevUint16(t *testing.T) {
+	values := []uint16{2, 2, 6, 6, 6, 6, 8, 10}
+	actualMean, actualStdDev := calcMeanStdDevUint16(values, nil)
+	if !almostEqual(actualMean, 5.75) {
+		t.Errorf("Result for mean is wrong, was = %f, should be = %f", actualMean, 5.75)
+	}
+	if !almostEqual(actualStdDev, 2.71240536372107) {
+		t.Errorf("Result for standard deviation is wrong")
+	}
+}
+
+func TestCalcMeanStdDevUint32(t *testing.T) {
+	values := []uint32{2, 2, 6, 6, 6, 6, 8, 10}
+	actualMean, actualStdDev := calcMeanStdDevUint32(values, nil)
+	if !almostEqual(actualMean, 5.75) {
+		t.Errorf("Result for mean is wrong, was = %f, should be = %f", actualMean, 5.75)
+	}
+	if !almostEqual(actualStdDev, 2.71240536372107) {
+		t.Errorf("Result for standard deviation is wrong")
+	}
+}
+
 func TestCalcMedian(t *testing.T) {
 	values := []float64{2, 2, 6, 6, 6, 6, 8, 10}
 	actualMedian, err := calcMedian(values, nil)
@@ -108,6 +130,58 @@ func TestCalcMedian(t *testing.T) {
 
 	values = []float64{}
 	actualMedian, err = calcMedian(values, nil)
+	if err == nil {
+		t.Errorf("Did not get error where we expected one")
+	}
+}
+
+func TestCalcMedianUint16(t *testing.T) {
+	values := []uint16{2, 2, 6, 6, 6, 6, 8, 10}
+	actualMedian, err := calcMedianUint16(values, nil)
+	if err != nil {
+		t.Errorf("Got error where we didn't expect one")
+	}
+	if !almostEqual(actualMedian, 6) {
+		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 6.0)
+	}
+
+	values = []uint16{3, 6, 7, 8, 8, 9, 10, 13, 15, 16, 20}
+	actualMedian, err = calcMedianUint16(values, nil)
+	if err != nil {
+		t.Errorf("Got error where we didn't expect one")
+	}
+	if !almostEqual(actualMedian, 9) {
+		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 9.0)
+	}
+
+	values = []uint16{}
+	actualMedian, err = calcMedianUint16(values, nil)
+	if err == nil {
+		t.Errorf("Did not get error where we expected one")
+	}
+}
+
+func TestCalcMedianUint32(t *testing.T) {
+	values := []uint32{2, 2, 6, 6, 6, 6, 8, 10}
+	actualMedian, err := calcMedianUint32(values, nil)
+	if err != nil {
+		t.Errorf("Got error where we didn't expect one")
+	}
+	if !almostEqual(actualMedian, 6) {
+		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 6.0)
+	}
+
+	values = []uint32{3, 6, 7, 8, 8, 9, 10, 13, 15, 16, 20}
+	actualMedian, err = calcMedianUint32(values, nil)
+	if err != nil {
+		t.Errorf("Got error where we didn't expect one")
+	}
+	if !almostEqual(actualMedian, 9) {
+		t.Errorf("Result for median is wrong, was = %f, should be = %f", actualMedian, 9.0)
+	}
+
+	values = []uint32{}
+	actualMedian, err = calcMedianUint32(values, nil)
 	if err == nil {
 		t.Errorf("Did not get error where we expected one")
 	}
