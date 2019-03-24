@@ -23,22 +23,34 @@ In this project we aim to improve on that by implementing a completely open sour
 various aspects of the game.
 
 Currently the focus of development lies in the calculation of Champion statistics, like lane/role, average KDA, win/loss ratios, ban ratios and various other aspects
-related to Champions. Furthermore, also summoner data shall be considered in the near future. In the current phase a lot of refactoring over the whole repository will happen on a regular basis to adapt to the requirements which come up during implementing the different statistics and Rest API features. The decisions on which features are tackled next are based on suggestions and requests by friends and colleagues and personal experiences while playing League of Legends and we are always open for suggestions on which feature to implement next.
+related to Champions. In the near future Summoner data shall also be considered. The decisions on which features are tackled next are based on suggestions and requests by friends and colleagues and personal experiences while playing League of Legends.
 
-The implementation is done in Go and plots or more complex statistical calculations will be performed in R. The data storage is interchangeable and currently
-a MongoDB backend is implemented and kept up to date to serve the fetching/calculation/RestAPI parts of the application.
+The implementation is done in Go with the possibility to use R for complex statistical calculations. The data storage is interchangeable and currently
+a MongoDB backend is supported.
 
-The Riot API client is implemented from scratch for this project and is currently based on V3 while preparations to switch to V4 are being made.
+The Riot API client is implemented from scratch for this project, including region support and rate limit handling, and is currently based on V4 of the Riot API.
+
+In combination with this backend a frontend called [ALoLstats-web](https://git.abyle.org/hps/alolstats-web) is also beeing developed.
+
+These projects are used to power [fuu.la](https://fuu.la).
 
 ## How to run it
 
-Probably the easiest way to try out ALoLstats is using Docker. To pull the latest version from DockerHub and start it just type
+Probably the easiest way to try out ALoLstats is using Docker. Currently no official images are provided in a public registry, but it can be easily built using
+
+```
+make build-container-gitcommit
+```
+
+and then start it using
 
 ```
 docker run --name ALoLstats -v /path/to/config/file.toml:/app/config/config.toml:ro hpsch/alolstats:latest
 ```
 
-where _/path/to/config/file.toml_ has to be replaced with the path to your config file. An example is provided in the cfg/ directory and it is enough to insert your API key to use this config.
+where _/path/to/config/file.toml_ has to be replaced with the path to your config file.
+
+An example is provided in the cfg/ directory and it is enough to insert your API key to use this config.
 
 To expose the http port for the REST API use
 ```
@@ -46,7 +58,7 @@ To expose the http port for the REST API use
 ```
 where 8000 should be exchanged with the port set in the config file.
 
-## API Reference
+## API Reference (usually out of date and highly in flux)
 
 The following endpoints are currently available. A detailed description will be provided at a later point when the API becomes more stable.
 
@@ -70,7 +82,6 @@ The following endpoints are currently available. A detailed description will be 
 * **/v1/stats/overview**: Temporary page which lists all available plots related to Champion statistics
 * **/v1/stats/champion/byid?id=championId&gameversion=exactGameVersion**: Returns stats for the Champion with id=championId and the specified game version (e.g., 110 and 8.24)
 * **/v1/stats/champion/byname?name=championName&gameversion=exactGameVersion**: Returns stats for the Champion with name=championName and the specified game version (e.g., Sivir and 8.24)
-* **/v1/stats/plots/champion/byname?name=championName&gameversion=exactGameVersion**: Returns a plot (if it exists) for the Champion with name=championName and the specified game version (e.g., Sivir and 8.24)
 
 ### ALoLStats related endpoints
 
