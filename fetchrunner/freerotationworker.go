@@ -27,7 +27,7 @@ func (f *FetchRunner) freeRotationWorker() {
 
 			f.storage.GetFreeRotation(true)
 
-			nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalSummonerMatches)
+			nextUpdate = time.Minute * time.Duration(f.config.UpdateIntervalFreeRotation)
 
 			elapsed := time.Since(start)
 			f.log.Infof("Finished FreeRotationWorker run. Took %s", elapsed)
