@@ -80,12 +80,15 @@ type StatsValues struct {
 }
 
 type ChampionStats struct {
-	ChampionID     uint64 `json:"championid"`
-	ChampionRealID string `json:"championrealid"`
-	ChampionName   string `json:"championname"`
-	GameVersion    string `json:"gameversion"`
+	ChampionID               uint64 `json:"championid"`
+	ChampionRealID           string `json:"championrealid"`
+	ChampionName             string `json:"championname"`
+	GameVersion              string `json:"gameversion"`
+	TotalGamesForGameVersion uint64 `json:"totalgamesforgameversion"`
 
 	Tier string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
 
 	Timestamp time.Time `json:"timestamp"`
 
@@ -113,6 +116,8 @@ type ChampionStatsStorage struct {
 	GameVersion  string `json:"gameversion"`
 
 	Tier string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
 
 	SampleSize uint64 `json:"samplesize"`
 
@@ -126,6 +131,8 @@ type ChampionStatsSummary struct {
 
 	GameVersion string `json:"gameversion"`
 	Tier        string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
 
 	Timestamp time.Time `json:"timestamp"`
 
@@ -148,6 +155,8 @@ type ChampionStatsSummaryStorage struct {
 
 	GameVersion string `json:"gameversion"`
 	Tier        string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
 }
 
 type ChampionStatsSingleHistory struct {
@@ -182,6 +191,8 @@ type ChampionStatsHistory struct {
 	ChampionName   string `json:"championname"`
 
 	Tier string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
 
 	Timestamp time.Time `json:"timestamp"`
 
@@ -190,9 +201,9 @@ type ChampionStatsHistory struct {
 	HistoryPeRrole map[string]ChampionStatsPerRoleSingleHistory `json:"historyperrole"`
 }
 
-// GetChampionStatsByIDGameVersionTier returns the Champion stats for a certain game version
-func (s *Storage) GetChampionStatsByIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStats, error) {
-	stats, err := s.backend.GetChampionStatsByChampionIDGameVersionTier(championID, gameVersion, tier)
+// GetChampionStatsByIDGameVersionTierQueue returns the Champion stats for a certain game version, tier and queue
+func (s *Storage) GetChampionStatsByIDGameVersionTierQueue(championID string, gameVersion string, tier string, queue string) (*ChampionStats, error) {
+	stats, err := s.backend.GetChampionStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue)
 	if err != nil {
 		s.log.Warnln("Could not get data from Storage Backend:", err)
 		return nil, err
@@ -214,7 +225,8 @@ func (s *Storage) StoreChampionStats(stats *ChampionStats) error {
 		ChampionName: stats.ChampionName,
 		GameVersion:  stats.GameVersion,
 
-		Tier: stats.Tier,
+		Tier:  stats.Tier,
+		Queue: stats.Queue,
 
 		SampleSize: stats.SampleSize,
 

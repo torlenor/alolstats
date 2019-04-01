@@ -6,12 +6,12 @@ import (
 	"github.com/torlenor/alolstats/storage"
 )
 
-func (sr *StatsRunner) generateChampionsSummary(gameVersion string, league string) (*storage.ChampionStatsSummaryStorage, error) {
+func (sr *StatsRunner) generateChampionsSummary(gameVersion, league, queue string) (*storage.ChampionStatsSummaryStorage, error) {
 	var championsStatsSummary storage.ChampionStatsSummaryStorage
 
 	champions := sr.storage.GetChampions(false)
 	for _, champ := range champions {
-		championStats, err := sr.storage.GetChampionStatsByIDGameVersionTier(champ.ID, gameVersion, league)
+		championStats, err := sr.storage.GetChampionStatsByIDGameVersionTierQueue(champ.ID, gameVersion, league, queue)
 		if err != nil {
 			continue
 		}

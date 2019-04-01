@@ -304,11 +304,7 @@ func (b *mockBackend) StoreChampionStats(data *ChampionStatsStorage) error {
 	return fmt.Errorf("Not implemented")
 }
 
-func (b *mockBackend) GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*ChampionStatsStorage, error) {
-	return nil, fmt.Errorf("Not implemented")
-}
-
-func (b *mockBackend) GetChampionStatsByChampionIDGameVersionTier(championID string, gameVersion string, tier string) (*ChampionStatsStorage, error) {
+func (b *mockBackend) GetChampionStatsByChampionIDGameVersionTierQueue(championID string, gameVersion string, tier string, queue string) (*ChampionStatsStorage, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
@@ -338,4 +334,12 @@ func (b *mockBackend) StoreChampionStatsSummary(statsSummary *ChampionStatsSumma
 
 func (b *mockBackend) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*ChampionStatsSummaryStorage, error) {
 	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetItemStatsByChampionIDGameVersion(championID, gameVersion string) (*ItemStatsStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) StoreItemStats(data *ItemStatsStorage) error {
+	return fmt.Errorf("Not implemented")
 }

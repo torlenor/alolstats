@@ -185,11 +185,7 @@ func (b *Backend) StoreChampionStats(data *storage.ChampionStatsStorage) error {
 	return fmt.Errorf("Not implemented")
 }
 
-func (b *Backend) GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*storage.ChampionStatsStorage, error) {
-	return nil, fmt.Errorf("Not implemented")
-}
-
-func (b *Backend) GetChampionStatsByChampionIDGameVersionTier(championID string, gameVersion string, tier string) (*storage.ChampionStatsStorage, error) {
+func (b *Backend) GetChampionStatsByChampionIDGameVersionTierQueue(championID string, gameVersion string, tier string, queue string) (*storage.ChampionStatsStorage, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
@@ -207,4 +203,12 @@ func (b *Backend) StoreChampionStatsSummary(statsSummary *storage.ChampionStatsS
 
 func (b *Backend) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*storage.ChampionStatsSummaryStorage, error) {
 	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) GetItemStatsByChampionIDGameVersion(championID, gameVersion string) (*storage.ItemStatsStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *Backend) StoreItemStats(statsStorage *storage.ItemStatsStorage) error {
+	return fmt.Errorf("Not implemented")
 }

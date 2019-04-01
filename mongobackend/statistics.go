@@ -9,53 +9,8 @@ import (
 	"github.com/torlenor/alolstats/storage"
 )
 
-// GetChampionStatsByChampionIDGameVersion returns all stats specific to a certain game version and champion id
-func (b *Backend) GetChampionStatsByChampionIDGameVersion(championID string, gameVersion string) (*storage.ChampionStatsStorage, error) {
-	c := b.client.Database(b.config.Database).Collection("championstats")
-
-	query := bson.D{
-		{
-			Key: "gameversion", Value: gameVersion,
-		},
-		{
-			Key: "championid", Value: championID,
-		},
-	}
-
-	cur, err := c.Find(
-		context.Background(), query)
-	if err != nil {
-		return nil, fmt.Errorf("No Champion Stats found for GameVersion %s and Champion ID %s: %s", gameVersion, championID, err)
-	}
-
-	defer cur.Close(context.Background())
-
-	stats := []storage.ChampionStatsStorage{}
-
-	for cur.Next(nil) {
-		stat := storage.ChampionStatsStorage{}
-		err := cur.Decode(&stat)
-		if err != nil {
-			b.log.Warnln("Decode error ", err)
-		}
-		stats = append(stats, stat)
-	}
-
-	if err := cur.Err(); err != nil {
-		b.log.Warnln("Cursor error ", err)
-	}
-
-	if len(stats) == 1 {
-		return &stats[0], nil
-	} else if len(stats) > 1 {
-		return nil, fmt.Errorf("Found one than more Champion Stats (namely %d) in storage backend", len(stats))
-	}
-
-	return nil, fmt.Errorf("Could not find statistics for Champion %s and Game Version %s", championID, gameVersion)
-}
-
-// GetChampionStatsByChampionIDGameVersionTier returns all stats specific to a certain game version, champion id and tier
-func (b *Backend) GetChampionStatsByChampionIDGameVersionTier(championID string, gameVersion string, tier string) (*storage.ChampionStatsStorage, error) {
+// GetChampionStatsByChampionIDGameVersionTierQueue returns all stats specific to a certain game version, champion id and tier and queue
+func (b *Backend) GetChampionStatsByChampionIDGameVersionTierQueue(championID string, gameVersion string, tier string, queue string) (*storage.ChampionStatsStorage, error) {
 	c := b.client.Database(b.config.Database).Collection("championstats")
 
 	query := bson.D{
@@ -68,6 +23,9 @@ func (b *Backend) GetChampionStatsByChampionIDGameVersionTier(championID string,
 		{
 			Key: "tier", Value: tier,
 		},
+		{
+			Key: "queue", Value: queue,
+		},
 	}
 
 	doc := c.FindOne(
@@ -79,7 +37,7 @@ func (b *Backend) GetChampionStatsByChampionIDGameVersionTier(championID string,
 	stat := storage.ChampionStatsStorage{}
 	err := doc.Decode(&stat)
 	if err != nil {
-		return nil, fmt.Errorf("Decode error when trying to Decode Champion Stats for Champion ID %s, GameVersion %s and Tier %s: %s", championID, gameVersion, tier, err)
+		return nil, fmt.Errorf("Decode error when trying to Decode Champion Stats for Champion ID %s, GameVersion %s, Tier %s and Queue %s: %s", championID, gameVersion, tier, queue, err)
 	}
 
 	return &stat, nil
@@ -96,6 +54,7 @@ func (b *Backend) StoreChampionStats(data *storage.ChampionStatsStorage) error {
 		{Key: "championid", Value: data.ChampionID},
 		{Key: "gameversion", Value: data.GameVersion},
 		{Key: "tier", Value: data.Tier},
+		{Key: "queue", Value: data.Queue},
 	}
 	update := bson.D{{Key: "$set", Value: data}}
 
@@ -145,6 +104,7 @@ func (b *Backend) StoreChampionStatsSummary(data *storage.ChampionStatsSummarySt
 	query := bson.D{
 		{Key: "gameversion", Value: data.GameVersion},
 		{Key: "tier", Value: data.Tier},
+		{Key: "queue", Value: data.Queue},
 	}
 	update := bson.D{{Key: "$set", Value: data}}
 

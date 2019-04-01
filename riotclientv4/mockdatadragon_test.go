@@ -3,6 +3,7 @@ package riotclientv4
 // MockRiotClientDD Mock of Riot LoL API DataDragon client
 type MockRiotClientDD struct {
 	championsJSON []byte
+	itemJSON      []byte
 	err           error
 }
 
@@ -13,6 +14,15 @@ func (c *MockRiotClientDD) GetDataDragonChampions() ([]byte, error) {
 	}
 
 	return c.championsJSON, nil
+}
+
+// GetDataDragonItemsSpecificVersionLanguage returns the items for a specific gameVersion and langauge
+func (c *MockRiotClientDD) GetDataDragonItemsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
+	if c.err != nil {
+		return []byte(""), c.err
+	}
+
+	return c.itemJSON, nil
 }
 
 func (c *MockRiotClientDD) GetLoLVersions() ([]byte, error) {
