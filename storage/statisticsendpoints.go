@@ -184,6 +184,8 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 
 	championStatsHistory := ChampionStatsHistory{}
 	championStatsHistory.HistoryPeRrole = make(map[string]ChampionStatsPerRoleSingleHistory)
+
+	hasHistory := false
 	for _, gameVersion := range gameVersions.Versions {
 		championStats, err := s.GetChampionStatsByIDGameVersionTierQueue(champID, gameVersion, tier, queue)
 		if err != nil {
@@ -191,7 +193,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		}
 
 		if championStats.SampleSize == 0 {
-			s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s: Skipping Game Version %s, no data", champID, tier, gameVersion)
+			s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s and Queue %s: Skipping Game Version %s, no data", champID, tier, queue, gameVersion)
 			continue
 		}
 
@@ -210,7 +212,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 			currentRoleStatsHistory := championStatsHistory.HistoryPeRrole[role]
 
 			if stats.SampleSize == 0 {
-				s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s: Skipping Role %s, no data", champID, tier, role)
+				s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s and Queue %s: Skipping Role %s, no data", champID, tier, queue, role)
 				continue
 			}
 
@@ -230,10 +232,17 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		championStatsHistory.ChampionID = championStats.ChampionID
 		championStatsHistory.ChampionName = championStats.ChampionName
 		championStatsHistory.ChampionRealID = championStats.ChampionRealID
+		hasHistory = true
 	}
 
 	championStatsHistory.Tier = tier
 	championStatsHistory.Timestamp = time.Now()
+
+	if !hasHistory {
+		s.log.Errorf("Error in championStatsHistoryByID with request %s: No History Data available", r.URL.String())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	out, err := json.Marshal(championStatsHistory)
 	if err != nil {
