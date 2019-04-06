@@ -223,7 +223,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					}
 					gameVersion := fmt.Sprintf("%d.%d", version[0], version[1])
 					majorMinor := fmt.Sprintf("%d\\.%d\\.", version[0], version[1])
-					sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s and Queue %s started", gameVersion, queue)
+					sr.log.Infof("Calculation for Game Version %s and Queue %s started", gameVersion, queue)
 
 					// Prepare championsCountersPerTier
 					champsCountersPerTier := make(championsCountersPerTier)
@@ -348,7 +348,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					}
 
 					cur.Close()
-					sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s and Queue %s done. Analyzed %d matches", gameVersion, queue, cnt)
+					sr.log.Infof("Calculation for Game Version %s and Queue %s done. Analyzed %d matches", gameVersion, queue, cnt)
 				}
 			}
 
