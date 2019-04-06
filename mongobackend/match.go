@@ -420,3 +420,38 @@ func (b *Backend) GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion st
 
 	return &matchCursor, nil
 }
+
+// GetMatchesCursorByGameVersionMapQueueID returns cursor to matches specific to a certain game version, map id and queue id
+func (b *Backend) GetMatchesCursorByGameVersionMapQueueID(gameVersion string, mapID uint64, queueID uint64) (storage.QueryCursor, error) {
+	c := b.client.Database(b.config.Database).Collection("matches")
+
+	query := bson.D{
+		{
+			Key: "gameversion",
+			Value: bson.D{
+				{Key: "$regex", Value: "^" + gameVersion},
+			},
+		},
+		{
+			Key:   "mapid",
+			Value: mapID,
+		},
+		{
+			Key:   "queueid",
+			Value: queueID,
+		},
+	}
+
+	cur, err := c.Find(
+		context.Background(), query)
+	if err != nil {
+		return nil, fmt.Errorf("Error finding matches for GameVersion %s, Map ID %d, Queue ID  %d: %s", gameVersion, mapID, queueID, err)
+	}
+
+	matchCursor := MatchCursor{
+		cur: cur,
+		ctx: context.Background(),
+	}
+
+	return &matchCursor, nil
+}

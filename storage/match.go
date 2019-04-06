@@ -98,6 +98,11 @@ func (s *Storage) GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion st
 	return s.backend.GetMatchesCursorByGameVersionMapBetweenQueueIDs(gameVersion, mapID, ltequeue, gtequeue)
 }
 
+// GetMatchesCursorByGameVersionMapQueueID returns cursor to matches specific to a certain game version
+func (s *Storage) GetMatchesCursorByGameVersionMapQueueID(gameVersion string, mapID uint64, queueid uint64) (QueryCursor, error) {
+	return s.backend.GetMatchesCursorByGameVersionMapQueueID(gameVersion, mapID, queueid)
+}
+
 // getMatchesByAccountIDFromClient gets all match references for a specified Account ID and startIndex, endIndex
 func (s *Storage) getMatchesByAccountIDFromClient(client riotclient.Client, accountID string, beginIndex uint32, endIndex uint32) (*riotclient.MatchlistDTO, error) {
 	beginIndexStr := strconv.FormatInt(int64(beginIndex), 10)

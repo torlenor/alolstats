@@ -212,9 +212,6 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 			mapID := uint64(11)
 
 			for queueID, queue := range queueIDtoQueue {
-				highQueueID := uint64(queueID)
-				lowQueueID := uint64(queueID)
-
 				for _, versionStr := range sr.config.GameVersion {
 					if sr.shouldWorkersStop {
 						return
@@ -235,7 +232,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					totalGamesForGameVersion := uint64(0)
 					totalGamesForGameVersionTier := make(map[string]uint64)
 
-					cur, err := sr.storage.GetMatchesCursorByGameVersionMapBetweenQueueIDs(majorMinor, mapID, highQueueID, lowQueueID)
+					cur, err := sr.storage.GetMatchesCursorByGameVersionMapQueueID(majorMinor, mapID, queueID)
 					if err != nil {
 						sr.log.Errorf("Error performing matchAnalysisWorker calculation for Game Version %s: %s", gameVersion, err)
 						continue
@@ -249,7 +246,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 							continue
 						}
 
-						if currentMatch.MapID != 11 || currentMatch.QueueID < int(lowQueueID) || currentMatch.QueueID > int(highQueueID) {
+						if currentMatch.MapID != 11 || currentMatch.QueueID != int(queueID) {
 							sr.log.Warnf("Found match which should not have been returned from storage, skipping...")
 							continue
 						}
