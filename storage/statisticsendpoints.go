@@ -84,6 +84,7 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API ChampionsStats request from", r.RemoteAddr)
 	var gameVersion string
 	var tier string
+	var queue string
 
 	if val, ok := r.URL.Query()["gameversion"]; ok {
 		if len(val) == 0 {
@@ -106,8 +107,17 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	} else {
 		tier = "ALL"
 	}
+	if val, ok := r.URL.Query()["queue"]; ok {
+		if len(val) == 0 {
+			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
+			queue = "ALL"
+		}
+		queue = val[0]
+	} else {
+		queue = "ALL"
+	}
 
-	statsSummary, err := s.GetChampionStatsSummaryByGameVersionTier(gameVersion, tier)
+	statsSummary, err := s.GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue)
 	if err != nil {
 		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

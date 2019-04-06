@@ -353,8 +353,6 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					cur.Close()
 					sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s and Queue %s done. Analyzed %d matches", gameVersion, queue, cnt)
 				}
-
-				// TODO: Combine all queue stats into one queue = ALL stat
 			}
 
 			gameVersions := storage.GameVersions{}
@@ -375,12 +373,14 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 			leas := leagues{Leagues: []string{"All", "Master", "Diamond", "Platinum", "Gold", "Silver", "Bronze"}}
 			for _, gameVersion := range gameVersions.Versions {
 				for _, tier := range leas.Leagues {
-					statsSummary, err := sr.generateChampionsSummary(gameVersion, strings.ToUpper(tier), "ALL")
-					if err != nil {
-						sr.log.Errorf("Error generating statistics summary: %s", err)
-						continue
+					for _, queue := range queueIDtoQueue {
+						statsSummary, err := sr.generateChampionsSummary(gameVersion, strings.ToUpper(tier), queue)
+						if err != nil {
+							sr.log.Errorf("Error generating statistics summary: %s", err)
+							continue
+						}
+						sr.storage.StoreChampionStatsSummary(statsSummary)
 					}
-					sr.storage.StoreChampionStatsSummary(statsSummary)
 				}
 			}
 
@@ -412,6 +412,22 @@ func (sr *StatsRunner) combineChampionStats(champID string, gameVersion string, 
 	return nil, nil
 }
 
+func doMeanStdDevCalcUint32(values []uint32) (mean, stdDev float64) {
+	mean, stdDev = calcMeanStdDevUint32(values, nil)
+	if math.IsNaN(stdDev) {
+		stdDev = 0
+	}
+	return
+}
+
+func doMeanStdDevCalcUint16(values []uint16) (mean, stdDev float64) {
+	mean, stdDev = calcMeanStdDevUint16(values, nil)
+	if math.IsNaN(stdDev) {
+		stdDev = 0
+	}
+	return
+}
+
 func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32, minorVersion uint32, totalGamesForGameVersion uint64, champCounters *championCounters) (*storage.ChampionStats, error) {
 
 	gameVersion := fmt.Sprintf("%d.%d", majorVersion, minorVersion)
@@ -422,87 +438,27 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	championStats.SampleSize = champCounters.TotalPicks
 	championStats.TotalGamesForGameVersion = totalGamesForGameVersion
 
-	championStats.AvgK, championStats.StdDevK = calcMeanStdDevUint16(champCounters.MatchKills, nil)
-	if math.IsNaN(championStats.StdDevK) {
-		championStats.StdDevK = 0
-	}
-	championStats.AvgD, championStats.StdDevD = calcMeanStdDevUint16(champCounters.MatchDeaths, nil)
-	if math.IsNaN(championStats.StdDevD) {
-		championStats.StdDevD = 0
-	}
-	championStats.AvgA, championStats.StdDevA = calcMeanStdDevUint16(champCounters.MatchAssists, nil)
-	if math.IsNaN(championStats.StdDevA) {
-		championStats.StdDevA = 0
-	}
+	championStats.AvgK, championStats.StdDevK = doMeanStdDevCalcUint16(champCounters.MatchKills)
+	championStats.AvgD, championStats.StdDevD = doMeanStdDevCalcUint16(champCounters.MatchDeaths)
+	championStats.AvgA, championStats.StdDevA = doMeanStdDevCalcUint16(champCounters.MatchAssists)
 
-	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = calcMeanStdDevUint32(champCounters.MatchGoldEarned, nil)
-	if math.IsNaN(championStats.StdDevGoldEarned) {
-		championStats.StdDevGoldEarned = 0
-	}
-	championStats.AvgTotalMinionsKilled, championStats.StdDevTotalMinionsKilled = calcMeanStdDevUint32(champCounters.MatchTotalMinionsKilled, nil)
-	if math.IsNaN(championStats.StdDevTotalMinionsKilled) {
-		championStats.StdDevTotalMinionsKilled = 0
-	}
-	championStats.AvgTotalDamageDealt, championStats.StdDevTotalDamageDealt = calcMeanStdDevUint32(champCounters.MatchTotalDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevTotalDamageDealt) {
-		championStats.StdDevTotalDamageDealt = 0
-	}
-	championStats.AvgTotalDamageDealtToChampions, championStats.StdDevTotalDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchTotalDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevTotalDamageDealtToChampions) {
-		championStats.StdDevTotalDamageDealtToChampions = 0
-	}
-	championStats.AvgTotalDamageTaken, championStats.StdDevTotalDamageTaken = calcMeanStdDevUint32(champCounters.MatchTotalDamageTaken, nil)
-	if math.IsNaN(championStats.StdDevTotalDamageTaken) {
-		championStats.StdDevTotalDamageTaken = 0
-	}
-	championStats.AvgMagicDamageDealt, championStats.StdDevMagicDamageDealt = calcMeanStdDevUint32(champCounters.MatchMagicDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevMagicDamageDealt) {
-		championStats.StdDevMagicDamageDealt = 0
-	}
-	championStats.AvgMagicDamageDealtToChampions, championStats.StdDevMagicDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchMagicDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevMagicDamageDealtToChampions) {
-		championStats.StdDevMagicDamageDealtToChampions = 0
-	}
-	championStats.AvgPhysicalDamageDealt, championStats.StdDevPhysicalDamageDealt = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevPhysicalDamageDealt) {
-		championStats.StdDevPhysicalDamageDealt = 0
-	}
-	championStats.AvgPhysicalDamageDealtToChampions, championStats.StdDevPhysicalDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevPhysicalDamageDealtToChampions) {
-		championStats.StdDevPhysicalDamageDealtToChampions = 0
-	}
-	championStats.AvgPhysicalDamageTaken, championStats.StdDevPhysicalDamageTaken = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageTaken, nil)
-	if math.IsNaN(championStats.StdDevPhysicalDamageTaken) {
-		championStats.StdDevPhysicalDamageTaken = 0
-	}
-	championStats.AvgTrueDamageDealt, championStats.StdDevTrueDamageDealt = calcMeanStdDevUint32(champCounters.MatchTrueDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevTrueDamageDealt) {
-		championStats.StdDevTrueDamageDealt = 0
-	}
-	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchTrueDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevTrueDamageDealtToChampions) {
-		championStats.StdDevTrueDamageDealtToChampions = 0
-	}
-	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = calcMeanStdDevUint32(champCounters.MatchTrueDamageTaken, nil)
-	if math.IsNaN(championStats.StdDevTrueDamageTaken) {
-		championStats.StdDevTrueDamageTaken = 0
-	}
-	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = calcMeanStdDevUint32(champCounters.MatchTotalHeal, nil)
-	if math.IsNaN(championStats.StdDevTotalHeal) {
-		championStats.StdDevTotalHeal = 0
-	}
-	championStats.AvgDamageDealtToObjectives, championStats.StdDevDamageDealtToObjectives = calcMeanStdDevUint32(champCounters.MatchDamageDealtToObjectives, nil)
-	if math.IsNaN(championStats.StdDevDamageDealtToObjectives) {
-		championStats.StdDevDamageDealtToObjectives = 0
-	}
-	championStats.AvgDamageDealtToTurrets, championStats.StdDevDamageDealtToTurrets = calcMeanStdDevUint32(champCounters.MatchDamageDealtToTurrets, nil)
-	if math.IsNaN(championStats.StdDevDamageDealtToTurrets) {
-		championStats.StdDevDamageDealtToTurrets = 0
-	}
-	championStats.AvgTimeCCingOthers, championStats.StdDevTimeCCingOthers = calcMeanStdDevUint32(champCounters.MatchTimeCCingOthers, nil)
-	if math.IsNaN(championStats.StdDevTimeCCingOthers) {
-		championStats.StdDevTimeCCingOthers = 0
-	}
+	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = doMeanStdDevCalcUint32(champCounters.MatchGoldEarned)
+	championStats.AvgTotalMinionsKilled, championStats.StdDevTotalMinionsKilled = doMeanStdDevCalcUint32(champCounters.MatchTotalMinionsKilled)
+	championStats.AvgTotalDamageDealt, championStats.StdDevTotalDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchTotalDamageDealt)
+	championStats.AvgTotalDamageDealtToChampions, championStats.StdDevTotalDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchTotalDamageDealtToChampions)
+	championStats.AvgTotalDamageTaken, championStats.StdDevTotalDamageTaken = doMeanStdDevCalcUint32(champCounters.MatchTotalDamageTaken)
+	championStats.AvgMagicDamageDealt, championStats.StdDevMagicDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchMagicDamageDealt)
+	championStats.AvgMagicDamageDealtToChampions, championStats.StdDevMagicDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchMagicDamageDealtToChampions)
+	championStats.AvgPhysicalDamageDealt, championStats.StdDevPhysicalDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchPhysicalDamageDealt)
+	championStats.AvgPhysicalDamageDealtToChampions, championStats.StdDevPhysicalDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchPhysicalDamageDealtToChampions)
+	championStats.AvgPhysicalDamageTaken, championStats.StdDevPhysicalDamageTaken = doMeanStdDevCalcUint32(champCounters.MatchPhysicalDamageTaken)
+	championStats.AvgTrueDamageDealt, championStats.StdDevTrueDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchTrueDamageDealt)
+	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchTrueDamageDealtToChampions)
+	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = doMeanStdDevCalcUint32(champCounters.MatchTrueDamageTaken)
+	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = doMeanStdDevCalcUint32(champCounters.MatchTotalHeal)
+	championStats.AvgDamageDealtToObjectives, championStats.StdDevDamageDealtToObjectives = doMeanStdDevCalcUint32(champCounters.MatchDamageDealtToObjectives)
+	championStats.AvgDamageDealtToTurrets, championStats.StdDevDamageDealtToTurrets = doMeanStdDevCalcUint32(champCounters.MatchDamageDealtToTurrets)
+	championStats.AvgTimeCCingOthers, championStats.StdDevTimeCCingOthers = doMeanStdDevCalcUint32(champCounters.MatchTimeCCingOthers)
 
 	championStats.MedianK, _ = calcMedianUint16(champCounters.MatchKills, nil)
 	championStats.MedianD, _ = calcMedianUint16(champCounters.MatchDeaths, nil)
@@ -527,30 +483,19 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 
 	if totalGamesForGameVersion > 0 {
 		championStats.BanRate = float64(champCounters.TotalBans) / float64(totalGamesForGameVersion)
-	} else {
-		championStats.BanRate = 0
-	}
-
-	if totalGamesForGameVersion > 0 {
 		championStats.PickRate = float64(champCounters.TotalPicks) / float64(totalGamesForGameVersion)
 	} else {
+		championStats.BanRate = 0
 		championStats.PickRate = 0
 	}
 
-	topWins := uint64(0)
-	topLosses := uint64(0)
-	midWins := uint64(0)
-	midLosses := uint64(0)
-	jungleWins := uint64(0)
-	jungleLosses := uint64(0)
-	botCarryWins := uint64(0)
-	botCarryLosses := uint64(0)
-	botSupportWins := uint64(0)
-	botSupportLosses := uint64(0)
-	botUnknownWins := uint64(0)
-	botUnknownLosses := uint64(0)
-	unknownWins := uint64(0)
-	unknownLosses := uint64(0)
+	var topWins, topLosses,
+		midWins, midLosses,
+		jungleWins, jungleLosses,
+		botCarryWins, botCarryLosses,
+		botSupportWins, botSupportLosses,
+		botUnknownWins, botUnknownLosses,
+		unknownWins, unknownLosses uint64
 
 	for key, lane := range champCounters.PerRole {
 		if key == "TOP" {
@@ -830,35 +775,14 @@ func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) storage.Sta
 	statsValues.SampleSize = counters.Picks
 
 	if (counters.Picks) > 1 {
-		statsValues.AvgK, statsValues.StdDevK = calcMeanStdDevUint16(counters.MatchKills, nil)
-		if math.IsNaN(statsValues.StdDevK) {
-			statsValues.StdDevK = 0
-		}
-		statsValues.AvgD, statsValues.StdDevD = calcMeanStdDevUint16(counters.MatchDeaths, nil)
-		if math.IsNaN(statsValues.StdDevD) {
-			statsValues.StdDevD = 0
-		}
-		statsValues.AvgA, statsValues.StdDevA = calcMeanStdDevUint16(counters.MatchAssists, nil)
-		if math.IsNaN(statsValues.StdDevA) {
-			statsValues.StdDevA = 0
-		}
+		statsValues.AvgK, statsValues.StdDevK = doMeanStdDevCalcUint16(counters.MatchKills)
+		statsValues.AvgD, statsValues.StdDevD = doMeanStdDevCalcUint16(counters.MatchDeaths)
+		statsValues.AvgA, statsValues.StdDevA = doMeanStdDevCalcUint16(counters.MatchAssists)
 
-		statsValues.AvgGoldEarned, statsValues.StdDevGoldEarned = calcMeanStdDevUint32(counters.MatchGoldEarned, nil)
-		if math.IsNaN(statsValues.StdDevGoldEarned) {
-			statsValues.StdDevGoldEarned = 0
-		}
-		statsValues.AvgTotalMinionsKilled, statsValues.StdDevTotalMinionsKilled = calcMeanStdDevUint32(counters.MatchTotalMinionsKilled, nil)
-		if math.IsNaN(statsValues.StdDevTotalMinionsKilled) {
-			statsValues.StdDevTotalMinionsKilled = 0
-		}
-		statsValues.AvgTotalDamageDealt, statsValues.StdDevTotalDamageDealt = calcMeanStdDevUint32(counters.MatchTotalDamageDealt, nil)
-		if math.IsNaN(statsValues.StdDevTotalDamageDealt) {
-			statsValues.StdDevTotalDamageDealt = 0
-		}
-		statsValues.AvgTotalDamageDealtToChampions, statsValues.StdDevTotalDamageDealtToChampions = calcMeanStdDevUint32(counters.MatchTotalDamageDealtToChampions, nil)
-		if math.IsNaN(statsValues.StdDevTotalDamageDealtToChampions) {
-			statsValues.StdDevTotalDamageDealtToChampions = 0
-		}
+		statsValues.AvgGoldEarned, statsValues.StdDevGoldEarned = doMeanStdDevCalcUint32(counters.MatchGoldEarned)
+		statsValues.AvgTotalMinionsKilled, statsValues.StdDevTotalMinionsKilled = doMeanStdDevCalcUint32(counters.MatchTotalMinionsKilled)
+		statsValues.AvgTotalDamageDealt, statsValues.StdDevTotalDamageDealt = doMeanStdDevCalcUint32(counters.MatchTotalDamageDealt)
+		statsValues.AvgTotalDamageDealtToChampions, statsValues.StdDevTotalDamageDealtToChampions = doMeanStdDevCalcUint32(counters.MatchTotalDamageDealtToChampions)
 		statsValues.AvgTotalDamageTaken, statsValues.StdDevTotalDamageTaken = calcMeanStdDevUint32(counters.MatchTotalDamageTaken, nil)
 		if math.IsNaN(statsValues.StdDevTotalDamageTaken) {
 			statsValues.StdDevTotalDamageTaken = 0

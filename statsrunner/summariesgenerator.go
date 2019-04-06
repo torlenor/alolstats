@@ -32,6 +32,8 @@ func (sr *StatsRunner) generateChampionsSummary(gameVersion, league, queue strin
 
 			summary.GameVersion = gameVersion
 			summary.Tier = league
+			summary.Queue = queue
+
 			summary.Timestamp = time.Now()
 
 			championsStatsSummary.ChampionsStatsSummary = append(championsStatsSummary.ChampionsStatsSummary, summary)
@@ -40,6 +42,7 @@ func (sr *StatsRunner) generateChampionsSummary(gameVersion, league, queue strin
 
 	championsStatsSummary.GameVersion = gameVersion
 	championsStatsSummary.Tier = league
+	championsStatsSummary.Queue = queue
 
 	return &championsStatsSummary, nil
 }

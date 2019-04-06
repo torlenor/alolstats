@@ -81,10 +81,10 @@ type BackendInternals interface {
 
 // BackendStats defines an interface to retrieve stored statistics from Backend
 type BackendStats interface {
-	GetChampionStatsByChampionIDGameVersionTierQueue(championID string, gameVersion string, tier string, queue string) (*ChampionStatsStorage, error)
+	GetChampionStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*ChampionStatsStorage, error)
 	StoreChampionStats(stats *ChampionStatsStorage) error
 
-	GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*ChampionStatsSummaryStorage, error)
+	GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue string) (*ChampionStatsSummaryStorage, error)
 	StoreChampionStatsSummary(statsSummary *ChampionStatsSummaryStorage) error
 
 	GetItemStatsByChampionIDGameVersion(championID, gameVersion string) (*ItemStatsStorage, error)

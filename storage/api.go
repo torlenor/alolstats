@@ -34,6 +34,7 @@ func (s *Storage) registerAPIStats(api *api.API) {
 	api.AttachModuleGet("/stats/champions", s.championStats)
 	api.AttachModuleGet("/stats/versions", s.getKnownVersionsEndpoint)
 	api.AttachModuleGet("/stats/leagues", s.getStatLeaguesEndpoint)
+	api.AttachModuleGet("/stats/queues", s.getStatQueuesEndpoint)
 }
 
 // RegisterAPI registers all endpoints from storage to the RestAPI

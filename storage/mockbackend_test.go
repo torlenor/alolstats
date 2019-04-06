@@ -332,7 +332,7 @@ func (b *mockBackend) StoreChampionStatsSummary(statsSummary *ChampionStatsSumma
 	return fmt.Errorf("Not implemented")
 }
 
-func (b *mockBackend) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*ChampionStatsSummaryStorage, error) {
+func (b *mockBackend) GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue string) (*ChampionStatsSummaryStorage, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 

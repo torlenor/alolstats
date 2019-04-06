@@ -10,22 +10,14 @@ import (
 )
 
 // GetChampionStatsByChampionIDGameVersionTierQueue returns all stats specific to a certain game version, champion id and tier and queue
-func (b *Backend) GetChampionStatsByChampionIDGameVersionTierQueue(championID string, gameVersion string, tier string, queue string) (*storage.ChampionStatsStorage, error) {
+func (b *Backend) GetChampionStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*storage.ChampionStatsStorage, error) {
 	c := b.client.Database(b.config.Database).Collection("championstats")
 
 	query := bson.D{
-		{
-			Key: "championid", Value: championID,
-		},
-		{
-			Key: "gameversion", Value: gameVersion,
-		},
-		{
-			Key: "tier", Value: tier,
-		},
-		{
-			Key: "queue", Value: queue,
-		},
+		{Key: "championid", Value: championID},
+		{Key: "gameversion", Value: gameVersion},
+		{Key: "tier", Value: tier},
+		{Key: "queue", Value: queue},
 	}
 
 	doc := c.FindOne(
@@ -66,29 +58,26 @@ func (b *Backend) StoreChampionStats(data *storage.ChampionStatsStorage) error {
 	return nil
 }
 
-// GetChampionStatsSummaryByGameVersionTier returns the stats summary for a specific game version and tier
-func (b *Backend) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*storage.ChampionStatsSummaryStorage, error) {
+// GetChampionStatsSummaryByGameVersionTierQueue returns the stats summary for a specific game version, queue and tier
+func (b *Backend) GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue string) (*storage.ChampionStatsSummaryStorage, error) {
 	c := b.client.Database(b.config.Database).Collection("championstatssummary")
 
 	query := bson.D{
-		{
-			Key: "gameversion", Value: gameVersion,
-		},
-		{
-			Key: "tier", Value: tier,
-		},
+		{Key: "gameversion", Value: gameVersion},
+		{Key: "tier", Value: tier},
+		{Key: "queue", Value: queue},
 	}
 
 	doc := c.FindOne(
 		context.Background(), query)
 	if doc == nil {
-		return nil, fmt.Errorf("No Champion Stats Summary found for GameVersion %s and Tier %s", gameVersion, tier)
+		return nil, fmt.Errorf("No Champion Stats Summary found for GameVersion %s, Queue %s and Tier %s", gameVersion, queue, tier)
 	}
 
 	stat := storage.ChampionStatsSummaryStorage{}
 	err := doc.Decode(&stat)
 	if err != nil {
-		return nil, fmt.Errorf("Decode error when trying to Decode Champion Stats Summary for GameVersion %s and Tier %s: %s", gameVersion, tier, err)
+		return nil, fmt.Errorf("Decode error when trying to Decode Champion Stats Summary for GameVersion %s, Queue %s and Tier %s: %s", gameVersion, queue, tier, err)
 	}
 
 	return &stat, nil

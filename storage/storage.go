@@ -158,3 +158,24 @@ func (s *Storage) getStatLeaguesEndpoint(w http.ResponseWriter, r *http.Request)
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 }
+
+func (s *Storage) getStatQueuesEndpoint(w http.ResponseWriter, r *http.Request) {
+	s.log.Debugln("Received Rest API StatQueues request from", r.RemoteAddr)
+
+	type queues struct {
+		Queues []string `json:"queues"`
+	}
+
+	que := queues{Queues: []string{"RANKED_SOLO", "RANKED_FLEX", "NORMAL_BLIND", "NORMAL_DRAFT"}}
+
+	out, err := json.Marshal(que)
+	if err != nil {
+		s.log.Errorln(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	io.WriteString(w, string(out))
+
+	atomic.AddUint64(&s.stats.handledRequests, 1)
+}

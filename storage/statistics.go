@@ -247,9 +247,9 @@ func (s *Storage) GetKnownGameVersions() (*GameVersions, error) {
 	return s.backend.GetKnownGameVersions()
 }
 
-// GetChampionStatsSummaryByGameVersionTier returns the Champion stats for a certain game version
-func (s *Storage) GetChampionStatsSummaryByGameVersionTier(gameVersion string, tier string) (*ChampionStatsSummaryStorage, error) {
-	stats, err := s.backend.GetChampionStatsSummaryByGameVersionTier(gameVersion, tier)
+// GetChampionStatsSummaryByGameVersionTierQueue returns the Champion stats for a certain game version, tier and queue
+func (s *Storage) GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue string) (*ChampionStatsSummaryStorage, error) {
+	stats, err := s.backend.GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue)
 	if err != nil {
 		s.log.Warnln("Could not get data from Storage Backend:", err)
 		return nil, err
