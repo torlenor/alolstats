@@ -14,7 +14,7 @@ import (
 
 var fallbackGameVersion = "9.4"
 var fallbackTier = "ALL"
-var fallbackQueue = "ALL"
+var fallbackQueue = "RANKED_SOLO"
 
 func checkParamterForceUpdate(values url.Values) bool {
 	if val, ok := values["forceupdate"]; ok {

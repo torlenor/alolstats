@@ -53,11 +53,11 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 	if val, ok := r.URL.Query()["queue"]; ok {
 		if len(val) == 0 {
 			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
-			queue = "ALL"
+			queue = "RANKED_SOLO"
 		}
 		queue = val[0]
 	} else {
-		queue = "ALL"
+		queue = "RANKED_SOLO"
 	}
 
 	championStats, err := s.GetChampionStatsByIDGameVersionTierQueue(champID, gameVersion, tier, queue)
@@ -110,11 +110,11 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	if val, ok := r.URL.Query()["queue"]; ok {
 		if len(val) == 0 {
 			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
-			queue = "ALL"
+			queue = "RANKED_SOLO"
 		}
 		queue = val[0]
 	} else {
-		queue = "ALL"
+		queue = "RANKED_SOLO"
 	}
 
 	statsSummary, err := s.GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue)
@@ -168,11 +168,11 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 	if val, ok := r.URL.Query()["queue"]; ok {
 		if len(val) == 0 {
 			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
-			queue = "ALL"
+			queue = "RANKED_SOLO"
 		}
 		queue = val[0]
 	} else {
-		queue = "ALL"
+		queue = "RANKED_SOLO"
 	}
 
 	gameVersions, err := s.GetKnownGameVersions()
