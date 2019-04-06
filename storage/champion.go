@@ -33,7 +33,7 @@ func (s *Storage) GetChampions(forceUpdate bool) riotclient.ChampionsList {
 	if err != nil {
 		champions, errClient := s.riotClient.Champions()
 		if errClient != nil {
-			s.log.Warnln(err)
+			s.log.Warnln(errClient)
 			return nil
 		}
 		s.log.Warnln("Could not get Champions from storage backend, returning from Client instead:", err)

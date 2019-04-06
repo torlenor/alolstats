@@ -13,7 +13,6 @@ import (
 	"github.com/torlenor/alolstats/config"
 	"github.com/torlenor/alolstats/fetchrunner"
 	"github.com/torlenor/alolstats/logging"
-	"github.com/torlenor/alolstats/memorybackend"
 	"github.com/torlenor/alolstats/mongobackend"
 	"github.com/torlenor/alolstats/riotclient"
 	"github.com/torlenor/alolstats/riotclientv4"
@@ -64,13 +63,6 @@ func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
 	backendName := strings.ToLower(cfg.Backend)
 
 	switch backendName {
-	case "memory":
-		backend, err := memorybackend.NewBackend()
-		if err != nil {
-			log.Errorln("Error creating the Memory Storage Backend:" + err.Error())
-			return nil, err
-		}
-		return backend, nil
 	case "mongo":
 		fallthrough
 	case "mongodb":

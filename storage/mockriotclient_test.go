@@ -158,3 +158,7 @@ func (c *mockClient) MatchTimeLineByID(matchID uint64) (t *riotclient.MatchTimel
 func (c *mockClient) SummonerByPUUID(PUUID string) (s *riotclient.SummonerDTO, err error) {
 	return nil, fmt.Errorf("Not implemented")
 }
+
+func (c *mockClient) Items(gameVersion, language string) (*riotclient.ItemList, error) {
+	return nil, fmt.Errorf("Not implemented")
+}

@@ -26,7 +26,7 @@
     DefaultRiotClient = "euw1" # Specifies a default RiotClient for use if not otherwise specified in requests or function calls
 
 [StorageBackend]
-	Backend = "mongo" # Name of the storage backend to use (e.g., memory, mongo)
+	Backend = "mongo" # Name of the storage backend to use (e.g., mongo)
 
     [StorageBackend.MongoBackend] # MongoBackend specific settings
         URL = "mongodb://user1:test@localhost/testdb" # URL to connect to

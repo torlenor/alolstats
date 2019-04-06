@@ -19,11 +19,7 @@ type RiotClient struct {
 	Region string
 }
 
-// MemoryBackend holds the settings for the memory backend
-type MemoryBackend struct {
-}
-
-// MongoBackend holds the settings for the memory backend
+// MongoBackend holds the settings for the mongodb backend
 type MongoBackend struct {
 	// URL to connect to
 	URL string
@@ -33,11 +29,10 @@ type MongoBackend struct {
 
 // StorageBackend holds the settings for the used backend component
 type StorageBackend struct {
-	// Name of the storage backend to use (e.g., memory, mongo)
+	// Name of the storage backend to use (e.g., mongo)
 	Backend string
 
-	MemoryBackend MemoryBackend
-	MongoBackend  MongoBackend
+	MongoBackend MongoBackend
 }
 
 // LoLStorage holds the settings specific for the storage component

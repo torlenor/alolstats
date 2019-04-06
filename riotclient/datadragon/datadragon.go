@@ -135,3 +135,37 @@ func (c *RiotClientDD) GetDataDragonChampions() ([]byte, error) {
 
 	return body, nil
 }
+
+// GetDataDragonChampionsSpecificVersionLanguage returns the current champions available for the live game version
+func (c *RiotClientDD) GetDataDragonChampionsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
+	versions, err := c.getVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	championsURL := versions.Cdn + "/" + gameVersion + "/data/" + language + "/champion.json"
+
+	body, err := c.downloadFile(championsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Champions data for game version %s and language %s from Data Dragon: %s", gameVersion, language, err)
+	}
+
+	return body, nil
+}
+
+// GetDataDragonItemsSpecificVersionLanguage returns the current champions available for the live game version
+func (c *RiotClientDD) GetDataDragonItemsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
+	versions, err := c.getVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	championsURL := versions.Cdn + "/" + gameVersion + "/data/" + language + "/item.json"
+
+	body, err := c.downloadFile(championsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Items data for game version %s and language %s from Data Dragon: %s", gameVersion, language, err)
+	}
+
+	return body, nil
+}

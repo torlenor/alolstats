@@ -29,6 +29,8 @@ type StatsRunner struct {
 	workersWG         sync.WaitGroup
 	stopWorkers       chan struct{}
 	shouldWorkersStop bool
+
+	calculationMutex sync.Mutex
 }
 
 // NewStatsRunner creates a new LoL StatsRunner
@@ -75,6 +77,7 @@ func (sr *StatsRunner) Start() {
 		}
 
 		go sr.matchAnalysisWorker()
+		// go sr.itemWinRateWorker()
 
 		sr.isStarted = true
 	} else {

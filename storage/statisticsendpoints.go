@@ -13,6 +13,7 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 	var champID string
 	var gameVersion string
 	var tier string
+	var queue string
 
 	if val, ok := r.URL.Query()["id"]; ok {
 		if len(val) == 0 {
@@ -49,7 +50,17 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 		tier = "ALL"
 	}
 
-	championStats, err := s.GetChampionStatsByIDGameVersionTier(champID, gameVersion, tier)
+	if val, ok := r.URL.Query()["queue"]; ok {
+		if len(val) == 0 {
+			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
+			queue = "ALL"
+		}
+		queue = val[0]
+	} else {
+		queue = "ALL"
+	}
+
+	championStats, err := s.GetChampionStatsByIDGameVersionTierQueue(champID, gameVersion, tier, queue)
 	if err != nil {
 		s.log.Errorln(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -73,6 +84,7 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API ChampionsStats request from", r.RemoteAddr)
 	var gameVersion string
 	var tier string
+	var queue string
 
 	if val, ok := r.URL.Query()["gameversion"]; ok {
 		if len(val) == 0 {
@@ -95,8 +107,17 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	} else {
 		tier = "ALL"
 	}
+	if val, ok := r.URL.Query()["queue"]; ok {
+		if len(val) == 0 {
+			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
+			queue = "ALL"
+		}
+		queue = val[0]
+	} else {
+		queue = "ALL"
+	}
 
-	statsSummary, err := s.GetChampionStatsSummaryByGameVersionTier(gameVersion, tier)
+	statsSummary, err := s.GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue)
 	if err != nil {
 		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -119,6 +140,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 	s.log.Debugln("Received Rest API championStatsHistoryByID request from", r.RemoteAddr)
 	var champID string
 	var tier string
+	var queue string
 
 	if val, ok := r.URL.Query()["id"]; ok {
 		if len(val) == 0 {
@@ -143,6 +165,16 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		tier = "ALL"
 	}
 
+	if val, ok := r.URL.Query()["queue"]; ok {
+		if len(val) == 0 {
+			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
+			queue = "ALL"
+		}
+		queue = val[0]
+	} else {
+		queue = "ALL"
+	}
+
 	gameVersions, err := s.GetKnownGameVersions()
 	if err != nil {
 		s.log.Errorf("Error in championStatsHistoryByID with request %s: %s", r.URL.String(), err)
@@ -153,7 +185,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 	championStatsHistory := ChampionStatsHistory{}
 	championStatsHistory.HistoryPeRrole = make(map[string]ChampionStatsPerRoleSingleHistory)
 	for _, gameVersion := range gameVersions.Versions {
-		championStats, err := s.GetChampionStatsByIDGameVersionTier(champID, gameVersion, tier)
+		championStats, err := s.GetChampionStatsByIDGameVersionTierQueue(champID, gameVersion, tier, queue)
 		if err != nil {
 			continue
 		}

@@ -115,11 +115,82 @@ func (sr *StatsRunner) newChampionsCounters(champions riotclient.ChampionsList, 
 	return champsCounters
 }
 
+func doChampCounts(stats *riotclient.ParticipantStatsDTO, champCounters *championCounters) {
+	champCounters.TotalKills = champCounters.TotalKills + uint64(stats.Kills)
+	champCounters.MatchKills = append(champCounters.MatchKills, uint16(stats.Kills))
+	champCounters.TotalDeaths = champCounters.TotalDeaths + uint64(stats.Deaths)
+	champCounters.MatchDeaths = append(champCounters.MatchDeaths, uint16(stats.Deaths))
+	champCounters.TotalAssists = champCounters.TotalAssists + uint64(stats.Assists)
+	champCounters.MatchAssists = append(champCounters.MatchAssists, uint16(stats.Assists))
+
+	champCounters.MatchGoldEarned = append(champCounters.MatchGoldEarned, uint32(stats.GoldEarned))
+	champCounters.MatchTotalMinionsKilled = append(champCounters.MatchTotalMinionsKilled, uint32(stats.TotalMinionsKilled))
+	champCounters.MatchTotalDamageDealt = append(champCounters.MatchTotalDamageDealt, uint32(stats.TotalDamageDealt))
+	champCounters.MatchTotalDamageDealtToChampions = append(champCounters.MatchTotalDamageDealtToChampions, uint32(stats.TotalDamageDealtToChampions))
+	champCounters.MatchTotalDamageTaken = append(champCounters.MatchTotalDamageTaken, uint32(stats.TotalDamageTaken))
+	champCounters.MatchMagicDamageDealt = append(champCounters.MatchMagicDamageDealt, uint32(stats.MagicDamageDealt))
+	champCounters.MatchMagicDamageDealtToChampions = append(champCounters.MatchMagicDamageDealtToChampions, uint32(stats.MagicDamageDealtToChampions))
+	champCounters.MatchPhysicalDamageDealt = append(champCounters.MatchPhysicalDamageDealt, uint32(stats.PhysicalDamageDealt))
+	champCounters.MatchPhysicalDamageDealtToChampions = append(champCounters.MatchPhysicalDamageDealtToChampions, uint32(stats.PhysicalDamageDealtToChampions))
+	champCounters.MatchPhysicalDamageTaken = append(champCounters.MatchPhysicalDamageTaken, uint32(stats.PhysicalDamageTaken))
+	champCounters.MatchTrueDamageDealt = append(champCounters.MatchTrueDamageDealt, uint32(stats.TrueDamageDealt))
+	champCounters.MatchTrueDamageDealtToChampions = append(champCounters.MatchTrueDamageDealtToChampions, uint32(stats.TrueDamageDealtToChampions))
+	champCounters.MatchTrueDamageTaken = append(champCounters.MatchTrueDamageTaken, uint32(stats.TrueDamageTaken))
+	champCounters.MatchTotalHeal = append(champCounters.MatchTotalHeal, uint32(stats.TotalHeal))
+	champCounters.MatchDamageDealtToObjectives = append(champCounters.MatchDamageDealtToObjectives, uint32(stats.DamageDealtToObjectives))
+	champCounters.MatchDamageDealtToTurrets = append(champCounters.MatchDamageDealtToTurrets, uint32(stats.DamageDealtToTurrets))
+	champCounters.MatchTimeCCingOthers = append(champCounters.MatchTimeCCingOthers, uint32(stats.TimeCCingOthers))
+
+	champCounters.TotalPicks++
+	if stats.Win {
+		champCounters.TotalWins++
+	}
+}
+
+func doPerRoleCounts(stats *riotclient.ParticipantStatsDTO, rCounters *roleCounters) {
+	rCounters.Kills = rCounters.Kills + uint64(stats.Kills)
+	rCounters.MatchKills = append(rCounters.MatchKills, uint16(stats.Kills))
+	rCounters.Deaths = rCounters.Deaths + uint64(stats.Deaths)
+	rCounters.MatchDeaths = append(rCounters.MatchDeaths, uint16(stats.Deaths))
+	rCounters.Assists = rCounters.Assists + uint64(stats.Assists)
+	rCounters.MatchAssists = append(rCounters.MatchAssists, uint16(stats.Assists))
+
+	rCounters.MatchGoldEarned = append(rCounters.MatchGoldEarned, uint32(stats.GoldEarned))
+	rCounters.MatchTotalMinionsKilled = append(rCounters.MatchTotalMinionsKilled, uint32(stats.TotalMinionsKilled))
+	rCounters.MatchTotalDamageDealt = append(rCounters.MatchTotalDamageDealt, uint32(stats.TotalDamageDealt))
+	rCounters.MatchTotalDamageDealtToChampions = append(rCounters.MatchTotalDamageDealtToChampions, uint32(stats.TotalDamageDealtToChampions))
+	rCounters.MatchTotalDamageTaken = append(rCounters.MatchTotalDamageTaken, uint32(stats.TotalDamageTaken))
+	rCounters.MatchMagicDamageDealt = append(rCounters.MatchMagicDamageDealt, uint32(stats.MagicDamageDealt))
+	rCounters.MatchMagicDamageDealtToChampions = append(rCounters.MatchMagicDamageDealtToChampions, uint32(stats.MagicDamageDealtToChampions))
+	rCounters.MatchPhysicalDamageDealt = append(rCounters.MatchPhysicalDamageDealt, uint32(stats.PhysicalDamageDealt))
+	rCounters.MatchPhysicalDamageDealtToChampions = append(rCounters.MatchPhysicalDamageDealtToChampions, uint32(stats.PhysicalDamageDealtToChampions))
+	rCounters.MatchPhysicalDamageTaken = append(rCounters.MatchPhysicalDamageTaken, uint32(stats.PhysicalDamageTaken))
+	rCounters.MatchTrueDamageDealt = append(rCounters.MatchTrueDamageDealt, uint32(stats.TrueDamageDealt))
+	rCounters.MatchTrueDamageDealtToChampions = append(rCounters.MatchTrueDamageDealtToChampions, uint32(stats.TrueDamageDealtToChampions))
+	rCounters.MatchTrueDamageTaken = append(rCounters.MatchTrueDamageTaken, uint32(stats.TrueDamageTaken))
+	rCounters.MatchTotalHeal = append(rCounters.MatchTotalHeal, uint32(stats.TotalHeal))
+	rCounters.MatchDamageDealtToObjectives = append(rCounters.MatchDamageDealtToObjectives, uint32(stats.DamageDealtToObjectives))
+	rCounters.MatchDamageDealtToTurrets = append(rCounters.MatchDamageDealtToTurrets, uint32(stats.DamageDealtToTurrets))
+	rCounters.MatchTimeCCingOthers = append(rCounters.MatchTimeCCingOthers, uint32(stats.TimeCCingOthers))
+
+	rCounters.Picks++
+	if stats.Win {
+		rCounters.Wins++
+	}
+}
+
 func (sr *StatsRunner) matchAnalysisWorker() {
 	sr.workersWG.Add(1)
 	defer sr.workersWG.Done()
 
 	var nextUpdate time.Duration
+
+	queueIDtoQueue := map[uint64]string{
+		400: "NORMAL_DRAFT",
+		420: "RANKED_SOLO",
+		430: "NORMAL_BLIND",
+		440: "RANKED_FLEX",
+	}
 
 	for {
 		select {
@@ -132,247 +203,130 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 				nextUpdate -= 1 * time.Second
 				continue
 			}
+			sr.calculationMutex.Lock()
 			sr.log.Infof("Performing matchAnalysisWorker run")
 			start := time.Now()
 
 			champions := sr.storage.GetChampions(false)
 
 			mapID := uint64(11)
-			highQueueID := uint64(440)
-			lowQueueID := uint64(400)
 
-			for _, versionStr := range sr.config.GameVersion {
-				if sr.shouldWorkersStop {
-					return
-				}
-				version, err := utils.SplitNumericVersion(versionStr)
-				if err != nil {
-					sr.log.Warnf("Something bad happened: %s", err)
-					continue
-				}
-				gameVersion := fmt.Sprintf("%d.%d", version[0], version[1])
-				majorMinor := fmt.Sprintf("%d\\.%d\\.", version[0], version[1])
-				sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s started", gameVersion)
+			for queueID, queue := range queueIDtoQueue {
+				highQueueID := uint64(queueID)
+				lowQueueID := uint64(queueID)
 
-				// Prepare championsCountersPerTier
-				champsCountersPerTier := make(championsCountersPerTier)
-				champsCountersAllTiers := sr.newChampionsCounters(champions, gameVersion)
-
-				totalGamesForGameVersion := uint64(0)
-				totalGamesForGameVersionTier := make(map[string]uint64)
-
-				cur, err := sr.storage.GetMatchesCursorByGameVersionMapBetweenQueueIDs(majorMinor, mapID, highQueueID, lowQueueID)
-				if err != nil {
-					sr.log.Errorf("Error performing matchAnalysisWorker calculation for Game Version %s: %s", gameVersion, err)
-					continue
-				}
-				currentMatch := &riotclient.MatchDTO{}
-				cnt := 0
-				for cur.Next() {
-					err := cur.Decode(currentMatch)
+				for _, versionStr := range sr.config.GameVersion {
+					if sr.shouldWorkersStop {
+						return
+					}
+					version, err := utils.SplitNumericVersion(versionStr)
 					if err != nil {
-						sr.log.Errorf("Error deconding match: %s", err)
+						sr.log.Warnf("Something bad happened: %s", err)
 						continue
 					}
+					gameVersion := fmt.Sprintf("%d.%d", version[0], version[1])
+					majorMinor := fmt.Sprintf("%d\\.%d\\.", version[0], version[1])
+					sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s and Queue %s started", gameVersion, queue)
 
-					if currentMatch.MapID != 11 || currentMatch.QueueID < int(lowQueueID) || currentMatch.QueueID > int(highQueueID) {
-						sr.log.Warnf("Found match which should not have been returned from storage, skipping...")
+					// Prepare championsCountersPerTier
+					champsCountersPerTier := make(championsCountersPerTier)
+					champsCountersAllTiers := sr.newChampionsCounters(champions, gameVersion)
+
+					totalGamesForGameVersion := uint64(0)
+					totalGamesForGameVersionTier := make(map[string]uint64)
+
+					cur, err := sr.storage.GetMatchesCursorByGameVersionMapBetweenQueueIDs(majorMinor, mapID, highQueueID, lowQueueID)
+					if err != nil {
+						sr.log.Errorf("Error performing matchAnalysisWorker calculation for Game Version %s: %s", gameVersion, err)
 						continue
 					}
-
-					totalGamesForGameVersion++
-
-					matchTier := determineMatchTier(currentMatch.Participants)
-					totalGamesForGameVersionTier[matchTier]++
-
-					// Champion Picks
-					for _, participant := range currentMatch.Participants {
-						role := participant.Timeline.Role
-						lane := participant.Timeline.Lane
-						cid := participant.ChampionID
-
-						// Get structs for counting
-						if _, ok := champsCountersPerTier[matchTier]; !ok {
-							champsCountersPerTier[matchTier] = sr.newChampionsCounters(champions, gameVersion)
-						}
-						cct := champsCountersPerTier[matchTier]
-						cc := cct[cid]
-						if _, ok := cc.PerRole[lane]; !ok {
-							cc.PerRole[lane] = make(map[string]roleCounters)
-						}
-						perRole := cc.PerRole[lane][role]
-
-						ccall := champsCountersAllTiers[cid]
-						if _, ok := ccall.PerRole[lane]; !ok {
-							ccall.PerRole[lane] = make(map[string]roleCounters)
-						}
-						perRoleAll := ccall.PerRole[lane][role]
-
-						// Do counts
-						cc.TotalPicks++
-						ccall.TotalPicks++
-
-						cc.TotalKills = cc.TotalKills + uint64(participant.Stats.Kills)
-						cc.MatchKills = append(cc.MatchKills, uint16(participant.Stats.Kills))
-						cc.TotalDeaths = cc.TotalDeaths + uint64(participant.Stats.Deaths)
-						cc.MatchDeaths = append(cc.MatchDeaths, uint16(participant.Stats.Deaths))
-						cc.TotalAssists = cc.TotalAssists + uint64(participant.Stats.Assists)
-						cc.MatchAssists = append(cc.MatchAssists, uint16(participant.Stats.Assists))
-
-						ccall.TotalKills = ccall.TotalKills + uint64(participant.Stats.Kills)
-						ccall.MatchKills = append(ccall.MatchKills, uint16(participant.Stats.Kills))
-						ccall.TotalDeaths = ccall.TotalDeaths + uint64(participant.Stats.Deaths)
-						ccall.MatchDeaths = append(ccall.MatchDeaths, uint16(participant.Stats.Deaths))
-						ccall.TotalAssists = ccall.TotalAssists + uint64(participant.Stats.Assists)
-						ccall.MatchAssists = append(ccall.MatchAssists, uint16(participant.Stats.Assists))
-
-						perRole.Picks++
-						perRoleAll.Picks++
-
-						perRole.Kills = perRole.Kills + uint64(participant.Stats.Kills)
-						perRole.MatchKills = append(perRole.MatchKills, uint16(participant.Stats.Kills))
-						perRole.Deaths = perRole.Deaths + uint64(participant.Stats.Deaths)
-						perRole.MatchDeaths = append(perRole.MatchDeaths, uint16(participant.Stats.Deaths))
-						perRole.Assists = perRole.Assists + uint64(participant.Stats.Assists)
-						perRole.MatchAssists = append(perRole.MatchAssists, uint16(participant.Stats.Assists))
-
-						perRoleAll.Kills = perRoleAll.Kills + uint64(participant.Stats.Kills)
-						perRoleAll.MatchKills = append(perRoleAll.MatchKills, uint16(participant.Stats.Kills))
-						perRoleAll.Deaths = perRoleAll.Deaths + uint64(participant.Stats.Deaths)
-						perRoleAll.MatchDeaths = append(perRoleAll.MatchDeaths, uint16(participant.Stats.Deaths))
-						perRoleAll.Assists = perRoleAll.Assists + uint64(participant.Stats.Assists)
-						perRoleAll.MatchAssists = append(perRoleAll.MatchAssists, uint16(participant.Stats.Assists))
-
-						ccall.MatchGoldEarned = append(ccall.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
-						ccall.MatchTotalMinionsKilled = append(ccall.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
-						ccall.MatchTotalDamageDealt = append(ccall.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
-						ccall.MatchTotalDamageDealtToChampions = append(ccall.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
-						ccall.MatchTotalDamageTaken = append(ccall.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
-						ccall.MatchMagicDamageDealt = append(ccall.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
-						ccall.MatchMagicDamageDealtToChampions = append(ccall.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
-						ccall.MatchPhysicalDamageDealt = append(ccall.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
-						ccall.MatchPhysicalDamageDealtToChampions = append(ccall.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
-						ccall.MatchPhysicalDamageTaken = append(ccall.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
-						ccall.MatchTrueDamageDealt = append(ccall.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
-						ccall.MatchTrueDamageDealtToChampions = append(ccall.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
-						ccall.MatchTrueDamageTaken = append(ccall.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
-						ccall.MatchTotalHeal = append(ccall.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
-						ccall.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
-						ccall.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
-						ccall.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
-
-						cc.MatchGoldEarned = append(cc.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
-						cc.MatchTotalMinionsKilled = append(cc.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
-						cc.MatchTotalDamageDealt = append(cc.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
-						cc.MatchTotalDamageDealtToChampions = append(cc.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
-						cc.MatchTotalDamageTaken = append(cc.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
-						cc.MatchMagicDamageDealt = append(cc.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
-						cc.MatchMagicDamageDealtToChampions = append(cc.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
-						cc.MatchPhysicalDamageDealt = append(cc.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
-						cc.MatchPhysicalDamageDealtToChampions = append(cc.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
-						cc.MatchPhysicalDamageTaken = append(cc.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
-						cc.MatchTrueDamageDealt = append(cc.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
-						cc.MatchTrueDamageDealtToChampions = append(cc.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
-						cc.MatchTrueDamageTaken = append(cc.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
-						cc.MatchTotalHeal = append(cc.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
-						cc.MatchDamageDealtToObjectives = append(cc.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
-						cc.MatchDamageDealtToTurrets = append(cc.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
-						cc.MatchTimeCCingOthers = append(cc.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
-
-						perRole.MatchGoldEarned = append(perRole.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
-						perRole.MatchTotalMinionsKilled = append(perRole.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
-						perRole.MatchTotalDamageDealt = append(perRole.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
-						perRole.MatchTotalDamageDealtToChampions = append(perRole.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
-						perRole.MatchTotalDamageTaken = append(perRole.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
-						perRole.MatchMagicDamageDealt = append(perRole.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
-						perRole.MatchMagicDamageDealtToChampions = append(perRole.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
-						perRole.MatchPhysicalDamageDealt = append(perRole.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
-						perRole.MatchPhysicalDamageDealtToChampions = append(perRole.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
-						perRole.MatchPhysicalDamageTaken = append(perRole.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
-						perRole.MatchTrueDamageDealt = append(perRole.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
-						perRole.MatchTrueDamageDealtToChampions = append(perRole.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
-						perRole.MatchTrueDamageTaken = append(perRole.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
-						perRole.MatchTotalHeal = append(perRole.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
-						perRole.MatchDamageDealtToObjectives = append(perRole.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
-						perRole.MatchDamageDealtToTurrets = append(perRole.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
-						perRole.MatchTimeCCingOthers = append(perRole.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
-
-						perRoleAll.MatchGoldEarned = append(perRoleAll.MatchGoldEarned, uint32(participant.Stats.GoldEarned))
-						perRoleAll.MatchTotalMinionsKilled = append(perRoleAll.MatchTotalMinionsKilled, uint32(participant.Stats.TotalMinionsKilled))
-						perRoleAll.MatchTotalDamageDealt = append(perRoleAll.MatchTotalDamageDealt, uint32(participant.Stats.TotalDamageDealt))
-						perRoleAll.MatchTotalDamageDealtToChampions = append(perRoleAll.MatchTotalDamageDealtToChampions, uint32(participant.Stats.TotalDamageDealtToChampions))
-						perRoleAll.MatchTotalDamageTaken = append(perRoleAll.MatchTotalDamageTaken, uint32(participant.Stats.TotalDamageTaken))
-						perRoleAll.MatchMagicDamageDealt = append(perRoleAll.MatchMagicDamageDealt, uint32(participant.Stats.MagicDamageDealt))
-						perRoleAll.MatchMagicDamageDealtToChampions = append(perRoleAll.MatchMagicDamageDealtToChampions, uint32(participant.Stats.MagicDamageDealtToChampions))
-						perRoleAll.MatchPhysicalDamageDealt = append(perRoleAll.MatchPhysicalDamageDealt, uint32(participant.Stats.PhysicalDamageDealt))
-						perRoleAll.MatchPhysicalDamageDealtToChampions = append(perRoleAll.MatchPhysicalDamageDealtToChampions, uint32(participant.Stats.PhysicalDamageDealtToChampions))
-						perRoleAll.MatchPhysicalDamageTaken = append(perRoleAll.MatchPhysicalDamageTaken, uint32(participant.Stats.PhysicalDamageTaken))
-						perRoleAll.MatchTrueDamageDealt = append(perRoleAll.MatchTrueDamageDealt, uint32(participant.Stats.TrueDamageDealt))
-						perRoleAll.MatchTrueDamageDealtToChampions = append(perRoleAll.MatchTrueDamageDealtToChampions, uint32(participant.Stats.TrueDamageDealtToChampions))
-						perRoleAll.MatchTrueDamageTaken = append(perRoleAll.MatchTrueDamageTaken, uint32(participant.Stats.TrueDamageTaken))
-						perRoleAll.MatchTotalHeal = append(perRoleAll.MatchTotalHeal, uint32(participant.Stats.TotalHeal))
-						perRoleAll.MatchDamageDealtToObjectives = append(perRoleAll.MatchDamageDealtToObjectives, uint32(participant.Stats.DamageDealtToObjectives))
-						perRoleAll.MatchDamageDealtToTurrets = append(perRoleAll.MatchDamageDealtToTurrets, uint32(participant.Stats.DamageDealtToTurrets))
-						perRoleAll.MatchTimeCCingOthers = append(perRoleAll.MatchTimeCCingOthers, uint32(participant.Stats.TimeCCingOthers))
-
-						if participant.Stats.Win {
-							perRole.Wins++
-							perRoleAll.Wins++
-							cc.TotalWins++
-							ccall.TotalWins++
-						}
-
-						// Backassign structs
-						cc.PerRole[lane][role] = perRole
-						cct[cid] = cc
-						champsCountersPerTier[matchTier] = cct
-
-						ccall.PerRole[lane][role] = perRoleAll
-						champsCountersAllTiers[cid] = ccall
-					}
-
-					// Champion Bans
-					bannedIDs := make(map[int]bool)
-					for _, team := range currentMatch.Teams {
-						for _, ban := range team.Bans {
-							cid := ban.ChampionID
-							bannedIDs[cid] = true
-						}
-					}
-					for cid := range bannedIDs {
-						// Get structs for counting
-						cc := champsCountersPerTier[matchTier][cid]
-						ccall := champsCountersAllTiers[cid]
-
-						// Do counts
-						cc.TotalBans++
-						ccall.TotalBans++
-
-						// Backassign structs
-						champsCountersPerTier[matchTier][cid] = cc
-						champsCountersAllTiers[cid] = ccall
-					}
-
-					cnt++
-				}
-
-				// Prepare results for ChampionsStats (ALL tiers)
-				for cid, champCounters := range champsCountersAllTiers {
-					stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], totalGamesForGameVersion, &champCounters)
-					stats.Tier = "ALL"
-					if err == nil {
-						err = sr.storage.StoreChampionStats(stats)
+					currentMatch := &riotclient.MatchDTO{}
+					cnt := 0
+					for cur.Next() {
+						err := cur.Decode(currentMatch)
 						if err != nil {
-							sr.log.Warnf("Something went wrong storing the Champion Stats: %s", err)
+							sr.log.Errorf("Error deconding match: %s", err)
+							continue
 						}
-					}
-				}
 
-				// Prepare results for ChampionsStats (per tier)
-				for tier, champsCounters := range champsCountersPerTier {
-					for cid, champCounters := range champsCounters {
-						stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], totalGamesForGameVersionTier[tier], &champCounters)
-						stats.Tier = tier
+						if currentMatch.MapID != 11 || currentMatch.QueueID < int(lowQueueID) || currentMatch.QueueID > int(highQueueID) {
+							sr.log.Warnf("Found match which should not have been returned from storage, skipping...")
+							continue
+						}
+
+						totalGamesForGameVersion++
+
+						matchTier := determineMatchTier(currentMatch.Participants)
+						totalGamesForGameVersionTier[matchTier]++
+
+						// Champion Picks
+						for _, participant := range currentMatch.Participants {
+							role := participant.Timeline.Role
+							lane := participant.Timeline.Lane
+							cid := participant.ChampionID
+
+							// Get structs for counting
+							if _, ok := champsCountersPerTier[matchTier]; !ok {
+								champsCountersPerTier[matchTier] = sr.newChampionsCounters(champions, gameVersion)
+							}
+							cct := champsCountersPerTier[matchTier]
+							cc := cct[cid]
+							if _, ok := cc.PerRole[lane]; !ok {
+								cc.PerRole[lane] = make(map[string]roleCounters)
+							}
+							perRole := cc.PerRole[lane][role]
+
+							ccall := champsCountersAllTiers[cid]
+							if _, ok := ccall.PerRole[lane]; !ok {
+								ccall.PerRole[lane] = make(map[string]roleCounters)
+							}
+							perRoleAll := ccall.PerRole[lane][role]
+
+							// Do counts
+							doChampCounts(&participant.Stats, &ccall)
+							doChampCounts(&participant.Stats, &cc)
+							doPerRoleCounts(&participant.Stats, &perRole)
+							doPerRoleCounts(&participant.Stats, &perRoleAll)
+
+							// Backassign structs
+							cc.PerRole[lane][role] = perRole
+							cct[cid] = cc
+							champsCountersPerTier[matchTier] = cct
+
+							ccall.PerRole[lane][role] = perRoleAll
+							champsCountersAllTiers[cid] = ccall
+						}
+
+						// Champion Bans
+						bannedIDs := make(map[int]bool)
+						for _, team := range currentMatch.Teams {
+							for _, ban := range team.Bans {
+								cid := ban.ChampionID
+								bannedIDs[cid] = true
+							}
+						}
+						for cid := range bannedIDs {
+							// Get structs for counting
+							cc := champsCountersPerTier[matchTier][cid]
+							ccall := champsCountersAllTiers[cid]
+
+							// Do counts
+							cc.TotalBans++
+							ccall.TotalBans++
+
+							// Backassign structs
+							champsCountersPerTier[matchTier][cid] = cc
+							champsCountersAllTiers[cid] = ccall
+						}
+
+						cnt++
+					}
+
+					// Prepare results for ChampionsStats (ALL tiers)
+					for cid, champCounters := range champsCountersAllTiers {
+						stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], totalGamesForGameVersion, &champCounters)
+						stats.Tier = "ALL"
+						stats.Queue = queue
 						if err == nil {
 							err = sr.storage.StoreChampionStats(stats)
 							if err != nil {
@@ -380,10 +334,25 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 							}
 						}
 					}
-				}
 
-				cur.Close()
-				sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s done. Analyzed %d matches", gameVersion, cnt)
+					// Prepare results for ChampionsStats (per tier)
+					for tier, champsCounters := range champsCountersPerTier {
+						for cid, champCounters := range champsCounters {
+							stats, err := sr.prepareChampionStats(uint64(cid), version[0], version[1], totalGamesForGameVersionTier[tier], &champCounters)
+							stats.Tier = tier
+							stats.Queue = queue
+							if err == nil {
+								err = sr.storage.StoreChampionStats(stats)
+								if err != nil {
+									sr.log.Warnf("Something went wrong storing the Champion Stats: %s", err)
+								}
+							}
+						}
+					}
+
+					cur.Close()
+					sr.log.Debugf("matchAnalysisWorker calculation for Game Version %s and Queue %s done. Analyzed %d matches", gameVersion, queue, cnt)
+				}
 			}
 
 			gameVersions := storage.GameVersions{}
@@ -404,20 +373,59 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 			leas := leagues{Leagues: []string{"All", "Master", "Diamond", "Platinum", "Gold", "Silver", "Bronze"}}
 			for _, gameVersion := range gameVersions.Versions {
 				for _, tier := range leas.Leagues {
-					statsSummary, err := sr.generateChampionsSummary(gameVersion, strings.ToUpper(tier))
-					if err != nil {
-						sr.log.Errorf("Error generating statistics summary: %s", err)
-						continue
+					for _, queue := range queueIDtoQueue {
+						statsSummary, err := sr.generateChampionsSummary(gameVersion, strings.ToUpper(tier), queue)
+						if err != nil {
+							sr.log.Errorf("Error generating statistics summary: %s", err)
+							continue
+						}
+						sr.storage.StoreChampionStatsSummary(statsSummary)
 					}
-					sr.storage.StoreChampionStatsSummary(statsSummary)
 				}
 			}
 
 			nextUpdate = time.Minute * time.Duration(sr.config.RScriptsUpdateInterval)
 			elapsed := time.Since(start)
 			sr.log.Infof("Finished matchAnalysisWorker run. Took %s. Next run in %s", elapsed, nextUpdate)
+			sr.calculationMutex.Unlock()
 		}
 	}
+}
+
+func (sr *StatsRunner) combineChampionStats(champID string, gameVersion string, league string, inputQueue []string, outputQueue string) (*storage.ChampionStats, error) {
+
+	champions := sr.storage.GetChampions(false)
+	for _, champ := range champions {
+		for _, queue := range inputQueue {
+			statsPerTier := make(map[string]storage.ChampionStats)
+			championStats, err := sr.storage.GetChampionStatsByIDGameVersionTierQueue(champ.ID, gameVersion, league, queue)
+			if err != nil {
+				continue
+			}
+			if championStats.SampleSize > 0 {
+				statsPerTier[queue] = *championStats
+			}
+		}
+		// statsPerTier[queue]
+	}
+
+	return nil, nil
+}
+
+func doMeanStdDevCalcUint32(values []uint32) (mean, stdDev float64) {
+	mean, stdDev = calcMeanStdDevUint32(values, nil)
+	if math.IsNaN(stdDev) {
+		stdDev = 0
+	}
+	return
+}
+
+func doMeanStdDevCalcUint16(values []uint16) (mean, stdDev float64) {
+	mean, stdDev = calcMeanStdDevUint16(values, nil)
+	if math.IsNaN(stdDev) {
+		stdDev = 0
+	}
+	return
 }
 
 func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32, minorVersion uint32, totalGamesForGameVersion uint64, champCounters *championCounters) (*storage.ChampionStats, error) {
@@ -428,88 +436,29 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	championStats.ChampionID = champID
 	championStats.GameVersion = gameVersion
 	championStats.SampleSize = champCounters.TotalPicks
+	championStats.TotalGamesForGameVersion = totalGamesForGameVersion
 
-	championStats.AvgK, championStats.StdDevK = calcMeanStdDevUint16(champCounters.MatchKills, nil)
-	if math.IsNaN(championStats.StdDevK) {
-		championStats.StdDevK = 0
-	}
-	championStats.AvgD, championStats.StdDevD = calcMeanStdDevUint16(champCounters.MatchDeaths, nil)
-	if math.IsNaN(championStats.StdDevD) {
-		championStats.StdDevD = 0
-	}
-	championStats.AvgA, championStats.StdDevA = calcMeanStdDevUint16(champCounters.MatchAssists, nil)
-	if math.IsNaN(championStats.StdDevA) {
-		championStats.StdDevA = 0
-	}
+	championStats.AvgK, championStats.StdDevK = doMeanStdDevCalcUint16(champCounters.MatchKills)
+	championStats.AvgD, championStats.StdDevD = doMeanStdDevCalcUint16(champCounters.MatchDeaths)
+	championStats.AvgA, championStats.StdDevA = doMeanStdDevCalcUint16(champCounters.MatchAssists)
 
-	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = calcMeanStdDevUint32(champCounters.MatchGoldEarned, nil)
-	if math.IsNaN(championStats.StdDevGoldEarned) {
-		championStats.StdDevGoldEarned = 0
-	}
-	championStats.AvgTotalMinionsKilled, championStats.StdDevTotalMinionsKilled = calcMeanStdDevUint32(champCounters.MatchTotalMinionsKilled, nil)
-	if math.IsNaN(championStats.StdDevTotalMinionsKilled) {
-		championStats.StdDevTotalMinionsKilled = 0
-	}
-	championStats.AvgTotalDamageDealt, championStats.StdDevTotalDamageDealt = calcMeanStdDevUint32(champCounters.MatchTotalDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevTotalDamageDealt) {
-		championStats.StdDevTotalDamageDealt = 0
-	}
-	championStats.AvgTotalDamageDealtToChampions, championStats.StdDevTotalDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchTotalDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevTotalDamageDealtToChampions) {
-		championStats.StdDevTotalDamageDealtToChampions = 0
-	}
-	championStats.AvgTotalDamageTaken, championStats.StdDevTotalDamageTaken = calcMeanStdDevUint32(champCounters.MatchTotalDamageTaken, nil)
-	if math.IsNaN(championStats.StdDevTotalDamageTaken) {
-		championStats.StdDevTotalDamageTaken = 0
-	}
-	championStats.AvgMagicDamageDealt, championStats.StdDevMagicDamageDealt = calcMeanStdDevUint32(champCounters.MatchMagicDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevMagicDamageDealt) {
-		championStats.StdDevMagicDamageDealt = 0
-	}
-	championStats.AvgMagicDamageDealtToChampions, championStats.StdDevMagicDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchMagicDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevMagicDamageDealtToChampions) {
-		championStats.StdDevMagicDamageDealtToChampions = 0
-	}
-	championStats.AvgPhysicalDamageDealt, championStats.StdDevPhysicalDamageDealt = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevPhysicalDamageDealt) {
-		championStats.StdDevPhysicalDamageDealt = 0
-	}
-	championStats.AvgPhysicalDamageDealtToChampions, championStats.StdDevPhysicalDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevPhysicalDamageDealtToChampions) {
-		championStats.StdDevPhysicalDamageDealtToChampions = 0
-	}
-	championStats.AvgPhysicalDamageTaken, championStats.StdDevPhysicalDamageTaken = calcMeanStdDevUint32(champCounters.MatchPhysicalDamageTaken, nil)
-	if math.IsNaN(championStats.StdDevPhysicalDamageTaken) {
-		championStats.StdDevPhysicalDamageTaken = 0
-	}
-	championStats.AvgTrueDamageDealt, championStats.StdDevTrueDamageDealt = calcMeanStdDevUint32(champCounters.MatchTrueDamageDealt, nil)
-	if math.IsNaN(championStats.StdDevTrueDamageDealt) {
-		championStats.StdDevTrueDamageDealt = 0
-	}
-	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = calcMeanStdDevUint32(champCounters.MatchTrueDamageDealtToChampions, nil)
-	if math.IsNaN(championStats.StdDevTrueDamageDealtToChampions) {
-		championStats.StdDevTrueDamageDealtToChampions = 0
-	}
-	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = calcMeanStdDevUint32(champCounters.MatchTrueDamageTaken, nil)
-	if math.IsNaN(championStats.StdDevTrueDamageTaken) {
-		championStats.StdDevTrueDamageTaken = 0
-	}
-	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = calcMeanStdDevUint32(champCounters.MatchTotalHeal, nil)
-	if math.IsNaN(championStats.StdDevTotalHeal) {
-		championStats.StdDevTotalHeal = 0
-	}
-	championStats.AvgDamageDealtToObjectives, championStats.StdDevDamageDealtToObjectives = calcMeanStdDevUint32(champCounters.MatchDamageDealtToObjectives, nil)
-	if math.IsNaN(championStats.StdDevDamageDealtToObjectives) {
-		championStats.StdDevDamageDealtToObjectives = 0
-	}
-	championStats.AvgDamageDealtToTurrets, championStats.StdDevDamageDealtToTurrets = calcMeanStdDevUint32(champCounters.MatchDamageDealtToTurrets, nil)
-	if math.IsNaN(championStats.StdDevDamageDealtToTurrets) {
-		championStats.StdDevDamageDealtToTurrets = 0
-	}
-	championStats.AvgTimeCCingOthers, championStats.StdDevTimeCCingOthers = calcMeanStdDevUint32(champCounters.MatchTimeCCingOthers, nil)
-	if math.IsNaN(championStats.StdDevTimeCCingOthers) {
-		championStats.StdDevTimeCCingOthers = 0
-	}
+	championStats.AvgGoldEarned, championStats.StdDevGoldEarned = doMeanStdDevCalcUint32(champCounters.MatchGoldEarned)
+	championStats.AvgTotalMinionsKilled, championStats.StdDevTotalMinionsKilled = doMeanStdDevCalcUint32(champCounters.MatchTotalMinionsKilled)
+	championStats.AvgTotalDamageDealt, championStats.StdDevTotalDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchTotalDamageDealt)
+	championStats.AvgTotalDamageDealtToChampions, championStats.StdDevTotalDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchTotalDamageDealtToChampions)
+	championStats.AvgTotalDamageTaken, championStats.StdDevTotalDamageTaken = doMeanStdDevCalcUint32(champCounters.MatchTotalDamageTaken)
+	championStats.AvgMagicDamageDealt, championStats.StdDevMagicDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchMagicDamageDealt)
+	championStats.AvgMagicDamageDealtToChampions, championStats.StdDevMagicDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchMagicDamageDealtToChampions)
+	championStats.AvgPhysicalDamageDealt, championStats.StdDevPhysicalDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchPhysicalDamageDealt)
+	championStats.AvgPhysicalDamageDealtToChampions, championStats.StdDevPhysicalDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchPhysicalDamageDealtToChampions)
+	championStats.AvgPhysicalDamageTaken, championStats.StdDevPhysicalDamageTaken = doMeanStdDevCalcUint32(champCounters.MatchPhysicalDamageTaken)
+	championStats.AvgTrueDamageDealt, championStats.StdDevTrueDamageDealt = doMeanStdDevCalcUint32(champCounters.MatchTrueDamageDealt)
+	championStats.AvgTrueDamageDealtToChampions, championStats.StdDevTrueDamageDealtToChampions = doMeanStdDevCalcUint32(champCounters.MatchTrueDamageDealtToChampions)
+	championStats.AvgTrueDamageTaken, championStats.StdDevTrueDamageTaken = doMeanStdDevCalcUint32(champCounters.MatchTrueDamageTaken)
+	championStats.AvgTotalHeal, championStats.StdDevTotalHeal = doMeanStdDevCalcUint32(champCounters.MatchTotalHeal)
+	championStats.AvgDamageDealtToObjectives, championStats.StdDevDamageDealtToObjectives = doMeanStdDevCalcUint32(champCounters.MatchDamageDealtToObjectives)
+	championStats.AvgDamageDealtToTurrets, championStats.StdDevDamageDealtToTurrets = doMeanStdDevCalcUint32(champCounters.MatchDamageDealtToTurrets)
+	championStats.AvgTimeCCingOthers, championStats.StdDevTimeCCingOthers = doMeanStdDevCalcUint32(champCounters.MatchTimeCCingOthers)
 
 	championStats.MedianK, _ = calcMedianUint16(champCounters.MatchKills, nil)
 	championStats.MedianD, _ = calcMedianUint16(champCounters.MatchDeaths, nil)
@@ -534,30 +483,19 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 
 	if totalGamesForGameVersion > 0 {
 		championStats.BanRate = float64(champCounters.TotalBans) / float64(totalGamesForGameVersion)
-	} else {
-		championStats.BanRate = 0
-	}
-
-	if totalGamesForGameVersion > 0 {
 		championStats.PickRate = float64(champCounters.TotalPicks) / float64(totalGamesForGameVersion)
 	} else {
+		championStats.BanRate = 0
 		championStats.PickRate = 0
 	}
 
-	topWins := uint64(0)
-	topLosses := uint64(0)
-	midWins := uint64(0)
-	midLosses := uint64(0)
-	jungleWins := uint64(0)
-	jungleLosses := uint64(0)
-	botCarryWins := uint64(0)
-	botCarryLosses := uint64(0)
-	botSupportWins := uint64(0)
-	botSupportLosses := uint64(0)
-	botUnknownWins := uint64(0)
-	botUnknownLosses := uint64(0)
-	unknownWins := uint64(0)
-	unknownLosses := uint64(0)
+	var topWins, topLosses,
+		midWins, midLosses,
+		jungleWins, jungleLosses,
+		botCarryWins, botCarryLosses,
+		botSupportWins, botSupportLosses,
+		botUnknownWins, botUnknownLosses,
+		unknownWins, unknownLosses uint64
 
 	for key, lane := range champCounters.PerRole {
 		if key == "TOP" {
@@ -837,35 +775,14 @@ func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) storage.Sta
 	statsValues.SampleSize = counters.Picks
 
 	if (counters.Picks) > 1 {
-		statsValues.AvgK, statsValues.StdDevK = calcMeanStdDevUint16(counters.MatchKills, nil)
-		if math.IsNaN(statsValues.StdDevK) {
-			statsValues.StdDevK = 0
-		}
-		statsValues.AvgD, statsValues.StdDevD = calcMeanStdDevUint16(counters.MatchDeaths, nil)
-		if math.IsNaN(statsValues.StdDevD) {
-			statsValues.StdDevD = 0
-		}
-		statsValues.AvgA, statsValues.StdDevA = calcMeanStdDevUint16(counters.MatchAssists, nil)
-		if math.IsNaN(statsValues.StdDevA) {
-			statsValues.StdDevA = 0
-		}
+		statsValues.AvgK, statsValues.StdDevK = doMeanStdDevCalcUint16(counters.MatchKills)
+		statsValues.AvgD, statsValues.StdDevD = doMeanStdDevCalcUint16(counters.MatchDeaths)
+		statsValues.AvgA, statsValues.StdDevA = doMeanStdDevCalcUint16(counters.MatchAssists)
 
-		statsValues.AvgGoldEarned, statsValues.StdDevGoldEarned = calcMeanStdDevUint32(counters.MatchGoldEarned, nil)
-		if math.IsNaN(statsValues.StdDevGoldEarned) {
-			statsValues.StdDevGoldEarned = 0
-		}
-		statsValues.AvgTotalMinionsKilled, statsValues.StdDevTotalMinionsKilled = calcMeanStdDevUint32(counters.MatchTotalMinionsKilled, nil)
-		if math.IsNaN(statsValues.StdDevTotalMinionsKilled) {
-			statsValues.StdDevTotalMinionsKilled = 0
-		}
-		statsValues.AvgTotalDamageDealt, statsValues.StdDevTotalDamageDealt = calcMeanStdDevUint32(counters.MatchTotalDamageDealt, nil)
-		if math.IsNaN(statsValues.StdDevTotalDamageDealt) {
-			statsValues.StdDevTotalDamageDealt = 0
-		}
-		statsValues.AvgTotalDamageDealtToChampions, statsValues.StdDevTotalDamageDealtToChampions = calcMeanStdDevUint32(counters.MatchTotalDamageDealtToChampions, nil)
-		if math.IsNaN(statsValues.StdDevTotalDamageDealtToChampions) {
-			statsValues.StdDevTotalDamageDealtToChampions = 0
-		}
+		statsValues.AvgGoldEarned, statsValues.StdDevGoldEarned = doMeanStdDevCalcUint32(counters.MatchGoldEarned)
+		statsValues.AvgTotalMinionsKilled, statsValues.StdDevTotalMinionsKilled = doMeanStdDevCalcUint32(counters.MatchTotalMinionsKilled)
+		statsValues.AvgTotalDamageDealt, statsValues.StdDevTotalDamageDealt = doMeanStdDevCalcUint32(counters.MatchTotalDamageDealt)
+		statsValues.AvgTotalDamageDealtToChampions, statsValues.StdDevTotalDamageDealtToChampions = doMeanStdDevCalcUint32(counters.MatchTotalDamageDealtToChampions)
 		statsValues.AvgTotalDamageTaken, statsValues.StdDevTotalDamageTaken = calcMeanStdDevUint32(counters.MatchTotalDamageTaken, nil)
 		if math.IsNaN(statsValues.StdDevTotalDamageTaken) {
 			statsValues.StdDevTotalDamageTaken = 0

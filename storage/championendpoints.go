@@ -14,6 +14,7 @@ import (
 
 var fallbackGameVersion = "9.4"
 var fallbackTier = "ALL"
+var fallbackQueue = "ALL"
 
 func checkParamterForceUpdate(values url.Values) bool {
 	if val, ok := values["forceupdate"]; ok {
@@ -48,8 +49,15 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 			}
 			tier = val[0]
 		}
+		queue := fallbackQueue
+		if val, ok := r.URL.Query()["queue"]; ok {
+			if len(val) == 0 {
+				s.log.Debugf("tier parameter was empty in request, assuming ALL.")
+			}
+			queue = val[0]
+		}
 
-		stats, err := s.GetChampionStatsByIDGameVersionTier(val.ID, gameVersion, tier)
+		stats, err := s.GetChampionStatsByIDGameVersionTierQueue(val.ID, gameVersion, tier, queue)
 		if err == nil {
 			val.Roles = stats.Roles
 		}
@@ -101,7 +109,15 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 			tier = val[0]
 		}
 
-		stats, err := s.GetChampionStatsByIDGameVersionTier(champion.ID, gameVersion, tier)
+		queue := fallbackQueue
+		if val, ok := r.URL.Query()["queue"]; ok {
+			if len(val) == 0 {
+				s.log.Debugf("tier parameter was empty in request, assuming ALL.")
+			}
+			queue = val[0]
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersionTierQueue(champion.ID, gameVersion, tier, queue)
 		if err == nil {
 			champion.Roles = stats.Roles
 		}
@@ -156,7 +172,15 @@ func (s *Storage) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
 			tier = val[0]
 		}
 
-		stats, err := s.GetChampionStatsByIDGameVersionTier(champion.ID, gameVersion, tier)
+		queue := fallbackQueue
+		if val, ok := r.URL.Query()["queue"]; ok {
+			if len(val) == 0 {
+				s.log.Debugf("tier parameter was empty in request, assuming ALL.")
+			}
+			queue = val[0]
+		}
+
+		stats, err := s.GetChampionStatsByIDGameVersionTierQueue(champion.ID, gameVersion, tier, queue)
 		if err == nil {
 			champion.Roles = stats.Roles
 		}
