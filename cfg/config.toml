@@ -23,6 +23,7 @@
 	MaxAgeChampion = 120 # Specified the maximum age for champion data in minutes until it's invalidated. 0 means it is always fetched newly.
     MaxAgeChampionRotation = 120 # Specified the maximum age for free champion rotation data in minutes until it's invalidated. 0 means it is always fetched newly.
 	MaxAgeSummoner = 120 # Specified the maximum age for summoner data in minutes until it's invalidated. 0 means it is always fetched newly.
+    MaxAgeSummonerSpells = 120 # Specified the maximum age for summoner spells data in minutes until it's invalidated. 0 means it is always fetched newly.
     DefaultRiotClient = "euw1" # Specifies a default RiotClient for use if not otherwise specified in requests or function calls
 
 [StorageBackend]
@@ -76,6 +77,17 @@
                 "8.14.1","8.13.1","8.12.1","8.11.1","8.10.1","8.9.1",
                 "8.8.2","8.8.1","8.7.1","8.6.1","8.5.2","8.5.1","8.4.1",
                 "8.3.1","8.2.1","8.1.1"] # We want to do stats calculations for the following versions, must be valid game versions, ordered decending, e.g. 9.5, 9.4, ..., see https://ddragon.leagueoflegends.com/api/versions.json
-
-    RoleThreshold = 30.0 # Percent value over which a role is considered relevant for the Champion
     
+    [StatsRunner.ChampionsStats]
+        Enabled = true    # Specifies if the ChampionStats calculation shall be activated
+        UpdateInverval = 2160  # Update Interval for running the SummonerSpellsStats calculations in minutes > 0
+        RoleThreshold  = 30.0 # Percent value over which a role is considered relevant for the Champion
+
+    [StatsRunner.ItemsStats]
+        Enabled = true    # Specifies if the ItemsStats calculation shall be activated
+        UpdateInverval = 2160  # Update Interval for running the ItemsStats calculations in minutes > 0
+
+    [StatsRunner.SummonerSpellsStats]
+        Enabled = true # Specified if the SummonerSpellsStats runner shall be activated
+        UpdateInverval = 2160 # Update Interval for running the SummonerSpellsStats calculations in minutes > 0
+        KeepOnlyHighestPickRate = true # Store only the SummonerSpells combination per role/total with the highest pick rate

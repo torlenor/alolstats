@@ -36,6 +36,21 @@ func (b *Backend) checkChampions() error {
 	return nil
 }
 
+// checkSummonerSpells checks the summonerspells collection and sets the correct indices
+func (b *Backend) checkSummonerSpells() error {
+
+	err := b.createIndex("summonerspells", mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "key", Value: bsonx.Int32(1)}},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	return nil
+}
+
 // checkMatches checks the matches collection and sets the correct indices
 func (b *Backend) checkMatches() error {
 	err := b.createIndex("matches", mongo.IndexModel{
@@ -184,47 +199,11 @@ func (b *Backend) checkItemStats() error {
 	collection := "itemstats"
 	err := b.createIndex(collection, mongo.IndexModel{
 		Keys: bsonx.Doc{
-			{Key: "championid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
-	})
-	if err != nil {
-		return fmt.Errorf("Error creating MongoDB indices: %s", err)
-	}
-
-	err = b.createIndex(collection, mongo.IndexModel{
-		Keys: bsonx.Doc{
-			{Key: "championkey", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
-	})
-	if err != nil {
-		return fmt.Errorf("Error creating MongoDB indices: %s", err)
-	}
-
-	err = b.createIndex(collection, mongo.IndexModel{
-		Keys: bsonx.Doc{
-			{Key: "championkey", Value: bsonx.Int32(1)},
-			{Key: "gameversion", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
-	})
-	if err != nil {
-		return fmt.Errorf("Error creating MongoDB indices: %s", err)
-	}
-
-	err = b.createIndex(collection, mongo.IndexModel{
-		Keys: bsonx.Doc{
-			{Key: "championid", Value: bsonx.Int32(1)},
-			{Key: "gameversion", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
-	})
-	if err != nil {
-		return fmt.Errorf("Error creating MongoDB indices: %s", err)
-	}
-
-	err = b.createIndex(collection, mongo.IndexModel{
-		Keys: bsonx.Doc{
 			{Key: "championkey", Value: bsonx.Int32(1)},
 			{Key: "gameversion", Value: bsonx.Int32(1)},
-			{Key: "tier", Value: bsonx.Int32(1)}},
+			{Key: "tier", Value: bsonx.Int32(1)},
+			{Key: "queue", Value: bsonx.Int32(1)},
+		},
 		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
 	})
 	if err != nil {
@@ -235,7 +214,41 @@ func (b *Backend) checkItemStats() error {
 		Keys: bsonx.Doc{
 			{Key: "championid", Value: bsonx.Int32(1)},
 			{Key: "gameversion", Value: bsonx.Int32(1)},
-			{Key: "tier", Value: bsonx.Int32(1)}},
+			{Key: "tier", Value: bsonx.Int32(1)},
+			{Key: "queue", Value: bsonx.Int32(1)},
+		},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	return nil
+}
+
+// checkSummonerSpellsStats checks the summonerspellsstats collection and sets the correct indices
+func (b *Backend) checkSummonerSpellsStats() error {
+	collection := "summonerspellsstats"
+	err := b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "championkey", Value: bsonx.Int32(1)},
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "tier", Value: bsonx.Int32(1)},
+			{Key: "queue", Value: bsonx.Int32(1)},
+		},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "championid", Value: bsonx.Int32(1)},
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "tier", Value: bsonx.Int32(1)},
+			{Key: "queue", Value: bsonx.Int32(1)},
+		},
 		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
 	})
 	if err != nil {
@@ -278,6 +291,16 @@ func (b *Backend) checkCollections() error {
 	}
 
 	err = b.checkItemStats()
+	if err != nil {
+		return err
+	}
+
+	err = b.checkSummonerSpellsStats()
+	if err != nil {
+		return err
+	}
+
+	err = b.checkSummonerSpells()
 	if err != nil {
 		return err
 	}

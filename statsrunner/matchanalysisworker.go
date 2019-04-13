@@ -240,6 +240,9 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					currentMatch := &riotclient.MatchDTO{}
 					cnt := 0
 					for cur.Next() {
+						if sr.shouldWorkersStop {
+							return
+						}
 						err := cur.Decode(currentMatch)
 						if err != nil {
 							sr.log.Errorf("Error deconding match: %s", err)
@@ -381,7 +384,7 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 				}
 			}
 
-			nextUpdate = time.Minute * time.Duration(sr.config.RScriptsUpdateInterval)
+			nextUpdate = time.Minute * time.Duration(sr.config.ChampionsStats.UpdateInverval)
 			elapsed := time.Since(start)
 			sr.log.Infof("Finished matchAnalysisWorker run. Took %s. Next run in %s", elapsed, nextUpdate)
 			sr.calculationMutex.Unlock()
@@ -547,19 +550,19 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 
 	// Role determination
 	var roles []string
-	if renormTopPercentage > sr.config.RoleThreshold {
+	if renormTopPercentage > sr.config.ChampionsStats.RoleThreshold {
 		roles = append(roles, "Top")
 	}
-	if renormMidPercentage > sr.config.RoleThreshold {
+	if renormMidPercentage > sr.config.ChampionsStats.RoleThreshold {
 		roles = append(roles, "Mid")
 	}
-	if renormJunglePercentage > sr.config.RoleThreshold {
+	if renormJunglePercentage > sr.config.ChampionsStats.RoleThreshold {
 		roles = append(roles, "Jungle")
 	}
-	if renormBotCarryPercentage > sr.config.RoleThreshold {
+	if renormBotCarryPercentage > sr.config.ChampionsStats.RoleThreshold {
 		roles = append(roles, "Carry")
 	}
-	if renormBotSupportPercentage > sr.config.RoleThreshold {
+	if renormBotSupportPercentage > sr.config.ChampionsStats.RoleThreshold {
 		roles = append(roles, "Support")
 	}
 	championStats.Roles = roles

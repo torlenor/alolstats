@@ -107,7 +107,7 @@ func (c *RiotClientDD) getVersions() (*currentVersions, error) {
 	return &versions, nil
 }
 
-// GetLolVersions returns all currenctly known LoL Versions
+// GetLoLVersions returns all currenctly known LoL Versions
 func (c *RiotClientDD) GetLoLVersions() ([]byte, error) {
 	versionsURL := "https://ddragon.leagueoflegends.com/api/versions.json"
 
@@ -136,6 +136,23 @@ func (c *RiotClientDD) GetDataDragonChampions() ([]byte, error) {
 	return body, nil
 }
 
+// GetDataDragonChampions returns the current champions available for the live game version
+func (c *RiotClientDD) GetDataDragonSummonerSpells() ([]byte, error) {
+	versions, err := c.getVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	championsURL := versions.Cdn + "/" + versions.N.Champion + "/data/" + versions.L + "/summoner.json"
+
+	body, err := c.downloadFile(championsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Summoner Spells data from Data Dragon: %s", err)
+	}
+
+	return body, nil
+}
+
 // GetDataDragonChampionsSpecificVersionLanguage returns the current champions available for the live game version
 func (c *RiotClientDD) GetDataDragonChampionsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
 	versions, err := c.getVersions()
@@ -153,7 +170,7 @@ func (c *RiotClientDD) GetDataDragonChampionsSpecificVersionLanguage(gameVersion
 	return body, nil
 }
 
-// GetDataDragonItemsSpecificVersionLanguage returns the current champions available for the live game version
+// GetDataDragonItemsSpecificVersionLanguage returns the current Items available for the live game version
 func (c *RiotClientDD) GetDataDragonItemsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
 	versions, err := c.getVersions()
 	if err != nil {
@@ -161,6 +178,23 @@ func (c *RiotClientDD) GetDataDragonItemsSpecificVersionLanguage(gameVersion, la
 	}
 
 	championsURL := versions.Cdn + "/" + gameVersion + "/data/" + language + "/item.json"
+
+	body, err := c.downloadFile(championsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Items data for game version %s and language %s from Data Dragon: %s", gameVersion, language, err)
+	}
+
+	return body, nil
+}
+
+// GetDataDragonSummonerSpellsSpecificVersionLanguage returns the current Summoner Spells available for the live game version
+func (c *RiotClientDD) GetDataDragonSummonerSpellsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
+	versions, err := c.getVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	championsURL := versions.Cdn + "/" + gameVersion + "/data/" + language + "/summoner.json"
 
 	body, err := c.downloadFile(championsURL)
 	if err != nil {

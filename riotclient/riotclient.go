@@ -13,9 +13,14 @@ type ClientChampion interface {
 	ChampionRotations() (s *FreeRotation, err error)
 }
 
-// ClientItem defines an interface to Champion API calls
+// ClientItem defines an interface to Item API calls
 type ClientItem interface {
 	Items(gameVersion, language string) (*ItemList, error)
+}
+
+// ClientSummonerSpells defines an interface to Summoner Spells API calls
+type ClientSummonerSpells interface {
+	SummonerSpells() (s *SummonerSpellsList, err error)
 }
 
 // ClientSummoner defines an interface to Summoner API calls
@@ -50,6 +55,7 @@ type Client interface {
 	ClientBase
 	ClientChampion
 	ClientItem
+	ClientSummonerSpells
 	ClientSummoner
 	ClientMatch
 	ClientLeague

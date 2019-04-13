@@ -189,9 +189,9 @@ func (sr *StatsRunner) itemWinRateWorker() {
 				sr.log.Debugf("itemWinRateWorker calculation for Game Version %s done. Analyzed %d matches", gameVersion, cnt)
 			}
 
-			nextUpdate = time.Minute * time.Duration(sr.config.RScriptsUpdateInterval)
+			nextUpdate = time.Minute * time.Duration(sr.config.ItemsStats.UpdateInverval)
 			elapsed := time.Since(start)
-			sr.log.Infof("Finished matchAnalysisWorker run. Took %s. Next run in %s", elapsed, nextUpdate)
+			sr.log.Infof("Finished itemWinRateWorker run. Took %s. Next run in %s", elapsed, nextUpdate)
 			sr.calculationMutex.Unlock()
 		}
 	}

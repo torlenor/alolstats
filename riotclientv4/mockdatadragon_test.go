@@ -28,3 +28,11 @@ func (c *MockRiotClientDD) GetDataDragonItemsSpecificVersionLanguage(gameVersion
 func (c *MockRiotClientDD) GetLoLVersions() ([]byte, error) {
 	return nil, nil
 }
+
+func (c *MockRiotClientDD) GetDataDragonSummonerSpells() ([]byte, error) {
+	return nil, nil
+}
+
+func (c *MockRiotClientDD) GetDataDragonSummonerSpellsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
+	return nil, nil
+}

@@ -76,8 +76,15 @@ func (sr *StatsRunner) Start() {
 			sr.log.Info("Not running R scripts (deactivated in config)")
 		}
 
-		go sr.matchAnalysisWorker()
-		// go sr.itemWinRateWorker()
+		if sr.config.ChampionsStats.Enabled {
+			go sr.matchAnalysisWorker()
+		}
+		if sr.config.ItemsStats.Enabled {
+			go sr.itemWinRateWorker()
+		}
+		if sr.config.SummonerSpellsStats.Enabled {
+			go sr.summonerSpellsWorker()
+		}
 
 		sr.isStarted = true
 	} else {

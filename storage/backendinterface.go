@@ -21,6 +21,14 @@ type BackendFreeRotation interface {
 	StoreFreeRotation(freeRotation *riotclient.FreeRotation) error
 }
 
+// BackendSummonerSpells defines an interface to store/retrieve Summoner Spells data from Storage Backend
+type BackendSummonerSpells interface {
+	GetSummonerSpells() (*riotclient.SummonerSpellsList, error)
+	GetSummonerSpellsTimeStamp() time.Time
+
+	StoreSummonerSpells(summonerSpellsList *riotclient.SummonerSpellsList) error
+}
+
 // BackendLeague defines an interface to store/retrieve League data from Storage Backend
 type BackendLeague interface {
 	GetLeagueByQueue(league string, queue string) (*riotclient.LeagueListDTO, error)
@@ -90,6 +98,9 @@ type BackendStats interface {
 
 	GetItemStatsByChampionIDGameVersion(championID, gameVersion string) (*ItemStatsStorage, error)
 	StoreItemStats(statsStorage *ItemStatsStorage) error
+
+	GetSummonerSpellsStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*SummonerSpellsStatsStorage, error)
+	StoreSummonerSpellsStats(data *SummonerSpellsStatsStorage) error
 }
 
 // BackendMisc defines an interface to generic storages from Backend
@@ -104,6 +115,7 @@ type Backend interface {
 	BackendFreeRotation
 	BackendMatch
 	BackendSummoner
+	BackendSummonerSpells
 	BackendLeague
 
 	BackendInternals

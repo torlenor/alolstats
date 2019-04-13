@@ -49,6 +49,8 @@ type LoLStorage struct {
 	MaxAgeChampionRotation uint32
 	// Specified the maximum age for summoner data in minutes until it's invalidated. 0 means it is always fetched newly.
 	MaxAgeSummoner uint32
+	// Specified the maximum age for summoner spells data in minutes until it's invalidated. 0 means it is always fetched newly.
+	MaxAgeSummonerSpells uint32
 	// Specifies a default RiotClient for use if not otherwise specified in requests or function calls
 	DefaultRiotClient string
 }
@@ -85,17 +87,38 @@ type FetchRunner struct {
 	LatestGameVersionForFetching string
 }
 
+// ChampionsStats holds the settings for the Champions analysis of the StatsRunner
+type ChampionsStats struct {
+	Enabled        bool    // Specifies if the ChampionStats calculation shall be activated
+	UpdateInverval uint32  // Update Interval for running the SummonerSpellsStats calculations in minutes > 0
+	RoleThreshold  float64 // Percent value over which a role is considered relevant for the Champion
+}
+
+// ItemsStats holds the settings for the Items analysis of the StatsRunner
+type ItemsStats struct {
+	Enabled        bool   // Specifies if the ItemsStats calculation shall be activated
+	UpdateInverval uint32 // Update Interval for running the ItemsStats calculations in minutes > 0
+}
+
+// SummonerSpellsStats holds the settings for the Summoner Spells analysis of the StatsRunner
+type SummonerSpellsStats struct {
+	Enabled                 bool   // Specifies if the SummonerSpellsStats calculation shall be activated
+	UpdateInverval          uint32 // Update Interval for running the SummonerSpellsStats calculations in minutes > 0
+	KeepOnlyHighestPickRate bool   // Store only the SummonerSpells combination per role/total with the highest pick rate
+}
+
 // StatsRunner holds the settings for the StatsRunner
 type StatsRunner struct {
-	RunRScripts      bool   // Specifies if R scripts shall be used (needs a running R installation)
-	RScriptPath      string // Path to the R scripts (distributed with alolstats)
-	RPlotsOutputPath string // Path where the generated plots shall be stored
-
+	RunRScripts            bool   // Specifies if R scripts shall be used (needs a running R installation)
+	RScriptPath            string // Path to the R scripts (distributed with alolstats)
+	RPlotsOutputPath       string // Path where the generated plots shall be stored
 	RScriptsUpdateInterval uint32 // Update Interval for running the R scripts in minutes > 0
 
 	GameVersion []string // We want to do stats calculations for the following versions, must be valid game versions, ordered decending, e.g. 9.5, 9.4, ..., see https://ddragon.leagueoflegends.com/api/versions.json, e.g., 9.1.1, 8.24.1
 
-	RoleThreshold float64 // Percent value over which a role is considered relevant for the Champion
+	ChampionsStats      ChampionsStats      // ChampionsStats worker settings
+	ItemsStats          ItemsStats          // ItemsStats worker settings
+	SummonerSpellsStats SummonerSpellsStats // SummonerSpells worker settings
 }
 
 // Config holds the complete ALolStats config

@@ -351,3 +351,23 @@ func (b *mockBackend) GetItemStatsByChampionIDGameVersion(championID, gameVersio
 func (b *mockBackend) StoreItemStats(data *ItemStatsStorage) error {
 	return fmt.Errorf("Not implemented")
 }
+
+func (b *mockBackend) GetSummonerSpellsStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*SummonerSpellsStatsStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) StoreSummonerSpellsStats(data *SummonerSpellsStatsStorage) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetSummonerSpells() (*riotclient.SummonerSpellsList, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetSummonerSpellsTimeStamp() time.Time {
+	return time.Time{}
+}
+
+func (b *mockBackend) StoreSummonerSpells(summonerSpellsList *riotclient.SummonerSpellsList) error {
+	return fmt.Errorf("Not implemented")
+}
