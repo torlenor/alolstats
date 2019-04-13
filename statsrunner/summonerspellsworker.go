@@ -94,8 +94,6 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 			summonerSpellsDesc := sr.storage.GetSummonerSpells(false)
 
 			mapID := uint64(11)
-			highQueueID := uint64(440)
-			lowQueueID := uint64(400)
 
 			for queueID, queue := range queueIDtoQueue {
 				for _, versionStr := range sr.config.GameVersion {
@@ -136,7 +134,7 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 							continue
 						}
 
-						if currentMatch.MapID != 11 || currentMatch.QueueID < int(lowQueueID) || currentMatch.QueueID > int(highQueueID) {
+						if currentMatch.MapID != int(mapID) || currentMatch.QueueID != int(queueID) {
 							sr.log.Warnf("Found match which should not have been returned from storage, skipping...")
 							continue
 						}
@@ -164,8 +162,6 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 									}
 								}
 							}
-
-							// sr.log.Debugf("%s", summonerSpellsHash)
 
 							// Get structs for counting
 							if _, ok := summonerSpellsCountersPerTier[matchTier]; !ok {
