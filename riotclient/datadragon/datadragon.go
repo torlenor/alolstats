@@ -136,18 +136,35 @@ func (c *RiotClientDD) GetDataDragonChampions() ([]byte, error) {
 	return body, nil
 }
 
-// GetDataDragonChampions returns the current champions available for the live game version
+// GetDataDragonSummonerSpells returns the current summoner spells available for the live game version
 func (c *RiotClientDD) GetDataDragonSummonerSpells() ([]byte, error) {
 	versions, err := c.getVersions()
 	if err != nil {
 		return nil, err
 	}
 
-	championsURL := versions.Cdn + "/" + versions.N.Champion + "/data/" + versions.L + "/summoner.json"
+	championsURL := versions.Cdn + "/" + versions.N.Summoner + "/data/" + versions.L + "/summoner.json"
 
 	body, err := c.downloadFile(championsURL)
 	if err != nil {
 		return nil, fmt.Errorf("Error downloading Summoner Spells data from Data Dragon: %s", err)
+	}
+
+	return body, nil
+}
+
+// GetDataDragonItems returns the current items available for the live game version
+func (c *RiotClientDD) GetDataDragonItems() ([]byte, error) {
+	versions, err := c.getVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	championsURL := versions.Cdn + "/" + versions.N.Item + "/data/" + versions.L + "/item.json"
+
+	body, err := c.downloadFile(championsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Items data from Data Dragon: %s", err)
 	}
 
 	return body, nil
@@ -198,7 +215,7 @@ func (c *RiotClientDD) GetDataDragonSummonerSpellsSpecificVersionLanguage(gameVe
 
 	body, err := c.downloadFile(championsURL)
 	if err != nil {
-		return nil, fmt.Errorf("Error downloading Items data for game version %s and language %s from Data Dragon: %s", gameVersion, language, err)
+		return nil, fmt.Errorf("Error downloading Summoner Spells data for game version %s and language %s from Data Dragon: %s", gameVersion, language, err)
 	}
 
 	return body, nil

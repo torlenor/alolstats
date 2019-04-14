@@ -24,6 +24,7 @@
     MaxAgeChampionRotation = 120 # Specified the maximum age for free champion rotation data in minutes until it's invalidated. 0 means it is always fetched newly.
 	MaxAgeSummoner = 120 # Specified the maximum age for summoner data in minutes until it's invalidated. 0 means it is always fetched newly.
     MaxAgeSummonerSpells = 120 # Specified the maximum age for summoner spells data in minutes until it's invalidated. 0 means it is always fetched newly.
+    MaxAgeItems = 120 # Specified the maximum age for items data in minutes until it's invalidated. 0 means it is always fetched newly.
     DefaultRiotClient = "euw1" # Specifies a default RiotClient for use if not otherwise specified in requests or function calls
 
 [StorageBackend]

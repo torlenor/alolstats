@@ -15,7 +15,8 @@ type ClientChampion interface {
 
 // ClientItem defines an interface to Item API calls
 type ClientItem interface {
-	Items(gameVersion, language string) (*ItemList, error)
+	Items() (*ItemList, error)
+	ItemsSpecificVersionLanguage(gameVersion, language string) (*ItemList, error)
 }
 
 // ClientSummonerSpells defines an interface to Summoner Spells API calls

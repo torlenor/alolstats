@@ -51,6 +51,8 @@ type LoLStorage struct {
 	MaxAgeSummoner uint32
 	// Specified the maximum age for summoner spells data in minutes until it's invalidated. 0 means it is always fetched newly.
 	MaxAgeSummonerSpells uint32
+	// Specified the maximum age for items data in minutes until it's invalidated. 0 means it is always fetched newly.
+	MaxAgeItems uint32
 	// Specifies a default RiotClient for use if not otherwise specified in requests or function calls
 	DefaultRiotClient string
 }

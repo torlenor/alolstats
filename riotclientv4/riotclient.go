@@ -42,6 +42,7 @@ type RiotClientV4 struct {
 type dataDragon interface {
 	GetDataDragonChampions() ([]byte, error)
 
+	GetDataDragonItems() ([]byte, error)
 	GetDataDragonItemsSpecificVersionLanguage(gameVersion, language string) ([]byte, error)
 
 	GetDataDragonSummonerSpells() ([]byte, error)

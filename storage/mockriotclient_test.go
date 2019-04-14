@@ -159,7 +159,11 @@ func (c *mockClient) SummonerByPUUID(PUUID string) (s *riotclient.SummonerDTO, e
 	return nil, fmt.Errorf("Not implemented")
 }
 
-func (c *mockClient) Items(gameVersion, language string) (*riotclient.ItemList, error) {
+func (c *mockClient) ItemsSpecificVersionLanguage(gameVersion, language string) (*riotclient.ItemList, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (c *mockClient) Items() (*riotclient.ItemList, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
