@@ -19,7 +19,7 @@ func TestRiotClientV4_leagueByQueue(t *testing.T) {
 	// Inject a new time.Now()
 	now = func() time.Time {
 		layout := "2006-01-02T15:04:05.000Z"
-		str := "2018-12-22T13:00:00.0000"
+		str := "2018-12-22T13:00:00.000Z"
 		t, _ := time.Parse(layout, str)
 		return t
 	}
@@ -75,6 +75,8 @@ func TestRiotClientV4_leagueByQueue(t *testing.T) {
 						LeaguePoints: 32,
 					},
 				},
+
+				Timestamp: now(),
 			},
 			wantErr: false,
 			setJSON: []byte(`{"tier":"GRANDMASTER","leagueId":"a14485bd-709d-3c4c-94f3-b4d6e92a7372","entries":[{"summonerName":"S1 Atrocez","wins":544,"losses":489,"rank":"I","summonerId":"CM1D8AS2W9uPKJa2AjCaUkXSakYqmYaYvosL-tSjBaMD8ck","leaguePoints":191},{"summonerName":"MINDFLAY","wins":154,"losses":97,"rank":"I","summonerId":"LbWA5BBedoFOYOzHY56oxGaqrTW9NMYEP9Ftfi6UHtxk_LQ","leaguePoints":32}]}`),
@@ -172,7 +174,7 @@ func TestRiotClientV4_LeaguesForSummoner(t *testing.T) {
 	// Inject a new time.Now()
 	now = func() time.Time {
 		layout := "2006-01-02T15:04:05.000Z"
-		str := "2018-12-22T13:00:00.0000"
+		str := "2018-12-22T13:00:00.000Z"
 		t, _ := time.Parse(layout, str)
 		return t
 	}
@@ -221,6 +223,8 @@ func TestRiotClientV4_LeaguesForSummoner(t *testing.T) {
 						Tier:         "GRANDMASTER",
 						SummonerID:   "7w1cHKdOPa9XRHe2Lm5x9dBdm1UsbuPRw3FPXm-_O40dykE",
 						LeaguePoints: 157,
+
+						Timestamp: now(),
 					},
 				},
 			},

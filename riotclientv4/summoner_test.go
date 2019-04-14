@@ -19,7 +19,7 @@ func TestRiotClientV4_SummonerByName(t *testing.T) {
 	// Inject a new time.Now()
 	now = func() time.Time {
 		layout := "2006-01-02T15:04:05.000Z"
-		str := "2018-12-22T13:00:00.0000"
+		str := "2018-12-22T13:00:00.000Z"
 		t, _ := time.Parse(layout, str)
 		return t
 	}
@@ -169,7 +169,7 @@ func TestRiotClientV4_SummonerByAccountID(t *testing.T) {
 	// Inject a new time.Now()
 	now = func() time.Time {
 		layout := "2006-01-02T15:04:05.000Z"
-		str := "2018-12-22T13:00:00.0000"
+		str := "2018-12-22T13:00:00.000Z"
 		t, _ := time.Parse(layout, str)
 		return t
 	}
@@ -318,7 +318,7 @@ func TestRiotClientV4_SummonerBySummonerID(t *testing.T) {
 	// Inject a new time.Now()
 	now = func() time.Time {
 		layout := "2006-01-02T15:04:05.000Z"
-		str := "2018-12-22T13:00:00.0000"
+		str := "2018-12-22T13:00:00.000Z"
 		t, _ := time.Parse(layout, str)
 		return t
 	}
@@ -468,7 +468,7 @@ func TestRiotClientV4_SummonerByPUUID(t *testing.T) {
 	// Inject a new time.Now()
 	now = func() time.Time {
 		layout := "2006-01-02T15:04:05.000Z"
-		str := "2018-12-22T13:00:00.0000"
+		str := "2018-12-22T13:00:00.000Z"
 		t, _ := time.Parse(layout, str)
 		return t
 	}
