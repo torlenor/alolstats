@@ -55,6 +55,14 @@ func TestSplitNumericVersion(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name: "Test 6 - Invalid version, negative number",
+			args: args{
+				version: "-9.1.1",
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -128,6 +136,14 @@ func TestSplitNumericMatchVersion(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name: "Test 6 - Invalid version, negative values",
+			args: args{
+				version: "4.-18.1.2",
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -138,6 +154,68 @@ func TestSplitNumericMatchVersion(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SplitNumericMatchVersion() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGenerateStatusResponse(t *testing.T) {
+	type args struct {
+		statusCode uint16
+		statusText string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "Test 1 - Status code 200, some text",
+			args: args{
+				statusCode: 200,
+				statusText: "some text",
+			},
+			want: `{"status": { "status_code": 200, "message": "some text" } }`,
+		},
+		{
+			name: "Test 2 - Status code 404, some other text",
+			args: args{
+				statusCode: 404,
+				statusText: "some other text",
+			},
+			want: `{"status": { "status_code": 404, "message": "some other text" } }`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GenerateStatusResponse(tt.args.statusCode, tt.args.statusText); got != tt.want {
+				t.Errorf("GenerateStatusResponse() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCleanUpSummonerName(t *testing.T) {
+	type args struct {
+		summonerName string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "Test 1 - Cleanup summoner name - uppercase, spaces, unterlines and dashes",
+			args: args{
+				summonerName: "Test Su_-mmOner",
+			},
+			want: `testsummoner`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CleanUpSummonerName(tt.args.summonerName); got != tt.want {
+				t.Errorf("CleanUpSummonerName() = %v, want %v", got, tt.want)
 			}
 		})
 	}
