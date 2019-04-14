@@ -136,7 +136,7 @@ func (c *RiotClientDD) GetDataDragonChampions() ([]byte, error) {
 	return body, nil
 }
 
-// GetDataDragonChampionsSpecificVersionLanguage returns the current champions available for the live game version
+// GetDataDragonChampionsSpecificVersionLanguage returns the champions for a given game version and language
 func (c *RiotClientDD) GetDataDragonChampionsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
 	versions, err := c.getVersions()
 	if err != nil {
@@ -170,7 +170,7 @@ func (c *RiotClientDD) GetDataDragonSummonerSpells() ([]byte, error) {
 	return body, nil
 }
 
-// GetDataDragonSummonerSpellsSpecificVersionLanguage returns the current Summoner Spells available for the live game version
+// GetDataDragonSummonerSpellsSpecificVersionLanguage returns the Summoner Spells for a given game version and language
 func (c *RiotClientDD) GetDataDragonSummonerSpellsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
 	versions, err := c.getVersions()
 	if err != nil {
@@ -204,7 +204,7 @@ func (c *RiotClientDD) GetDataDragonItems() ([]byte, error) {
 	return body, nil
 }
 
-// GetDataDragonItemsSpecificVersionLanguage returns the current Items available for the live game version
+// GetDataDragonItemsSpecificVersionLanguage returns the Items  for a given game version and language
 func (c *RiotClientDD) GetDataDragonItemsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
 	versions, err := c.getVersions()
 	if err != nil {
