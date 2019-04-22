@@ -19,6 +19,12 @@ type ClientItem interface {
 	ItemsSpecificVersionLanguage(gameVersion, language string) (*ItemList, error)
 }
 
+// ClientRunesReforged defines an interface to Item API calls
+type ClientRunesReforged interface {
+	RunesReforged() (*RunesReforgedList, error)
+	RunesReforgedSpecificVersionLanguage(gameVersion, language string) (*RunesReforgedList, error)
+}
+
 // ClientSummonerSpells defines an interface to Summoner Spells API calls
 type ClientSummonerSpells interface {
 	SummonerSpells() (s *SummonerSpellsList, err error)
@@ -56,9 +62,10 @@ type Client interface {
 	ClientBase
 	ClientChampion
 	ClientItem
-	ClientSummonerSpells
-	ClientSummoner
-	ClientMatch
 	ClientLeague
+	ClientMatch
+	ClientRunesReforged
 	ClientSpectator
+	ClientSummoner
+	ClientSummonerSpells
 }

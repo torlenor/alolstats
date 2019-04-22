@@ -12,12 +12,12 @@ import (
 	"github.com/torlenor/alolstats/utils"
 )
 
-type singlePickWinCounter struct {
+type summonerSpellsSinglePickWinCounter struct {
 	Picks          uint64
 	Wins           uint64
 	SummonerSpells []riotclient.SummonerSpell
 }
-type singlePickWinCounters map[string]singlePickWinCounter // [summonerSpellsHash]
+type summonerSpellsSinglePickWinCounters map[string]summonerSpellsSinglePickWinCounter // [summonerSpellsHash]
 
 type summonerSpellsCounter struct {
 	ChampionID int
@@ -26,8 +26,8 @@ type summonerSpellsCounter struct {
 
 	TotalPicks uint64
 
-	TotalCounters singlePickWinCounters
-	PerRole       map[string]map[string]singlePickWinCounters // [lane][role]
+	TotalCounters summonerSpellsSinglePickWinCounters
+	PerRole       map[string]map[string]summonerSpellsSinglePickWinCounters // [lane][role]
 }
 type summonerSpellsCounters map[int]summonerSpellsCounter            // [champID], e.g., 1, 10, 43, ...
 type summonerSpellsCountersPerTier map[string]summonerSpellsCounters // [tier], e.g., "GOLD", "SILVER", "UNRANKED"
@@ -44,8 +44,8 @@ func (sr *StatsRunner) newSummonerSpellsCounters(champions riotclient.ChampionsL
 			ChampionID:  champID,
 			GameVersion: gameVersion,
 
-			TotalCounters: make(singlePickWinCounters),
-			PerRole:       make(map[string]map[string]singlePickWinCounters),
+			TotalCounters: make(summonerSpellsSinglePickWinCounters),
+			PerRole:       make(map[string]map[string]summonerSpellsSinglePickWinCounters),
 		}
 	}
 
@@ -170,7 +170,7 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 							cct := summonerSpellsCountersPerTier[matchTier]
 							cc := cct[cid]
 							if _, ok := cc.PerRole[lane]; !ok {
-								cc.PerRole[lane] = make(map[string]singlePickWinCounters)
+								cc.PerRole[lane] = make(map[string]summonerSpellsSinglePickWinCounters)
 							}
 							perRole := cc.PerRole[lane][role]
 
@@ -179,10 +179,10 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 
 							ccall := summonerSpellsCountersAllTiers[cid]
 							if _, ok := ccall.PerRole[lane]; !ok {
-								ccall.PerRole[lane] = make(map[string]singlePickWinCounters)
+								ccall.PerRole[lane] = make(map[string]summonerSpellsSinglePickWinCounters)
 							}
 							if _, ok := ccall.PerRole[lane][role]; !ok {
-								ccall.PerRole[lane][role] = make(singlePickWinCounters)
+								ccall.PerRole[lane][role] = make(summonerSpellsSinglePickWinCounters)
 							}
 							perRoleAll := ccall.PerRole[lane][role]
 
@@ -258,6 +258,18 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 					sr.log.Infof("SummonerSpellsWorker calculation for Game Version %s and Queue %s done. Analyzed %d matches", gameVersion, queue, cnt)
 				}
 			}
+
+			gameVersions := storage.GameVersions{}
+			for _, val := range sr.config.GameVersion {
+				ver, err := utils.SplitNumericVersion(val)
+				if err != nil {
+					continue
+				}
+
+				verStr := fmt.Sprintf("%d.%d", ver[0], ver[1])
+				gameVersions.Versions = append(gameVersions.Versions, verStr)
+			}
+			sr.storage.StoreKnownGameVersions(&gameVersions)
 
 			nextUpdate = time.Minute * time.Duration(sr.config.SummonerSpellsStats.UpdateInverval)
 			elapsed := time.Since(start)
@@ -343,7 +355,7 @@ func (sr *StatsRunner) prepareSummonerSpellsStats(champID uint64, majorVersion u
 }
 
 func (sr *StatsRunner) calculateSummonerSpellsRoleStats(cc *summonerSpellsCounter, role string) storage.SummonerSpellsStatsValues {
-	summedCounters := singlePickWinCounters{}
+	summedCounters := summonerSpellsSinglePickWinCounters{}
 
 	switch role {
 	case "Top":
@@ -375,7 +387,7 @@ func (sr *StatsRunner) calculateSummonerSpellsRoleStats(cc *summonerSpellsCounte
 	return sr.calcSummonerSpellsStatsFromCounters(&summedCounters)
 }
 
-func sumSinglePickWinCounters(summedCounters *singlePickWinCounters, countersToAdd singlePickWinCounters) {
+func sumSinglePickWinCounters(summedCounters *summonerSpellsSinglePickWinCounters, countersToAdd summonerSpellsSinglePickWinCounters) {
 	for key, counter := range countersToAdd {
 		count := (*summedCounters)[key]
 		count.Picks += counter.Picks
@@ -385,7 +397,7 @@ func sumSinglePickWinCounters(summedCounters *singlePickWinCounters, countersToA
 	}
 }
 
-func (sr *StatsRunner) calcSummonerSpellsStatsFromCounters(counters *singlePickWinCounters) storage.SummonerSpellsStatsValues {
+func (sr *StatsRunner) calcSummonerSpellsStatsFromCounters(counters *summonerSpellsSinglePickWinCounters) storage.SummonerSpellsStatsValues {
 	statsValues := storage.SummonerSpellsStatsValues{}
 
 	var totalCount uint64

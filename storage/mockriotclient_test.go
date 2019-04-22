@@ -170,3 +170,11 @@ func (c *mockClient) Items() (*riotclient.ItemList, error) {
 func (c *mockClient) SummonerSpells() (s *riotclient.SummonerSpellsList, err error) {
 	return nil, fmt.Errorf("Not implemented")
 }
+
+func (c *mockClient) RunesReforgedSpecificVersionLanguage(gameVersion, language string) (*riotclient.RunesReforgedList, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (c *mockClient) RunesReforged() (*riotclient.RunesReforgedList, error) {
+	return nil, fmt.Errorf("Not implemented")
+}

@@ -220,3 +220,39 @@ func (c *RiotClientDD) GetDataDragonItemsSpecificVersionLanguage(gameVersion, la
 
 	return body, nil
 }
+
+// GetDataDragonRunesReforged returns the current Runes Reforged available for the live game version
+func (c *RiotClientDD) GetDataDragonRunesReforged() ([]byte, error) {
+	versions, err := c.getVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	// We use the Item version as there seems to be no special version for Runes Reforged
+
+	championsURL := versions.Cdn + "/" + versions.N.Item + "/data/" + versions.L + "/runesReforged.json"
+
+	body, err := c.downloadFile(championsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Runes Reforged data from Data Dragon: %s", err)
+	}
+
+	return body, nil
+}
+
+// GetDataDragonRunesReforgedSpecificVersionLanguage returns the Runes Reforged for a given game version and language
+func (c *RiotClientDD) GetDataDragonRunesReforgedSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
+	versions, err := c.getVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	championsURL := versions.Cdn + "/" + gameVersion + "/data/" + language + "/runesReforged.json"
+
+	body, err := c.downloadFile(championsURL)
+	if err != nil {
+		return nil, fmt.Errorf("Error downloading Runes Reforged data for game version %s and language %s from Data Dragon: %s", gameVersion, language, err)
+	}
+
+	return body, nil
+}

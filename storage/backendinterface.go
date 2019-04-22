@@ -29,6 +29,14 @@ type BackendSummonerSpells interface {
 	StoreSummonerSpells(summonerSpellsList *riotclient.SummonerSpellsList) error
 }
 
+// BackendRunesReforged defines an interface to store/retrieve Summoner Spells data from Storage Backend
+type BackendRunesReforged interface {
+	GetRunesReforged() (*riotclient.RunesReforgedList, error)
+	GetRunesReforgedTimeStamp() time.Time
+
+	StoreRunesReforged(runesReforgedList *riotclient.RunesReforgedList) error
+}
+
 // BackendLeague defines an interface to store/retrieve League data from Storage Backend
 type BackendLeague interface {
 	GetLeagueByQueue(league string, queue string) (*riotclient.LeagueListDTO, error)
@@ -101,6 +109,9 @@ type BackendStats interface {
 
 	GetSummonerSpellsStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*SummonerSpellsStatsStorage, error)
 	StoreSummonerSpellsStats(data *SummonerSpellsStatsStorage) error
+
+	GetRunesReforgedStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*RunesReforgedStatsStorage, error)
+	StoreRunesReforgedStats(data *RunesReforgedStatsStorage) error
 }
 
 // BackendMisc defines an interface to generic storages from Backend
@@ -116,6 +127,7 @@ type Backend interface {
 	BackendMatch
 	BackendSummoner
 	BackendSummonerSpells
+
 	BackendLeague
 
 	BackendInternals

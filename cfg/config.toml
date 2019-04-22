@@ -92,3 +92,9 @@
         Enabled = true # Specified if the SummonerSpellsStats runner shall be activated
         UpdateInverval = 2160 # Update Interval for running the SummonerSpellsStats calculations in minutes > 0
         KeepOnlyHighestPickRate = true # Store only the SummonerSpells combination per role/total with the highest pick rate
+
+    [StatsRunner.RunesReforgedStats]
+        Enabled = true # Specified if the RunesReforgedStats runner shall be activated
+        UpdateInverval = 2160 # Update Interval for running the RunesReforgedStats calculations in minutes > 0
+        KeepOnlyHighestPickRate = true # Store only the Runes Reforged combination per role/total with the highest pick rate
+        

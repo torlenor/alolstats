@@ -59,3 +59,21 @@ func (c *MockRiotClientDD) GetDataDragonSummonerSpellsSpecificVersionLanguage(ga
 
 	return c.summonerSpellsJSON, nil
 }
+
+// GetDataDragonRunesReforgedSpecificVersionLanguage returns the Runes Reforged for a specific gameVersion and langauge
+func (c *MockRiotClientDD) GetDataDragonRunesReforgedSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
+	if c.err != nil {
+		return []byte(""), c.err
+	}
+
+	return c.itemJSON, nil
+}
+
+// GetDataDragonRunesReforged returns the Runes Reforged for the live game version
+func (c *MockRiotClientDD) GetDataDragonRunesReforged() ([]byte, error) {
+	if c.err != nil {
+		return []byte(""), c.err
+	}
+
+	return c.itemJSON, nil
+}

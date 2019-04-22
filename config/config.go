@@ -109,6 +109,13 @@ type SummonerSpellsStats struct {
 	KeepOnlyHighestPickRate bool   // Store only the SummonerSpells combination per role/total with the highest pick rate
 }
 
+// RunesReforgedStats holds the settings for the Runes Reforged analysis of the StatsRunner
+type RunesReforgedStats struct {
+	Enabled                 bool   // Specifies if the RunesReforgedStats calculation shall be activated
+	UpdateInverval          uint32 // Update Interval for running the RunesReforgedStats calculations in minutes > 0
+	KeepOnlyHighestPickRate bool   // Store only the Runes Reforged combination per role/total with the highest pick rate
+}
+
 // StatsRunner holds the settings for the StatsRunner
 type StatsRunner struct {
 	RunRScripts            bool   // Specifies if R scripts shall be used (needs a running R installation)
@@ -121,6 +128,7 @@ type StatsRunner struct {
 	ChampionsStats      ChampionsStats      // ChampionsStats worker settings
 	ItemsStats          ItemsStats          // ItemsStats worker settings
 	SummonerSpellsStats SummonerSpellsStats // SummonerSpells worker settings
+	RunesReforgedStats  RunesReforgedStats  // Runes Reforged worker settings
 }
 
 // Config holds the complete ALolStats config

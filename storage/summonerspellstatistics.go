@@ -7,6 +7,7 @@ import (
 	"github.com/torlenor/alolstats/riotclient"
 )
 
+// SingleSummonerSpellsStatsValues contains Summoner Spells statistics for one unique spell combination
 type SingleSummonerSpellsStatsValues struct {
 	SampleSize uint64 `json:"samplesize"`
 
@@ -16,8 +17,10 @@ type SingleSummonerSpellsStatsValues struct {
 	WinRate  float64 `json:"winrate"`
 }
 
+// SummonerSpellsStatsValues contains Summoner Spells statistics for a set of unique spell combinations
 type SummonerSpellsStatsValues map[string]SingleSummonerSpellsStatsValues
 
+// SummonerSpellsStats contains collected Summoner Spells statistics for a champion
 type SummonerSpellsStats struct {
 	ChampionID               uint64 `json:"championid"`
 	ChampionRealID           string `json:"championrealid"`
@@ -38,6 +41,7 @@ type SummonerSpellsStats struct {
 	StatsPerRole map[string]SummonerSpellsStatsValues `json:"statsperrole"`
 }
 
+// SummonerSpellsStatsStorage is used to store and retreive Summoner Spells statistics from/to storage backend
 type SummonerSpellsStatsStorage struct {
 	SummonerSpellsStats SummonerSpellsStats `json:"summonerspellsstats"`
 

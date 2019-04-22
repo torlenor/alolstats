@@ -48,6 +48,9 @@ type dataDragon interface {
 	GetDataDragonSummonerSpells() ([]byte, error)
 	GetDataDragonSummonerSpellsSpecificVersionLanguage(gameVersion, language string) ([]byte, error)
 
+	GetDataDragonRunesReforged() ([]byte, error)
+	GetDataDragonRunesReforgedSpecificVersionLanguage(gameVersion, language string) ([]byte, error)
+
 	GetLoLVersions() ([]byte, error)
 }
 

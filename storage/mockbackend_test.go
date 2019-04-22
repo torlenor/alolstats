@@ -371,3 +371,11 @@ func (b *mockBackend) GetSummonerSpellsTimeStamp() time.Time {
 func (b *mockBackend) StoreSummonerSpells(summonerSpellsList *riotclient.SummonerSpellsList) error {
 	return fmt.Errorf("Not implemented")
 }
+
+func (b *mockBackend) GetRunesReforgedStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*RunesReforgedStatsStorage, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) StoreRunesReforgedStats(data *RunesReforgedStatsStorage) error {
+	return fmt.Errorf("Not implemented")
+}

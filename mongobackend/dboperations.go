@@ -258,6 +258,38 @@ func (b *Backend) checkSummonerSpellsStats() error {
 	return nil
 }
 
+// checkRunesReforgedStats checks the runesreforgedstats collection and sets the correct indices
+func (b *Backend) checkRunesReforgedStats() error {
+	collection := "runesreforgedstats"
+	err := b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "championkey", Value: bsonx.Int32(1)},
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "tier", Value: bsonx.Int32(1)},
+			{Key: "queue", Value: bsonx.Int32(1)},
+		},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex(collection, mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "championid", Value: bsonx.Int32(1)},
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "tier", Value: bsonx.Int32(1)},
+			{Key: "queue", Value: bsonx.Int32(1)},
+		},
+		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	return nil
+}
+
 // checkCollections checks if all collections needed exist and sets the correct indices
 func (b *Backend) checkCollections() error {
 	err := b.checkChampions()
@@ -296,6 +328,11 @@ func (b *Backend) checkCollections() error {
 	}
 
 	err = b.checkSummonerSpellsStats()
+	if err != nil {
+		return err
+	}
+
+	err = b.checkRunesReforgedStats()
 	if err != nil {
 		return err
 	}

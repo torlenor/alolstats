@@ -25,39 +25,27 @@ type itemData struct {
 
 // Items gets all items from Data Dragon
 func (c *RiotClientV4) Items() (*riotclient.ItemList, error) {
-	itemsData, err := c.ddragon.GetDataDragonItems()
+	data, err := c.ddragon.GetDataDragonItems()
 	if err != nil {
 		return nil, fmt.Errorf("Error getting Items from Data Dragon: %s", err)
 	}
 
-	itemsDat := itemData{}
-	err = json.Unmarshal(itemsData, &itemsDat)
-	if err != nil {
-		return nil, err
-	}
-
-	items := itemsDat.Data
-
-	now := now()
-
-	for key, item := range items {
-		item.Key = key
-		item.Timestamp = now
-		items[key] = item
-	}
-
-	return &items, nil
+	return c.parseItems(data)
 }
 
 // ItemsSpecificVersionLanguage gets all items for a specific gameVersion and language from Data Dragon
 func (c *RiotClientV4) ItemsSpecificVersionLanguage(gameVersion, language string) (*riotclient.ItemList, error) {
-	itemsData, err := c.ddragon.GetDataDragonItemsSpecificVersionLanguage(gameVersion, language)
+	data, err := c.ddragon.GetDataDragonItemsSpecificVersionLanguage(gameVersion, language)
 	if err != nil {
 		return nil, fmt.Errorf("Error getting Items from Data Dragon: %s", err)
 	}
 
+	return c.parseItems(data)
+}
+
+func (c *RiotClientV4) parseItems(data []byte) (*riotclient.ItemList, error) {
 	itemsDat := itemData{}
-	err = json.Unmarshal(itemsData, &itemsDat)
+	err := json.Unmarshal(data, &itemsDat)
 	if err != nil {
 		return nil, err
 	}

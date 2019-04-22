@@ -85,6 +85,9 @@ func (sr *StatsRunner) Start() {
 		if sr.config.SummonerSpellsStats.Enabled {
 			go sr.summonerSpellsWorker()
 		}
+		if sr.config.RunesReforgedStats.Enabled {
+			go sr.runesReforgedWorker()
+		}
 
 		sr.isStarted = true
 	} else {

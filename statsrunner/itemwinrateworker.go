@@ -189,6 +189,18 @@ func (sr *StatsRunner) itemWinRateWorker() {
 				sr.log.Debugf("itemWinRateWorker calculation for Game Version %s done. Analyzed %d matches", gameVersion, cnt)
 			}
 
+			gameVersions := storage.GameVersions{}
+			for _, val := range sr.config.GameVersion {
+				ver, err := utils.SplitNumericVersion(val)
+				if err != nil {
+					continue
+				}
+
+				verStr := fmt.Sprintf("%d.%d", ver[0], ver[1])
+				gameVersions.Versions = append(gameVersions.Versions, verStr)
+			}
+			sr.storage.StoreKnownGameVersions(&gameVersions)
+
 			nextUpdate = time.Minute * time.Duration(sr.config.ItemsStats.UpdateInverval)
 			elapsed := time.Since(start)
 			sr.log.Infof("Finished itemWinRateWorker run. Took %s. Next run in %s", elapsed, nextUpdate)

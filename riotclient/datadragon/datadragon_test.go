@@ -1024,3 +1024,234 @@ func TestRiotClientDD_GetDataDragonItemsSpecificVersionLanguage(t *testing.T) {
 		})
 	}
 }
+
+func TestRiotClientDD_GetDataDragonRunesReforged(t *testing.T) {
+	type fields struct {
+		config     config.RiotClient
+		httpClient *mockHTTPClient
+		log        *logrus.Entry
+	}
+	tests := []struct {
+		name               string
+		fields             fields
+		want               []byte
+		wantErr            bool
+		wantRequestString  string
+		wantRequestString2 string
+	}{
+		{
+			name: "Test 1 - Get a RunesReforged json string",
+			fields: fields{
+				config: config.RiotClient{
+					Region: "euw1",
+				},
+				log: logging.Get("RiotClientDD"),
+				httpClient: &mockHTTPClient{
+					response: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`{"n":{"champion":"8.24.1","summoner":"8.21.1","item":"9.7.1"},"l":"en_GB","cdn":"https://ddragon.leagueoflegends.com/cdn"}`))),
+					},
+					response2: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`fdsfsdf`))),
+					},
+				},
+			},
+			want:               []byte("fdsfsdf"),
+			wantErr:            false,
+			wantRequestString:  "https://ddragon.leagueoflegends.com/realms/euw.json",
+			wantRequestString2: "https://ddragon.leagueoflegends.com/cdn/" + "9.7.1" + "/data/" + "en_GB" + "/runesReforged.json",
+		},
+		{
+			name: "Test 2 - Get an invalid response",
+			fields: fields{
+				config: config.RiotClient{
+					Region: "euw1",
+				},
+				log: logging.Get("RiotClientDD"),
+				httpClient: &mockHTTPClient{
+					response: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`{"n":{"champion":"8.23.1","summoner":"8.22.1","item":"9.1.1"},"l":"en_US","cdn":"https://ddragon.leagueoflegends.com/cdn"}`))),
+					},
+					response2: &http.Response{
+						StatusCode: 404,
+					},
+					err2: fmt.Errorf("Error downloading file"),
+				},
+			},
+			want:               nil,
+			wantErr:            true,
+			wantRequestString:  "https://ddragon.leagueoflegends.com/realms/euw.json",
+			wantRequestString2: "https://ddragon.leagueoflegends.com/cdn/" + "9.1.1" + "/data/" + "en_US" + "/runesReforged.json",
+		},
+		{
+			name: "Test 3 - Get an invalid response from versions",
+			fields: fields{
+				config: config.RiotClient{
+					Region: "euw1",
+				},
+				log: logging.Get("RiotClientDD"),
+				httpClient: &mockHTTPClient{
+					response: &http.Response{
+						StatusCode: 404,
+					},
+					err: fmt.Errorf("Error getting versions"),
+					response2: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`fdsfsdf`))),
+					},
+				},
+			},
+			want:               nil,
+			wantErr:            true,
+			wantRequestString:  "https://ddragon.leagueoflegends.com/realms/euw.json",
+			wantRequestString2: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &RiotClientDD{
+				config:     tt.fields.config,
+				httpClient: tt.fields.httpClient,
+				log:        tt.fields.log,
+			}
+			got, err := c.GetDataDragonRunesReforged()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforged() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforged() = %v, want %v", got, tt.want)
+			}
+			if tt.fields.httpClient.getURL != tt.wantRequestString {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforged() = %v, want request string %v", tt.fields.httpClient.getURL, tt.wantRequestString)
+			}
+			if tt.fields.httpClient.getURL2 != tt.wantRequestString2 {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforged() = %v, want request string 2 %v", tt.fields.httpClient.getURL2, tt.wantRequestString2)
+			}
+		})
+	}
+}
+
+func TestRiotClientDD_GetDataDragonRunesReforgedSpecificVersionLanguage(t *testing.T) {
+	type fields struct {
+		config     config.RiotClient
+		httpClient *mockHTTPClient
+		log        *logrus.Entry
+	}
+	type args struct {
+		gameVersion string
+		language    string
+	}
+	tests := []struct {
+		name               string
+		fields             fields
+		args               args
+		want               []byte
+		wantErr            bool
+		wantRequestString  string
+		wantRequestString2 string
+	}{
+		{
+			name: "Test 1 - Get a RunesReforged json string",
+			fields: fields{
+				config: config.RiotClient{
+					Region: "euw1",
+				},
+				log: logging.Get("RiotClientDD"),
+				httpClient: &mockHTTPClient{
+					response: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`{"n":{"champion":"8.24.1","summoner":"8.22.1","item":"9.1.1"},"l":"en_GB","cdn":"https://ddragon.leagueoflegends.com/cdn"}`))),
+					},
+					response2: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`fdsfsdf`))),
+					},
+				},
+			},
+			args: args{
+				gameVersion: "9.7.1",
+				language:    "de_DE",
+			},
+			want:               []byte("fdsfsdf"),
+			wantErr:            false,
+			wantRequestString:  "https://ddragon.leagueoflegends.com/realms/euw.json",
+			wantRequestString2: "https://ddragon.leagueoflegends.com/cdn/" + "9.7.1" + "/data/" + "de_DE" + "/runesReforged.json",
+		},
+		{
+			name: "Test 2 - Get an invalid response",
+			fields: fields{
+				config: config.RiotClient{
+					Region: "euw1",
+				},
+				log: logging.Get("RiotClientDD"),
+				httpClient: &mockHTTPClient{
+					response: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`{"n":{"champion":"8.23.1","summoner":"8.22.1","item":"9.2.1"},"l":"en_US","cdn":"https://ddragon.leagueoflegends.com/cdn"}`))),
+					},
+					response2: &http.Response{
+						StatusCode: 404,
+					},
+					err2: fmt.Errorf("Error downloading file"),
+				},
+			},
+			args: args{
+				gameVersion: "8.7.1",
+				language:    "ab_cd",
+			},
+			want:               nil,
+			wantErr:            true,
+			wantRequestString:  "https://ddragon.leagueoflegends.com/realms/euw.json",
+			wantRequestString2: "https://ddragon.leagueoflegends.com/cdn/" + "8.7.1" + "/data/" + "ab_cd" + "/runesReforged.json",
+		},
+		{
+			name: "Test 3 - Get an invalid response from versions",
+			fields: fields{
+				config: config.RiotClient{
+					Region: "euw1",
+				},
+				log: logging.Get("RiotClientDD"),
+				httpClient: &mockHTTPClient{
+					response: &http.Response{
+						StatusCode: 404,
+					},
+					err: fmt.Errorf("Error getting versions"),
+					response2: &http.Response{
+						StatusCode: 200,
+						Body:       ioutil.NopCloser(bytes.NewReader([]byte(`fdsfsdf`))),
+					},
+				},
+			},
+			want:               nil,
+			wantErr:            true,
+			wantRequestString:  "https://ddragon.leagueoflegends.com/realms/euw.json",
+			wantRequestString2: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &RiotClientDD{
+				config:     tt.fields.config,
+				httpClient: tt.fields.httpClient,
+				log:        tt.fields.log,
+			}
+			got, err := c.GetDataDragonRunesReforgedSpecificVersionLanguage(tt.args.gameVersion, tt.args.language)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforgedSpecificVersionLanguage(args) error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforgedSpecificVersionLanguage(args) = %v, want %v", got, tt.want)
+			}
+			if tt.fields.httpClient.getURL != tt.wantRequestString {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforgedSpecificVersionLanguage(args) = %v, want request string %v", tt.fields.httpClient.getURL, tt.wantRequestString)
+			}
+			if tt.fields.httpClient.getURL2 != tt.wantRequestString2 {
+				t.Errorf("RiotClientDD.GetDataDragonRunesReforgedSpecificVersionLanguage(args) = %v, want request string 2 %v", tt.fields.httpClient.getURL2, tt.wantRequestString2)
+			}
+		})
+	}
+}
