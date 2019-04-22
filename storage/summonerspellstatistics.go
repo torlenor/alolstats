@@ -22,11 +22,10 @@ type SummonerSpellsStatsValues map[string]SingleSummonerSpellsStatsValues
 
 // SummonerSpellsStats contains collected Summoner Spells statistics for a champion
 type SummonerSpellsStats struct {
-	ChampionID               uint64 `json:"championid"`
-	ChampionRealID           string `json:"championrealid"`
-	ChampionName             string `json:"championname"`
-	GameVersion              string `json:"gameversion"`
-	TotalGamesForGameVersion uint64 `json:"totalgamesforgameversion"`
+	ChampionID     uint64 `json:"championid"`
+	ChampionRealID string `json:"championrealid"`
+	ChampionName   string `json:"championname"`
+	GameVersion    string `json:"gameversion"`
 
 	Tier string `json:"tier"`
 	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM

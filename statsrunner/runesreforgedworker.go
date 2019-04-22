@@ -62,17 +62,78 @@ func hashRunesReforged(summonerSpells []int) (string, []int) {
 	return strings.TrimSuffix(s, "_"), summonerSpells
 }
 
-func (sr *StatsRunner) fillRunesReforgedPicks(stats *riotclient.ParticipantStatsDTO) storage.RunesReforgedPicks {
-	// runesReforgedDesc := sr.storage.GetRunesReforged(false)
+func (sr *StatsRunner) fillRunesReforgedPicks(runesReforgedDesc *riotclient.RunesReforgedList, stats *riotclient.ParticipantStatsDTO) storage.RunesReforgedPicks {
 	runesReforgedPicks := storage.RunesReforgedPicks{}
 	runesReforgedPicks.SlotPrimary.ID = stats.PerkPrimaryStyle
 	runesReforgedPicks.SlotPrimary.Rune0.ID = stats.Perk0
 	runesReforgedPicks.SlotPrimary.Rune1.ID = stats.Perk1
 	runesReforgedPicks.SlotPrimary.Rune2.ID = stats.Perk2
 	runesReforgedPicks.SlotPrimary.Rune3.ID = stats.Perk3
+
+	for _, primary := range *runesReforgedDesc {
+		if primary.ID == runesReforgedPicks.SlotPrimary.ID {
+			runesReforgedPicks.SlotPrimary.Key = primary.Key
+			runesReforgedPicks.SlotPrimary.Icon = primary.Icon
+			runesReforgedPicks.SlotPrimary.Name = primary.Name
+			for _, slot := range primary.Slots {
+				for _, rune := range slot.Runes {
+					if rune.ID == runesReforgedPicks.SlotPrimary.Rune0.ID {
+						runesReforgedPicks.SlotPrimary.Rune0.Icon = rune.Icon
+						runesReforgedPicks.SlotPrimary.Rune0.Key = rune.Key
+						runesReforgedPicks.SlotPrimary.Rune0.Name = rune.Name
+						continue
+					}
+					if rune.ID == runesReforgedPicks.SlotPrimary.Rune1.ID {
+						runesReforgedPicks.SlotPrimary.Rune1.Icon = rune.Icon
+						runesReforgedPicks.SlotPrimary.Rune1.Key = rune.Key
+						runesReforgedPicks.SlotPrimary.Rune1.Name = rune.Name
+						continue
+					}
+					if rune.ID == runesReforgedPicks.SlotPrimary.Rune2.ID {
+						runesReforgedPicks.SlotPrimary.Rune2.Icon = rune.Icon
+						runesReforgedPicks.SlotPrimary.Rune2.Key = rune.Key
+						runesReforgedPicks.SlotPrimary.Rune2.Name = rune.Name
+						continue
+					}
+					if rune.ID == runesReforgedPicks.SlotPrimary.Rune3.ID {
+						runesReforgedPicks.SlotPrimary.Rune3.Icon = rune.Icon
+						runesReforgedPicks.SlotPrimary.Rune3.Key = rune.Key
+						runesReforgedPicks.SlotPrimary.Rune3.Name = rune.Name
+						continue
+					}
+				}
+			}
+		}
+	}
+
 	runesReforgedPicks.SlotSecondary.ID = stats.PerkSubStyle
 	runesReforgedPicks.SlotSecondary.Rune0.ID = stats.Perk4
 	runesReforgedPicks.SlotSecondary.Rune1.ID = stats.Perk5
+
+	for _, secondary := range *runesReforgedDesc {
+		if secondary.ID == runesReforgedPicks.SlotSecondary.ID {
+			runesReforgedPicks.SlotSecondary.Key = secondary.Key
+			runesReforgedPicks.SlotSecondary.Icon = secondary.Icon
+			runesReforgedPicks.SlotSecondary.Name = secondary.Name
+			for _, slot := range secondary.Slots {
+				for _, rune := range slot.Runes {
+					if rune.ID == runesReforgedPicks.SlotSecondary.Rune0.ID {
+						runesReforgedPicks.SlotSecondary.Rune0.Icon = rune.Icon
+						runesReforgedPicks.SlotSecondary.Rune0.Key = rune.Key
+						runesReforgedPicks.SlotSecondary.Rune0.Name = rune.Name
+						continue
+					}
+					if rune.ID == runesReforgedPicks.SlotSecondary.Rune1.ID {
+						runesReforgedPicks.SlotSecondary.Rune1.Icon = rune.Icon
+						runesReforgedPicks.SlotSecondary.Rune1.Key = rune.Key
+						runesReforgedPicks.SlotSecondary.Rune1.Name = rune.Name
+						continue
+					}
+				}
+			}
+		}
+	}
+
 	runesReforgedPicks.StatPerks.Perk0.ID = stats.StatPerk0
 	runesReforgedPicks.StatPerks.Perk1.ID = stats.StatPerk1
 	runesReforgedPicks.StatPerks.Perk2.ID = stats.StatPerk2
@@ -109,6 +170,7 @@ func (sr *StatsRunner) runesReforgedWorker() {
 			start := time.Now()
 
 			champions := sr.storage.GetChampions(false)
+			runesReforgedDesc := sr.storage.GetRunesReforged(false)
 
 			mapID := uint64(11)
 
@@ -177,7 +239,7 @@ func (sr *StatsRunner) runesReforgedWorker() {
 							}
 							runesReforgedHash, _ := hashRunesReforged(runesReforged)
 
-							runesReforgedPicks := sr.fillRunesReforgedPicks(&participant.Stats)
+							runesReforgedPicks := sr.fillRunesReforgedPicks(runesReforgedDesc, &participant.Stats)
 
 							role := participant.Timeline.Role
 							lane := participant.Timeline.Lane
@@ -310,21 +372,21 @@ func (sr *StatsRunner) prepareRunesReforgedStats(champID uint64, majorVersion ui
 
 	runesReforgedStats.Stats = make(storage.RunesReforgedStatsValues)
 
-	for summonerSpellsHash, counters := range cc.TotalCounters {
-		is := runesReforgedStats.Stats[summonerSpellsHash]
+	for runesReforgedHash, counters := range cc.TotalCounters {
+		is := runesReforgedStats.Stats[runesReforgedHash]
 		is.WinRate = float64(counters.Wins) / float64(counters.Picks)
 		is.PickRate = float64(counters.Picks) / float64(totalPicks)
 		is.SampleSize = counters.Picks
 		is.RunesReforged = counters.RunesReforged
-		runesReforgedStats.Stats[summonerSpellsHash] = is
+		runesReforgedStats.Stats[runesReforgedHash] = is
 	}
 
 	if sr.config.RunesReforgedStats.KeepOnlyHighestPickRate {
 		var highestPickRateHash string
 		highestSampleSize := uint64(0)
-		for summonerSpellsHash, stats := range runesReforgedStats.Stats {
+		for runesReforgedHash, stats := range runesReforgedStats.Stats {
 			if stats.SampleSize > highestSampleSize {
-				highestPickRateHash = summonerSpellsHash
+				highestPickRateHash = runesReforgedHash
 				highestSampleSize = stats.SampleSize
 			}
 		}
@@ -341,9 +403,9 @@ func (sr *StatsRunner) prepareRunesReforgedStats(champID uint64, majorVersion ui
 		if sr.config.RunesReforgedStats.KeepOnlyHighestPickRate {
 			var highestPickRateHash string
 			highestSampleSize := uint64(0)
-			for summonerSpellsHash, stats := range statsValues {
+			for runesReforgedHash, stats := range statsValues {
 				if stats.SampleSize > highestSampleSize {
-					highestPickRateHash = summonerSpellsHash
+					highestPickRateHash = runesReforgedHash
 					highestSampleSize = stats.SampleSize
 				}
 			}
@@ -425,15 +487,15 @@ func (sr *StatsRunner) calcRunesReforgedStatsFromCounters(counters *runesReforge
 		totalCount += count.Picks
 	}
 
-	for summonerSpellsHash, count := range *counters {
-		stats := statsValues[summonerSpellsHash]
+	for runesReforgedHash, count := range *counters {
+		stats := statsValues[runesReforgedHash]
 		if count.Picks > 0 {
 			stats.SampleSize = count.Picks
 			stats.RunesReforged = count.RunesReforged
 			stats.WinRate = float64(count.Wins) / float64(count.Picks)
 			stats.PickRate = float64(count.Picks) / float64(totalCount)
 		}
-		statsValues[summonerSpellsHash] = stats
+		statsValues[runesReforgedHash] = stats
 	}
 
 	return statsValues
