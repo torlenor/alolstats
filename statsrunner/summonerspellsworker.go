@@ -92,6 +92,11 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 
 			champions := sr.storage.GetChampions(false)
 			summonerSpellsDesc := sr.storage.GetSummonerSpells(false)
+			if summonerSpellsDesc == nil {
+				sr.log.Errorf("Could not get Summoner Spells from Storage, canceling summonerSpellsWorker run")
+				nextUpdate = time.Minute * time.Duration(sr.config.SummonerSpellsStats.UpdateInverval)
+				continue
+			}
 
 			mapID := uint64(11)
 

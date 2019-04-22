@@ -171,6 +171,11 @@ func (sr *StatsRunner) runesReforgedWorker() {
 
 			champions := sr.storage.GetChampions(false)
 			runesReforgedDesc := sr.storage.GetRunesReforged(false)
+			if runesReforgedDesc == nil {
+				sr.log.Errorf("Could not get Runes Reforged from Storage, canceling runesReforgedWorker run")
+				nextUpdate = time.Minute * time.Duration(sr.config.RunesReforgedStats.UpdateInverval)
+				continue
+			}
 
 			mapID := uint64(11)
 
