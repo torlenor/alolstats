@@ -18,7 +18,7 @@ func (b *Backend) GetChampions() (riotclient.ChampionsList, error) {
 
 	cur, err := c.Find(
 		context.Background(),
-		nil,
+		bson.D{{}},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("Find error: %s", err)
@@ -52,7 +52,7 @@ func (b *Backend) GetChampionsCount() (uint64, error) {
 
 	championsCount, err := c.CountDocuments(
 		context.Background(),
-		nil,
+		bson.D{{}},
 	)
 	if err != nil {
 		return 0, fmt.Errorf("Find error: %s", err)
@@ -65,7 +65,7 @@ func (b *Backend) GetChampionsCount() (uint64, error) {
 func (b *Backend) GetChampionsTimeStamp() time.Time {
 	championList, err := b.GetChampions()
 	if err != nil {
-		b.log.Errorf("Error getting Champions for TimeStamp")
+		b.log.Errorf("Error getting Champions for TimeStamp: %s", err)
 		return time.Time{}
 	}
 
