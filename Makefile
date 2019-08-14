@@ -29,13 +29,13 @@ clean:
 build:
 	@echo Building...
 	# go build -v -o ./bin/$(NAME) -ldflags '${LDFLAGS}' ${SRCPATH}/*.go
-	go build -v -o ./bin/$(NAME) -ldflags '${LDFLAGS}'
+	go build -o ./bin/$(NAME) -ldflags '${LDFLAGS}'
 	@echo Done.
 
 build-static:
 	@echo Building...
 	# CGO_ENABLED=0 go build -v -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ${SRCPATH}/*.go
-	CGO_ENABLED=0 go build -v -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}'
+	CGO_ENABLED=0 go build -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}'
 	@echo Done.
 
 test:
