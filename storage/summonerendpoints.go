@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // SummonerResponse contains summary informations of a summoner

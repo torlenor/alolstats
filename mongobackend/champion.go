@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetChampions gets the champions list from storage
@@ -50,7 +50,7 @@ func (b *Backend) GetChampionsCount() (uint64, error) {
 
 	c := b.client.Database(b.config.Database).Collection("champions")
 
-	championsCount, err := c.Count(
+	championsCount, err := c.CountDocuments(
 		context.Background(),
 		nil,
 	)
@@ -88,16 +88,13 @@ func (b *Backend) GetChampionsTimeStamp() time.Time {
 func (b *Backend) StoreChampions(championList riotclient.ChampionsList) error {
 	b.log.Debugf("Storing Champions in storage")
 
-	upsert := true
-	updateOptions := options.UpdateOptions{Upsert: &upsert}
-
 	hadErrors := false
 	for _, champion := range championList {
 		query := bson.D{{Key: "key", Value: champion.Key}}
 		update := bson.D{{Key: "$set", Value: champion}}
 
 		c := b.client.Database(b.config.Database).Collection("champions")
-		_, err := c.UpdateOne(context.Background(), query, update, &updateOptions)
+		_, err := c.UpdateOne(context.Background(), query, update, options.Update().SetUpsert(true))
 		if err != nil {
 			b.log.Warnf("Error saving champion in DB: %s", err)
 			hadErrors = true

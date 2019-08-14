@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
-	"github.com/torlenor/alolstats/storage"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"git.abyle.org/hps/alolstats/storage"
 )
 
 // GetChampionStatsByChampionIDGameVersionTierQueue returns all stats specific to a certain game version, champion id and tier and queue

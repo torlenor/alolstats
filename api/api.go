@@ -8,8 +8,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/logging"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/logging"
 )
 
 // API represents a Rest API instance of a ALoLStats instance

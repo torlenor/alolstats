@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // ActiveGameBySummonerID returns the active game (live game) for the given Summoner ID

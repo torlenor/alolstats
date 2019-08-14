@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // ChampionRotations returns the current free champions rotation from Riot API

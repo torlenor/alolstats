@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetSummonerSpells gets the summoner spells list from storage

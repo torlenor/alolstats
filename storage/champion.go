@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetChampions returns a list of all currently known champions

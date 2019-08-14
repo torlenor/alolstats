@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/torlenor/alolstats/storage"
+	"git.abyle.org/hps/alolstats/storage"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // GetMatchesCursorByGameVersion returns cursor to matches specific to a certain game version

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/torlenor/alolstats/utils"
+	"git.abyle.org/hps/alolstats/utils"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // Summoner is the storage type used for Summoner Data

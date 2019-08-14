@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // SingleSummonerSpellsStatsValues contains Summoner Spells statistics for one unique spell combination

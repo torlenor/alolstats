@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/logging"
-	"github.com/torlenor/alolstats/riotclient/datadragon"
-	"github.com/torlenor/alolstats/riotclient/ratelimit"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/logging"
+	"git.abyle.org/hps/alolstats/riotclient/datadragon"
+	"git.abyle.org/hps/alolstats/riotclient/ratelimit"
 )
 
 func TestNewClient(t *testing.T) {

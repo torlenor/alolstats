@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetActiveGameBySummonerID returns the active game (live game) for the given Summoner ID

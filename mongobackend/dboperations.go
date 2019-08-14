@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/x/bsonx"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
 func (b *Backend) createIndex(collection string, indexModel mongo.IndexModel) error {
@@ -27,7 +28,7 @@ func (b *Backend) checkChampions() error {
 	err := b.createIndex("champions", mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "key", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -42,7 +43,7 @@ func (b *Backend) checkSummonerSpells() error {
 	err := b.createIndex("summonerspells", mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "key", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -58,7 +59,7 @@ func (b *Backend) checkMatches() error {
 			{Key: "gameid", Value: bsonx.Int32(1)},
 			{Key: "platformid", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -70,7 +71,7 @@ func (b *Backend) checkMatches() error {
 			{Key: "mapid", Value: bsonx.Int32(1)},
 			{Key: "queueid", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
+		Options: options.Index().SetUnique(false),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -80,7 +81,7 @@ func (b *Backend) checkMatches() error {
 		Keys: bsonx.Doc{
 			{Key: "gameversion", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(false)}},
+		Options: options.Index().SetUnique(false),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -94,7 +95,7 @@ func (b *Backend) checkSummoners() error {
 	err := b.createIndex("summoners", mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "summonername", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -103,7 +104,7 @@ func (b *Backend) checkSummoners() error {
 	err = b.createIndex("summoners", mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "accountid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -112,7 +113,7 @@ func (b *Backend) checkSummoners() error {
 	err = b.createIndex("summoners", mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "summonerid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -121,7 +122,7 @@ func (b *Backend) checkSummoners() error {
 	err = b.createIndex("summoners", mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "puuid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -136,7 +137,7 @@ func (b *Backend) checkSummonerLeagues() error {
 	err := b.createIndex(collection, mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "summonername", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -145,7 +146,7 @@ func (b *Backend) checkSummonerLeagues() error {
 	err = b.createIndex(collection, mongo.IndexModel{
 		Keys: bsonx.Doc{
 			{Key: "summonerid", Value: bsonx.Int32(1)}},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -164,7 +165,7 @@ func (b *Backend) checkChampionStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -177,7 +178,7 @@ func (b *Backend) checkChampionStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -195,7 +196,7 @@ func (b *Backend) checkChampionStatsSummary() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -214,7 +215,7 @@ func (b *Backend) checkItemStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -227,7 +228,7 @@ func (b *Backend) checkItemStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -246,7 +247,7 @@ func (b *Backend) checkSummonerSpellsStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -259,7 +260,7 @@ func (b *Backend) checkSummonerSpellsStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -278,7 +279,7 @@ func (b *Backend) checkRunesReforgedStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)
@@ -291,7 +292,7 @@ func (b *Backend) checkRunesReforgedStats() error {
 			{Key: "tier", Value: bsonx.Int32(1)},
 			{Key: "queue", Value: bsonx.Int32(1)},
 		},
-		Options: bsonx.Doc{{Key: "unique", Value: bsonx.Boolean(true)}},
+		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating MongoDB indices: %s", err)

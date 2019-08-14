@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/torlenor/alolstats/utils"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 func (s *Storage) summonerSpellsEndpoint(w http.ResponseWriter, r *http.Request) {

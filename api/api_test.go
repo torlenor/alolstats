@@ -3,7 +3,7 @@ package api
 import (
 	"testing"
 
-	"github.com/torlenor/alolstats/config"
+	"git.abyle.org/hps/alolstats/config"
 )
 
 func TestCreatingNewAPI(t *testing.T) {

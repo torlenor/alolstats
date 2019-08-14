@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/torlenor/alolstats/storage"
+	"git.abyle.org/hps/alolstats/storage"
 )
 
 // GetKnownGameVersions gets the stored known game versions

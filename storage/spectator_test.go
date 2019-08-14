@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 func TestStorage_GetActiveGameBySummonerID(t *testing.T) {

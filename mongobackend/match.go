@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // GetMatch retreives match data for given id
@@ -50,7 +50,7 @@ func (b *Backend) GetMatch(id uint64) (*riotclient.MatchDTO, error) {
 func (b *Backend) GetMatchesCount() (uint64, error) {
 	c := b.client.Database(b.config.Database).Collection("matches")
 
-	matchesCount, err := c.Count(
+	matchesCount, err := c.CountDocuments(
 		context.Background(),
 		nil,
 	)
@@ -91,7 +91,7 @@ func (b *Backend) GetMatchesByGameVersionAndChampionID(gameVersion string, champ
 		},
 	}
 
-	matchesCount, err := c.Count(
+	matchesCount, err := c.CountDocuments(
 		context.Background(),
 		query,
 	)
@@ -154,7 +154,7 @@ func (b *Backend) GetMatchesByGameVersionChampionIDMapQueue(gameVersion string, 
 		},
 	}
 
-	matchesCount, err := c.Count(
+	matchesCount, err := c.CountDocuments(
 		context.Background(),
 		query,
 	)
@@ -220,7 +220,7 @@ func (b *Backend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersio
 		},
 	}
 
-	matchesCount, err := c.Count(
+	matchesCount, err := c.CountDocuments(
 		context.Background(),
 		query,
 	)

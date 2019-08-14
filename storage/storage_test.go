@@ -3,8 +3,8 @@ package storage
 import (
 	"testing"
 
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 func TestCreatingNewStorage(t *testing.T) {

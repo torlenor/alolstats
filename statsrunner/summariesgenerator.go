@@ -3,7 +3,7 @@ package statsrunner
 import (
 	"time"
 
-	"github.com/torlenor/alolstats/storage"
+	"git.abyle.org/hps/alolstats/storage"
 )
 
 func (sr *StatsRunner) generateChampionsSummary(gameVersion, league, queue string) (*storage.ChampionStatsSummaryStorage, error) {

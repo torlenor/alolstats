@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/torlenor/alolstats/utils"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 // ActiveGameResponse contains the prepare ActiveGame information for a API response

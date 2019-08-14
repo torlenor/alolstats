@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // MatchByID gets a match by its ID

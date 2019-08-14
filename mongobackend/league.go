@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
-	"github.com/torlenor/alolstats/riotclient"
-	"github.com/torlenor/alolstats/storage"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"git.abyle.org/hps/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/storage"
 )
 
 func (b *Backend) GetLeagueByQueue(league string, queue string) (*riotclient.LeagueListDTO, error) {

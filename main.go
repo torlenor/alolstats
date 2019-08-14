@@ -9,18 +9,18 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/torlenor/alolstats/api"
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/fetchrunner"
-	"github.com/torlenor/alolstats/logging"
-	"github.com/torlenor/alolstats/mongobackend"
-	"github.com/torlenor/alolstats/riotclient"
-	"github.com/torlenor/alolstats/riotclientv4"
-	"github.com/torlenor/alolstats/statsrunner"
-	"github.com/torlenor/alolstats/storage"
+	"git.abyle.org/hps/alolstats/api"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/fetchrunner"
+	"git.abyle.org/hps/alolstats/logging"
+	"git.abyle.org/hps/alolstats/mongobackend"
+	"git.abyle.org/hps/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclientv4"
+	"git.abyle.org/hps/alolstats/statsrunner"
+	"git.abyle.org/hps/alolstats/storage"
 
-	"github.com/torlenor/alolstats/riotclient/datadragon"
-	"github.com/torlenor/alolstats/riotclient/ratelimit"
+	riotclientdd "git.abyle.org/hps/alolstats/riotclient/datadragon"
+	riotclientrl "git.abyle.org/hps/alolstats/riotclient/ratelimit"
 
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
@@ -68,7 +68,7 @@ func storageBackendCreator(cfg config.StorageBackend) (storage.Backend, error) {
 	case "mongodb":
 		backend, err := mongobackend.NewBackend(cfg.MongoBackend)
 		if err != nil {
-			log.Errorln("Error creating the Memory Storage Backend:" + err.Error())
+			log.Errorln("Error creating the Mongo Storage Backend:" + err.Error())
 			return nil, err
 		}
 		return backend, nil

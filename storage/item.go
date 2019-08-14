@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetItems returns a list of all currently known summoner spells

@@ -12,8 +12,8 @@ stages:
 
 before_script:
   - mkdir -p /go/src/github.com/torlenor
-  - ln -s $CI_PROJECT_DIR /go/src/github.com/torlenor/alolstats
-  - cd /go/src/github.com/torlenor/alolstats
+  - ln -s $CI_PROJECT_DIR /go/src/git.abyle.org/hps/alolstats
+  - cd /go/src/git.abyle.org/hps/alolstats
 
 build:
   image: golang:1.11

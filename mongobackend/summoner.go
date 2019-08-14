@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/torlenor/alolstats/storage"
+	"git.abyle.org/hps/alolstats/storage"
 )
 
 func (b *Backend) summonerQuery(query *bson.D) (*storage.Summoner, error) {
@@ -53,7 +53,7 @@ func (b *Backend) summonerQuery(query *bson.D) (*storage.Summoner, error) {
 func (b *Backend) GetSummonersCount() (uint64, error) {
 	c := b.client.Database(b.config.Database).Collection("summoners")
 
-	summonersCount, err := c.Count(
+	summonersCount, err := c.CountDocuments(
 		context.Background(),
 		nil,
 	)

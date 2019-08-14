@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 func TestGettingFreeRotation(t *testing.T) {

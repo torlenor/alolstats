@@ -8,10 +8,10 @@ import (
 	"sync/atomic"
 
 	"github.com/sirupsen/logrus"
-	"github.com/torlenor/alolstats/api"
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/logging"
-	"github.com/torlenor/alolstats/storage"
+	"git.abyle.org/hps/alolstats/api"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/logging"
+	"git.abyle.org/hps/alolstats/storage"
 )
 
 type stats struct {

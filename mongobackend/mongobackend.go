@@ -4,12 +4,13 @@ package mongobackend
 import (
 	"context"
 
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/logging"
+	"git.abyle.org/hps/alolstats/storage"
 	"github.com/sirupsen/logrus"
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/logging"
-	"github.com/torlenor/alolstats/storage"
 
-	"github.com/mongodb/mongo-go-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Backend represents the Mongo Backend
@@ -25,7 +26,9 @@ func NewBackend(cfg config.MongoBackend) (*Backend, error) {
 		log:    logging.Get("MongoDB Storage Backend"),
 		config: cfg,
 	}
-	client, err := mongo.NewClient(b.config.URL)
+
+	clientOptions := options.Client().ApplyURI(cfg.URL)
+	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
 		b.log.Errorf("Error creating new MongoDB client: %s", err)
 		return nil, err

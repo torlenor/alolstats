@@ -1,6 +1,6 @@
 package storage
 
-import "github.com/torlenor/alolstats/api"
+import "git.abyle.org/hps/alolstats/api"
 
 func (s *Storage) registerAPIChampions(api *api.API) {
 	api.AttachModuleGet("/champions", s.championsEndpoint)

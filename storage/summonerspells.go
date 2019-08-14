@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetSummonerSpells returns a list of all currently known summoner spells

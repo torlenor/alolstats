@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // BackendChampion defines an interface to store/retrieve Champion data from Storage Backend

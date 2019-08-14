@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/torlenor/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetRunesReforged returns a list of all currently known summoner spells

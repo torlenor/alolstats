@@ -11,10 +11,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/torlenor/alolstats/config"
-	"github.com/torlenor/alolstats/logging"
+	"git.abyle.org/hps/alolstats/config"
+	"git.abyle.org/hps/alolstats/logging"
 
-	"github.com/torlenor/alolstats/riotclient/ratelimit"
+	"git.abyle.org/hps/alolstats/riotclient/ratelimit"
 )
 
 type httpClient interface {

@@ -15,7 +15,7 @@ COPY bin/alolstats /usr/bin/
 CMD ["/usr/bin/alolstats", "-c", "/app/config/config.toml"]
 
 LABEL org.label-schema.vendor="Abyle.org" \
-      org.label-schema.url="https://github.com/torlenor/alolstats" \
+      org.label-schema.url="https://git.abyle.org/hps/alolstats" \
       org.label-schema.name="ALoLStats" \
       org.label-schema.description="A League of Legends Statistics aggregation and calculation server written in GO"
 

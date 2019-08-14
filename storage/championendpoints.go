@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/torlenor/alolstats/utils"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 var fallbackGameVersion = "9.4"

@@ -3,7 +3,7 @@ package mongobackend
 import (
 	"testing"
 
-	"github.com/torlenor/alolstats/config"
+	"git.abyle.org/hps/alolstats/config"
 )
 
 func TestCreatingNewMongoBackend(t *testing.T) {

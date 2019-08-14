@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/torlenor/alolstats/utils"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 func (f *FetchRunner) getLeagueSummonerAccountIDs(league string, queue string, accountIDs map[string]bool) error {

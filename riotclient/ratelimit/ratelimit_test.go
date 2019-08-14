@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/torlenor/alolstats/logging"
+	"git.abyle.org/hps/alolstats/logging"
 )
 
 func Test_newLimit(t *testing.T) {

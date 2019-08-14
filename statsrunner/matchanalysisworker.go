@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/torlenor/alolstats/riotclient"
-	"github.com/torlenor/alolstats/storage"
+	"git.abyle.org/hps/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/storage"
 
-	"github.com/torlenor/alolstats/utils"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 type matchCounters struct {

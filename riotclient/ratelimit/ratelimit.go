@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/torlenor/alolstats/logging"
+	"git.abyle.org/hps/alolstats/logging"
 )
 
 var now = time.Now

@@ -3,12 +3,12 @@ package mongobackend
 import (
 	"context"
 
-	"github.com/mongodb/mongo-go-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // MatchCursor is the cursor implementation for Match queries
 type MatchCursor struct {
-	cur mongo.Cursor
+	cur *mongo.Cursor
 	ctx context.Context
 }
 
