@@ -10,19 +10,19 @@ stages:
   - release
   - deploy
 
-before_script:
-  - mkdir -p /go/src/github.com/torlenor
-  - ln -s $CI_PROJECT_DIR /go/src/git.abyle.org/hps/alolstats
-  - cd /go/src/git.abyle.org/hps/alolstats
+#before_script:
+    #- mkdir -p /go/src/github.com/torlenor
+    #- ln -s $CI_PROJECT_DIR /go/src/git.abyle.org/hps/alolstats
+    #- cd /go/src/git.abyle.org/hps/alolstats
 
 build:
-  image: golang:1.11
+  image: golang:1.12
   stage: build
   script:
     - make
 
 unit_tests:
-  image: golang:1.11
+  image: golang:1.12
   stage: test
   services:
     - mongo:latest
@@ -31,7 +31,7 @@ unit_tests:
     - go tool cover -func coverage.out
 
 build_static:
-  image: golang:1.11
+  image: golang:1.12
   stage: build_static
   artifacts:
     expire_in: 1 week
