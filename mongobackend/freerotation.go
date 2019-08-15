@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mongodb/mongo-go-driver/bson"
 	"git.abyle.org/hps/alolstats/riotclient"
+	"github.com/mongodb/mongo-go-driver/bson"
 )
 
 // GetFreeRotation gets the stored free champions rotation
@@ -15,7 +15,7 @@ func (b *Backend) GetFreeRotation() (*riotclient.FreeRotation, error) {
 
 	cur, err := c.Find(
 		context.Background(),
-		nil,
+		bson.D{{}},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("Find error: %s", err)

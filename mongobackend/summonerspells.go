@@ -18,7 +18,7 @@ func (b *Backend) GetSummonerSpells() (*riotclient.SummonerSpellsList, error) {
 
 	cur, err := c.Find(
 		context.Background(),
-		nil,
+		bson.D{{}},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("Find error: %s", err)

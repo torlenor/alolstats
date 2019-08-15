@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mongodb/mongo-go-driver/bson"
 	"git.abyle.org/hps/alolstats/storage"
+	"github.com/mongodb/mongo-go-driver/bson"
 )
 
 // GetKnownGameVersions gets the stored known game versions
@@ -14,7 +14,7 @@ func (b *Backend) GetKnownGameVersions() (*storage.GameVersions, error) {
 
 	cur, err := c.Find(
 		context.Background(),
-		nil,
+		bson.D{{}},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("Find error: %s", err)

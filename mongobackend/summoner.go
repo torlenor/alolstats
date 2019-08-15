@@ -55,7 +55,7 @@ func (b *Backend) GetSummonersCount() (uint64, error) {
 
 	summonersCount, err := c.CountDocuments(
 		context.Background(),
-		nil,
+		bson.D{{}},
 	)
 	if err != nil {
 		b.log.Errorf("Count error: %s", err)

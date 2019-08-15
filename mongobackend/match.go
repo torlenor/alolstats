@@ -52,7 +52,7 @@ func (b *Backend) GetMatchesCount() (uint64, error) {
 
 	matchesCount, err := c.CountDocuments(
 		context.Background(),
-		nil,
+		bson.D{{}},
 	)
 	if err != nil {
 		return uint64(0), fmt.Errorf("Find error: %s", err)
