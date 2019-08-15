@@ -49,7 +49,7 @@ func SplitNumericVersion(version string) ([]uint32, error) {
 	return versions, nil
 }
 
-// SplitNumericMatchVersion splits a match game version string into major, minor, patch, additional version,
+// SplitNumericMatchVersion splits a match game version string into major, minor, revision, build,
 // e.g., 9.1.3.123 or 5.74.11.432 are valid versions.
 func SplitNumericMatchVersion(version string) ([]uint32, error) {
 	versionRegex, _ := regexp.Compile(`^(\d+)\.(\d+)\.(\d+)\.(\d+)$`)

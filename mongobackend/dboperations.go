@@ -79,6 +79,19 @@ func (b *Backend) checkMatches() error {
 
 	err = b.createIndex("matches", mongo.IndexModel{
 		Keys: bsonx.Doc{
+			{Key: "gameversion_major", Value: bsonx.Int32(1)},
+			{Key: "gameversion_minor", Value: bsonx.Int32(1)},
+			{Key: "mapid", Value: bsonx.Int32(1)},
+			{Key: "queueid", Value: bsonx.Int32(1)},
+		},
+		Options: options.Index().SetUnique(false),
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex("matches", mongo.IndexModel{
+		Keys: bsonx.Doc{
 			{Key: "gameversion", Value: bsonx.Int32(1)},
 		},
 		Options: options.Index().SetUnique(false),

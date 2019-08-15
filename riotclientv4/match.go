@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"git.abyle.org/hps/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 // MatchByID gets a match by its ID
@@ -24,6 +25,20 @@ func (c *RiotClientV4) MatchByID(id uint64) (s *riotclient.MatchDTO, err error) 
 		return nil, fmt.Errorf("MatchById error unmarshaling: %s", err)
 	} else if match.GameID == 0 {
 		return nil, fmt.Errorf("Match GameID invalid, probably empty data")
+	}
+
+	splittedVersion, err := utils.SplitNumericMatchVersion(match.GameVersion)
+	if err != nil {
+		return nil, fmt.Errorf("Could not split gameversion %s, not a valid version string: %s", match.GameVersion, err)
+	}
+
+	if len(splittedVersion) > 3 {
+		match.GameVersionMajor = int(splittedVersion[0])
+		match.GameVersionMinor = int(splittedVersion[1])
+		match.GameVersionRevision = int(splittedVersion[2])
+		match.GameVersionBuild = int(splittedVersion[3])
+	} else {
+		return nil, fmt.Errorf("Splitted gameversion %s, not at least major, minor, revision, build, has only %d components", match.GameVersion, len(splittedVersion))
 	}
 
 	return &match, nil

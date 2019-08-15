@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
 	"git.abyle.org/hps/alolstats/riotclient"
+	"github.com/sirupsen/logrus"
 )
 
 func TestRiotClientV4_MatchByID(t *testing.T) {
@@ -87,11 +87,15 @@ func TestRiotClientV4_MatchByID(t *testing.T) {
 						ParticipantID: 2,
 					},
 				},
-				GameVersion: "8.24.255.8524",
-				PlatformID:  "EUW1",
-				GameMode:    "CLASSIC",
-				MapID:       11,
-				GameType:    "MATCHED_GAME",
+				GameVersion:         "8.24.255.8524",
+				GameVersionMajor:    8,
+				GameVersionMinor:    24,
+				GameVersionRevision: 255,
+				GameVersionBuild:    8524,
+				PlatformID:          "EUW1",
+				GameMode:            "CLASSIC",
+				MapID:               11,
+				GameType:            "MATCHED_GAME",
 				Teams: []riotclient.TeamStatsDTO{
 					{
 						FirstDragon: true,

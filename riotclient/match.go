@@ -202,6 +202,10 @@ type MatchDTO struct {
 	MapID                 int                      `json:"mapId"`
 	SeasonID              int                      `json:"seasonId"`
 	GameVersion           string                   `json:"gameVersion"`
+	GameVersionMajor      int                      `json:"gameVersion_major"`
+	GameVersionMinor      int                      `json:"gameVersion_minor"`
+	GameVersionRevision   int                      `json:"gameVersion_revision"`
+	GameVersionBuild      int                      `json:"gameVersion_build"`
 	GameMode              string                   `json:"gameMode"`
 	GameType              string                   `json:"gameType"`
 	Teams                 []TeamStatsDTO           `json:"teams"`

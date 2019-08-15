@@ -1,0 +1,17 @@
+db.matches.updateMany(
+    {},
+    [
+        {
+            "$set": {"gameversion_major": { $toInt: { $arrayElemAt: [{$split: ["$gameversion" , "."]}, 0] }}}
+        },
+        {
+            "$set": {"gameversion_minor": { $toInt: { $arrayElemAt: [{$split: ["$gameversion" , "."]}, 1] }}}
+        },
+        {
+            "$set": {"gameversion_revision": { $toInt: { $arrayElemAt: [{$split: ["$gameversion" , "."]}, 2] }}}
+        },
+        {
+            "$set": {"gameversion_build": { $toInt: { $arrayElemAt: [{$split: ["$gameversion" , "."]}, 3] }}}
+        }
+    ]
+)
