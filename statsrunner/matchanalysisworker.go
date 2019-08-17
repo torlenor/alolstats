@@ -41,8 +41,12 @@ type matchCounters struct {
 }
 
 type roleCounters struct {
-	Picks uint64
-	Wins  uint64
+	Picks     uint64
+	PicksRed  uint64
+	PicksBlue uint64
+	Wins      uint64
+	WinsRed   uint64
+	WinsBlue  uint64
 
 	Kills   uint64
 	Deaths  uint64
@@ -56,8 +60,12 @@ type championCounters struct {
 
 	GameVersion string
 
-	TotalPicks uint64
-	TotalWins  uint64
+	TotalPicks     uint64
+	TotalPicksRed  uint64
+	TotalPicksBlue uint64
+	TotalWins      uint64
+	TotalWinsRed   uint64
+	TotalWinsBlue  uint64
 
 	TotalBans uint64
 
@@ -115,7 +123,7 @@ func (sr *StatsRunner) newChampionsCounters(champions riotclient.ChampionsList, 
 	return champsCounters
 }
 
-func doChampCounts(stats *riotclient.ParticipantStatsDTO, champCounters *championCounters) {
+func doChampCounts(stats *riotclient.ParticipantStatsDTO, champCounters *championCounters, teamID int) {
 	champCounters.TotalKills = champCounters.TotalKills + uint64(stats.Kills)
 	champCounters.MatchKills = append(champCounters.MatchKills, uint16(stats.Kills))
 	champCounters.TotalDeaths = champCounters.TotalDeaths + uint64(stats.Deaths)
@@ -142,12 +150,23 @@ func doChampCounts(stats *riotclient.ParticipantStatsDTO, champCounters *champio
 	champCounters.MatchTimeCCingOthers = append(champCounters.MatchTimeCCingOthers, uint32(stats.TimeCCingOthers))
 
 	champCounters.TotalPicks++
+	// teamId 100 for blue side. 200 for red side.
+	if teamID == 100 {
+		champCounters.TotalPicksBlue++
+	} else {
+		champCounters.TotalPicksRed++
+	}
 	if stats.Win {
 		champCounters.TotalWins++
+		if teamID == 100 {
+			champCounters.TotalWinsBlue++
+		} else {
+			champCounters.TotalWinsRed++
+		}
 	}
 }
 
-func doPerRoleCounts(stats *riotclient.ParticipantStatsDTO, rCounters *roleCounters) {
+func doPerRoleCounts(stats *riotclient.ParticipantStatsDTO, rCounters *roleCounters, teamID int) {
 	rCounters.Kills = rCounters.Kills + uint64(stats.Kills)
 	rCounters.MatchKills = append(rCounters.MatchKills, uint16(stats.Kills))
 	rCounters.Deaths = rCounters.Deaths + uint64(stats.Deaths)
@@ -174,8 +193,19 @@ func doPerRoleCounts(stats *riotclient.ParticipantStatsDTO, rCounters *roleCount
 	rCounters.MatchTimeCCingOthers = append(rCounters.MatchTimeCCingOthers, uint32(stats.TimeCCingOthers))
 
 	rCounters.Picks++
+	// teamId 100 for blue side. 200 for red side.
+	if teamID == 100 {
+		rCounters.PicksBlue++
+	} else {
+		rCounters.PicksRed++
+	}
 	if stats.Win {
 		rCounters.Wins++
+		if teamID == 100 {
+			rCounters.WinsBlue++
+		} else {
+			rCounters.WinsRed++
+		}
 	}
 }
 
@@ -283,10 +313,10 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 							perRoleAll := ccall.PerRole[lane][role]
 
 							// Do counts
-							doChampCounts(&participant.Stats, &ccall)
-							doChampCounts(&participant.Stats, &cc)
-							doPerRoleCounts(&participant.Stats, &perRole)
-							doPerRoleCounts(&participant.Stats, &perRoleAll)
+							doChampCounts(&participant.Stats, &ccall, participant.TeamID)
+							doChampCounts(&participant.Stats, &cc, participant.TeamID)
+							doPerRoleCounts(&participant.Stats, &perRole, participant.TeamID)
+							doPerRoleCounts(&participant.Stats, &perRoleAll, participant.TeamID)
 
 							// Backassign structs
 							cc.PerRole[lane][role] = perRole
@@ -466,6 +496,8 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 
 	losses := champCounters.TotalPicks - champCounters.TotalWins
 	wins := champCounters.TotalWins
+	redWins := champCounters.TotalWinsRed
+	blueWins := champCounters.TotalWinsBlue
 
 	if losses > 0 {
 		championStats.WinLossRatio = float64(wins) / float64(losses)
@@ -479,6 +511,11 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 		championStats.WinRate = float64(wins) / float64(champCounters.TotalPicks)
 	} else {
 		championStats.WinRate = 0
+	}
+	if champCounters.TotalPicksRed > 0 && champCounters.TotalPicksBlue > 0 && blueWins > 0 {
+		championStats.RedBlueWinRatio = float64(redWins) / float64(champCounters.TotalPicksRed) / (float64(blueWins) / float64(champCounters.TotalPicksBlue))
+	} else {
+		championStats.RedBlueWinRatio = 0
 	}
 
 	if totalGamesForGameVersion > 0 {
@@ -842,6 +879,8 @@ func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) storage.Sta
 	statsValues.MedianA, _ = calcMedianUint16(counters.MatchAssists, nil)
 
 	wins := counters.Wins
+	winsRed := counters.WinsRed
+	winsBlue := counters.WinsBlue
 
 	if counters.Picks > 0 {
 		statsValues.WinRate = float64(wins) / float64(counters.Picks)
@@ -849,12 +888,22 @@ func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) storage.Sta
 		statsValues.WinRate = 0
 	}
 
+	if counters.PicksRed > 0 && counters.PicksBlue > 0 && winsBlue > 0 {
+		statsValues.RedBlueWinRatio = float64(winsRed) / float64(counters.PicksRed) / (float64(winsBlue) / float64(counters.PicksBlue))
+	} else {
+		statsValues.RedBlueWinRatio = 0
+	}
+
 	return statsValues
 }
 
 func sumCounters(summedCounters *roleCounters, countersToAdd roleCounters) {
 	summedCounters.Picks += countersToAdd.Picks
+	summedCounters.PicksRed += countersToAdd.PicksRed
+	summedCounters.PicksBlue += countersToAdd.PicksBlue
 	summedCounters.Wins += countersToAdd.Wins
+	summedCounters.WinsRed += countersToAdd.WinsRed
+	summedCounters.WinsBlue += countersToAdd.WinsBlue
 
 	summedCounters.Kills += countersToAdd.Kills
 	summedCounters.Deaths += countersToAdd.Deaths

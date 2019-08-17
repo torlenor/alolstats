@@ -77,6 +77,8 @@ type StatsValues struct {
 
 	WinLossRatio float64 `json:"winlossratio"`
 	WinRate      float64 `json:"winrate"`
+
+	RedBlueWinRatio float64 `json:"redwinrate"`
 }
 
 type ChampionStats struct {
