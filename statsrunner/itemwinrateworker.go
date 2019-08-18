@@ -88,7 +88,7 @@ func (sr *StatsRunner) itemWinRateWorker() {
 
 					// Prepare results for ItemStats (ALL tiers)
 					for _, itemCombiStats := range result {
-						stats, err := sr.prepareItemStats(&itemCombiStats)
+						stats, err := sr.prepareItemStats(itemCombiStats)
 						if err == nil {
 							err = sr.storage.StoreItemStats(stats)
 							if err != nil {

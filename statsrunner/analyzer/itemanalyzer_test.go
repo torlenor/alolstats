@@ -288,18 +288,6 @@ func TestItemAnalyzer_feedParticipant(t *testing.T) {
 			t.Errorf("championID %d created", championID1)
 			return
 		}
-		if _, ok := a.PerChampion[championID1].PerRole[lane1]; ok {
-			t.Errorf("lane created")
-			return
-		}
-		if _, ok := a.PerChampion[championID1].PerRole[lane1][role1]; ok {
-			t.Errorf("role created")
-			return
-		}
-		if _, ok := a.PerChampion[championID1].PerRole[lane1][role1]["10_11"]; ok {
-			t.Errorf("item combi created")
-			return
-		}
 	})
 }
 
@@ -332,21 +320,21 @@ func TestItemAnalyzer_generateTotal(t *testing.T) {
 		items := []int{11, 12, 13, 14, 15, 16}
 
 		a.addNewRole(123, "SomeLane1", "SomeRole1")
-		a.PerChampion[123].PerRole["SomeLane1"]["SomeRole1"]["11_12_13_14_15_16"] = SingleItemCombiStatistics{
+		a.PerChampion[123].PerRole["SomeLane1"]["SomeRole1"]["11_12_13_14_15_16"] = &SingleItemCombiStatistics{
 			Combi: "11_12_13_14_15_16",
 			Items: items,
 			Picks: 43,
 			Wins:  5,
 		}
 		a.addNewRole(123, "SomeLane1", "SomeRole2")
-		a.PerChampion[123].PerRole["SomeLane1"]["SomeRole2"]["11_12_13_14_15_16"] = SingleItemCombiStatistics{
+		a.PerChampion[123].PerRole["SomeLane1"]["SomeRole2"]["11_12_13_14_15_16"] = &SingleItemCombiStatistics{
 			Combi: "11_12_13_14_15_16",
 			Items: items,
 			Picks: 10,
 			Wins:  2,
 		}
 		a.addNewRole(123, "SomeLane2", "SomeRole1")
-		a.PerChampion[123].PerRole["SomeLane2"]["SomeRole1"]["11_12_13_14_15_16"] = SingleItemCombiStatistics{
+		a.PerChampion[123].PerRole["SomeLane2"]["SomeRole1"]["11_12_13_14_15_16"] = &SingleItemCombiStatistics{
 			Combi: "11_12_13_14_15_16",
 			Items: items,
 			Picks: 20,

@@ -17,7 +17,7 @@ type SingleItemCombiStatistics struct {
 
 // ItemCombiStatistics is a set of SingleItemCombiStatistics which are
 // identified by their Combi hash
-type ItemCombiStatistics map[string]SingleItemCombiStatistics // [hash]
+type ItemCombiStatistics map[string]*SingleItemCombiStatistics // [hash]
 
 // ChampionItemCombiStatistics contains the whole item analysis for a given
 // Champion identified by its ID. It contains also the game version for which
@@ -39,7 +39,7 @@ type ItemAnalyzer struct {
 	GameVersionMajor int
 	GameVersionMinor int
 
-	PerChampion map[int]ChampionItemCombiStatistics // [ChampionID]
+	PerChampion map[int]*ChampionItemCombiStatistics // [ChampionID]
 }
 
 // NewItemAnalyzer creates a new champion item analyzer
@@ -47,7 +47,7 @@ func NewItemAnalyzer(gameVersionMajor int, gameVersionMinor int) *ItemAnalyzer {
 	a := ItemAnalyzer{
 		GameVersionMajor: gameVersionMajor,
 		GameVersionMinor: gameVersionMinor,
-		PerChampion:      make(map[int]ChampionItemCombiStatistics),
+		PerChampion:      make(map[int]*ChampionItemCombiStatistics),
 	}
 	return &a
 }
@@ -74,19 +74,17 @@ func (a *ItemAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
 
 	perRole := a.PerChampion[championID].PerRole[lane][role]
 	if _, ok := perRole[itemCombiHash]; !ok {
-		perRole[itemCombiHash] = SingleItemCombiStatistics{
+		perRole[itemCombiHash] = &SingleItemCombiStatistics{
 			Combi: itemCombiHash,
 			Items: items,
 		}
 	}
-	itemCombiStats := perRole[itemCombiHash]
 
-	itemCombiStats.Picks++
+	perRole[itemCombiHash].Picks++
 	if p.Stats.Win {
-		itemCombiStats.Wins++
+		perRole[itemCombiHash].Wins++
 	}
 
-	perRole[itemCombiHash] = itemCombiStats
 	a.PerChampion[championID].PerRole[lane][role] = perRole
 }
 
@@ -99,41 +97,37 @@ func (a *ItemAnalyzer) FeedMatch(m *riotclient.MatchDTO) {
 
 func (a *ItemAnalyzer) generateTotal() {
 
-	for championID, data := range a.PerChampion {
+	for _, data := range a.PerChampion {
 		total := make(ItemCombiStatistics)
 
 		for _, laneData := range data.PerRole {
 			for _, roleData := range laneData {
 				for hash, itemCombi := range roleData {
-					var totalForItemCombi SingleItemCombiStatistics
 					if _, ok := total[hash]; !ok {
-						totalForItemCombi = total[hash]
-						totalForItemCombi.Combi = itemCombi.Combi
-						totalForItemCombi.Items = itemCombi.Items
-					} else {
-						totalForItemCombi = total[hash]
+						total[hash] = &SingleItemCombiStatistics{
+							Combi: itemCombi.Combi,
+							Items: itemCombi.Items,
+						}
 					}
-					totalForItemCombi.Picks = totalForItemCombi.Picks + itemCombi.Picks
-					totalForItemCombi.Wins = totalForItemCombi.Wins + itemCombi.Wins
-					total[hash] = totalForItemCombi
+					total[hash].Picks = total[hash].Picks + itemCombi.Picks
+					total[hash].Wins = total[hash].Wins + itemCombi.Wins
 				}
 			}
 		}
 
 		data.Total = total
-		a.PerChampion[championID] = data
 	}
 }
 
 // Analyze performs the final analyzis and returns the results
-func (a *ItemAnalyzer) Analyze() map[int]ChampionItemCombiStatistics {
+func (a *ItemAnalyzer) Analyze() map[int]*ChampionItemCombiStatistics {
 	a.generateTotal()
 	return a.PerChampion
 }
 
 func (a *ItemAnalyzer) addNewChampion(championID int) {
 	if _, ok := a.PerChampion[championID]; !ok {
-		a.PerChampion[championID] = ChampionItemCombiStatistics{
+		a.PerChampion[championID] = &ChampionItemCombiStatistics{
 			ChampionID:       championID,
 			GameVersionMajor: a.GameVersionMajor,
 			GameVersionMinor: a.GameVersionMinor,
