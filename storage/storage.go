@@ -10,11 +10,11 @@ import (
 	"path/filepath"
 	"sync/atomic"
 
-	"github.com/sirupsen/logrus"
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
 	"git.abyle.org/hps/alolstats/matchfilereader"
 	"git.abyle.org/hps/alolstats/riotclient"
+	"github.com/sirupsen/logrus"
 )
 
 type stats struct {
@@ -133,6 +133,7 @@ func (s *Storage) getKnownVersionsEndpoint(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
@@ -154,6 +155,7 @@ func (s *Storage) getStatLeaguesEndpoint(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
@@ -175,6 +177,7 @@ func (s *Storage) getStatQueuesEndpoint(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)

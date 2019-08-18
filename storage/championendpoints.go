@@ -71,6 +71,7 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 }
 
@@ -129,6 +130,7 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
+		w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 		io.WriteString(w, string(out))
 	} else {
 		s.log.Warnf("key parameter was missing in request")
@@ -192,6 +194,7 @@ func (s *Storage) championByIDEndpoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 		io.WriteString(w, string(out))
 	} else {
 		s.log.Warnf("id parameter was missing in request")

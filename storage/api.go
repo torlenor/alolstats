@@ -54,3 +54,13 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	s.registerAPIStorage(api)
 	s.registerAPIStats(api)
 }
+
+func (s *Storage) getHTTPGetResponseHeader(field string) string {
+
+	switch field {
+	case "Cache-Control":
+		return "max-age=600, private"
+	}
+
+	return ""
+}

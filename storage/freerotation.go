@@ -50,6 +50,7 @@ func (s *Storage) freeRotationEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
