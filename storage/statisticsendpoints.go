@@ -75,6 +75,7 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
@@ -131,6 +132,7 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)
@@ -251,6 +253,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 
 	atomic.AddUint64(&s.stats.handledRequests, 1)

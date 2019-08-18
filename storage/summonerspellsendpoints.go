@@ -23,5 +23,6 @@ func (s *Storage) summonerSpellsEndpoint(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
 	io.WriteString(w, string(out))
 }
