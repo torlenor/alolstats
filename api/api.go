@@ -51,7 +51,7 @@ func (a *API) AttachModulePost(path string, f func(http.ResponseWriter, *http.Re
 
 func (a *API) run() {
 	if err := a.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		a.log.Fatal("Could not start http server: %v\n", err)
+		a.log.Fatalf("Could not start http server: %v\n", err)
 	}
 }
 
