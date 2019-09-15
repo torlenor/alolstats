@@ -7,7 +7,6 @@ import (
 )
 
 func (sr *StatsRunner) rScriptWorker() {
-	sr.workersWG.Add(1)
 	defer sr.workersWG.Done()
 
 	var nextUpdate time.Duration

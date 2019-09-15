@@ -7,11 +7,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/sirupsen/logrus"
 	"git.abyle.org/hps/alolstats/api"
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
 	"git.abyle.org/hps/alolstats/storage"
+	"github.com/sirupsen/logrus"
 )
 
 type stats struct {
@@ -25,10 +25,11 @@ type StatsRunner struct {
 	log     *logrus.Entry
 	stats   stats
 
-	isStarted         bool
-	workersWG         sync.WaitGroup
-	stopWorkers       chan struct{}
-	shouldWorkersStop bool
+	isStarted             bool
+	workersWG             sync.WaitGroup
+	stopWorkers           chan struct{}
+	shouldWorkersSopMutex sync.RWMutex
+	shouldWorkersStop     bool
 
 	calculationMutex sync.Mutex
 }
@@ -68,24 +69,31 @@ func (sr *StatsRunner) GetHandeledRequests() uint64 {
 func (sr *StatsRunner) Start() {
 	if !sr.isStarted {
 		sr.log.Println("Starting StatsRunner")
+		sr.shouldWorkersSopMutex.Lock()
 		sr.shouldWorkersStop = false
+		sr.shouldWorkersSopMutex.Unlock()
 		sr.stopWorkers = make(chan struct{})
 		if sr.config.RunRScripts {
+			sr.workersWG.Add(1)
 			go sr.rScriptWorker()
 		} else {
 			sr.log.Info("Not running R scripts (deactivated in config)")
 		}
 
 		if sr.config.ChampionsStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.matchAnalysisWorker()
 		}
 		if sr.config.ItemsStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.itemWinRateWorker()
 		}
 		if sr.config.SummonerSpellsStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.summonerSpellsWorker()
 		}
 		if sr.config.RunesReforgedStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.runesReforgedWorker()
 		}
 
@@ -99,7 +107,9 @@ func (sr *StatsRunner) Start() {
 func (sr *StatsRunner) Stop() {
 	if sr.isStarted {
 		sr.log.Println("Stopping StatsRunner")
+		sr.shouldWorkersSopMutex.Lock()
 		sr.shouldWorkersStop = true
+		sr.shouldWorkersSopMutex.Unlock()
 		close(sr.stopWorkers)
 		sr.workersWG.Wait()
 		sr.isStarted = false

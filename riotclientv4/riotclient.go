@@ -14,7 +14,7 @@ import (
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
 
-	"git.abyle.org/hps/alolstats/riotclient/ratelimit"
+	riotclientrl "git.abyle.org/hps/alolstats/riotclient/ratelimit"
 )
 
 type httpClient interface {
@@ -101,6 +101,7 @@ func (c *RiotClientV4) Start() {
 		c.log.Println("Starting Riot Client")
 		c.stopWorkers = make(chan struct{})
 		c.workQueue = make(workQueue)
+		c.workersWG.Add(1)
 		go c.worker(c.workQueue)
 		c.isStarted = true
 	} else {

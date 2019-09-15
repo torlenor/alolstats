@@ -210,7 +210,6 @@ func doPerRoleCounts(stats *riotclient.ParticipantStatsDTO, rCounters *roleCount
 }
 
 func (sr *StatsRunner) matchAnalysisWorker() {
-	sr.workersWG.Add(1)
 	defer sr.workersWG.Done()
 
 	var nextUpdate time.Duration
@@ -243,9 +242,11 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 
 			for queueID, queue := range queueIDtoQueue {
 				for _, versionStr := range sr.config.GameVersion {
+					sr.shouldWorkersSopMutex.RLock()
 					if sr.shouldWorkersStop {
 						return
 					}
+					sr.shouldWorkersSopMutex.RUnlock()
 					version, err := utils.SplitNumericVersion(versionStr)
 					if err != nil {
 						sr.log.Warnf("Something bad happened: %s", err)
@@ -270,9 +271,11 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					currentMatch := &riotclient.MatchDTO{}
 					cnt := 0
 					for cur.Next() {
+						sr.shouldWorkersSopMutex.RLock()
 						if sr.shouldWorkersStop {
 							return
 						}
+						sr.shouldWorkersSopMutex.RUnlock()
 						err := cur.Decode(currentMatch)
 						if err != nil {
 							sr.log.Errorf("Error deconding match: %s", err)
