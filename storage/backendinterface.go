@@ -18,6 +18,7 @@ type BackendChampion interface {
 type BackendFreeRotation interface {
 	GetFreeRotation() (*riotclient.FreeRotation, error)
 	GetFreeRotationTimeStamp() time.Time
+
 	StoreFreeRotation(freeRotation *riotclient.FreeRotation) error
 }
 
@@ -122,6 +123,8 @@ type BackendMisc interface {
 
 // Backend defines an interface to store/retrieve data from Storage Backend
 type Backend interface {
+	Connect() error
+
 	BackendChampion
 	BackendFreeRotation
 	BackendMatch

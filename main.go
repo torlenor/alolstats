@@ -147,19 +147,23 @@ func main() {
 
 	backend, err := storageBackendCreator(cfg.StorageBackend)
 	if err != nil {
-		log.Fatalln("Error creating the Storage Backend:" + err.Error())
+		log.Fatalf("Error creating the Storage Backend: %s", err)
+	}
+	err = backend.Connect()
+	if err != nil {
+		log.Fatalf("Error connecting the Storage Backend: %s", err)
 	}
 
 	storage, err := storage.NewStorage(cfg.LoLStorage, clients, backend)
 	if err != nil {
-		log.Fatalln("Error creating the Storage:" + err.Error())
+		log.Fatalf("Error creating the Storage: %s", err)
 	}
 	storage.RegisterAPI(api)
 	storage.Start()
 
 	statsRunner, err := statsrunner.NewStatsRunner(cfg.StatsRunner, storage)
 	if err != nil {
-		log.Fatalln("Error creating the StatsRunner:" + err.Error())
+		log.Fatalf("Error creating the StatsRunner: %s", err)
 	}
 	statsRunner.RegisterAPI(api)
 

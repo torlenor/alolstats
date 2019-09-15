@@ -33,20 +33,28 @@ func NewBackend(cfg config.MongoBackend) (*Backend, error) {
 		b.log.Errorf("Error creating new MongoDB client: %s", err)
 		return nil, err
 	}
-	err = client.Connect(context.Background())
+	b.client = client
+
+	return b, nil
+}
+
+// Connect initializes the MongoDBBackend Client by using the appropriate Mongo functions.
+// In addition it checks its collections and creates indices if necessary.
+// This method must be called before the Mongo Backend can be used.
+func (b *Backend) Connect() error {
+	err := b.client.Connect(context.Background())
 	if err != nil {
 		b.log.Errorf("Error connecting to MongoDB: %s", err)
-		return nil, err
+		return err
 	}
-	b.client = client
 
 	err = b.checkCollections()
 	if err != nil {
 		b.log.Errorf("Error checking collections: %s", err)
-		return nil, err
+		return err
 	}
 
-	return b, nil
+	return nil
 }
 
 // GetStorageSummary returns stats about the stored elements in the Backend

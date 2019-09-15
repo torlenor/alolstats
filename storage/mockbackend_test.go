@@ -49,6 +49,10 @@ func (b *mockBackend) reset() {
 	b.wasSummonerStored = false
 }
 
+func (b *mockBackend) Connect() error {
+	return nil
+}
+
 //
 // Champions
 //
