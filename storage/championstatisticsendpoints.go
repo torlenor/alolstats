@@ -61,9 +61,6 @@ func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Reque
 
 func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API ChampionsStats request from", r.RemoteAddr)
-	var gameVersion string
-	var tier string
-	var queue string
 
 	gameVersion, err := extractURLStringParameter(r.URL.Query(), "gameversion")
 	if err != nil {
@@ -71,13 +68,13 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queue, err = extractURLStringParameter(r.URL.Query(), "queue")
+	queue, err := extractURLStringParameter(r.URL.Query(), "queue")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	tier, err = extractURLStringParameter(r.URL.Query(), "tier")
+	tier, err := extractURLStringParameter(r.URL.Query(), "tier")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return

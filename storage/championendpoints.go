@@ -14,23 +14,19 @@ func (s *Storage) championsEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API Champions request from", r.RemoteAddr)
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 
-	var gameVersion string
-	var tier string
-	var queue string
-
 	gameVersion, err := extractURLStringParameter(r.URL.Query(), "gameversion")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	tier, err = extractURLStringParameter(r.URL.Query(), "tier")
+	tier, err := extractURLStringParameter(r.URL.Query(), "tier")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	queue, err = extractURLStringParameter(r.URL.Query(), "queue")
+	queue, err := extractURLStringParameter(r.URL.Query(), "queue")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
@@ -61,30 +57,25 @@ func (s *Storage) championByKeyEndpoint(w http.ResponseWriter, r *http.Request) 
 	s.log.Debugln("Received Rest API Champion by Key request from", r.RemoteAddr)
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 
-	var key string
-	var gameVersion string
-	var queue string
-	var tier string
-
 	key, err := extractURLStringParameter(r.URL.Query(), "key")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	gameVersion, err = extractURLStringParameter(r.URL.Query(), "gameversion")
+	gameVersion, err := extractURLStringParameter(r.URL.Query(), "gameversion")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	queue, err = extractURLStringParameter(r.URL.Query(), "queue")
+	queue, err := extractURLStringParameter(r.URL.Query(), "queue")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	tier, err = extractURLStringParameter(r.URL.Query(), "tier")
+	tier, err := extractURLStringParameter(r.URL.Query(), "tier")
 	if err != nil {
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
