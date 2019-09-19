@@ -141,7 +141,7 @@ func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatist
 			is := itemStats.ItemStatsValues[itemCombination]
 			is.WinRate = float64(itemCounts.Wins) / float64(itemCounts.Picks)
 			is.PickRate = float64(itemCounts.Picks) / float64(stats.TotalSampleSize)
-			is.SampleSize = uint64(stats.TotalSampleSize)
+			is.SampleSize = uint64(itemCounts.Picks)
 			is.ItemHash = itemCombination
 			itemStats.ItemStatsValues[itemCombination] = is
 			itemStatsBySampleSize[is.PickRate] = is
