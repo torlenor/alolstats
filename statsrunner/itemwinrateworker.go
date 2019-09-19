@@ -121,29 +121,19 @@ func (sr *StatsRunner) itemWinRateWorker() {
 	}
 }
 
-func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatistics, queue string, tier string) (*storage.ItemStats, error) {
-	if stats.TotalSampleSize == 0 {
-		return nil, fmt.Errorf("No data")
-	}
-
-	gameVersion := fmt.Sprintf("%d.%d", stats.GameVersionMajor, stats.GameVersionMinor)
-
-	itemStats := storage.ItemStats{}
-	itemStats.ChampionID = uint64(stats.ChampionID)
-	itemStats.GameVersion = gameVersion
-
-	itemStats.ItemStatsValues = make(storage.ItemStatsValues)
+func (sr *StatsRunner) prepareItemStatsValues(itemCombiStats analyzer.ItemCombiStatistics, totalSampleSize uint32) storage.ItemStatsValues {
+	itemStatsValues := make(storage.ItemStatsValues)
 
 	itemStatsBySampleSize := make(map[float64]storage.SingleItemStatsValues)
 
-	for itemCombination, itemCounts := range stats.Total {
+	for itemCombination, itemCounts := range itemCombiStats {
 		if itemCounts.Picks > 0 {
-			is := itemStats.ItemStatsValues[itemCombination]
+			is := itemStatsValues[itemCombination]
 			is.WinRate = float64(itemCounts.Wins) / float64(itemCounts.Picks)
-			is.PickRate = float64(itemCounts.Picks) / float64(stats.TotalSampleSize)
+			is.PickRate = float64(itemCounts.Picks) / float64(totalSampleSize)
 			is.SampleSize = uint64(itemCounts.Picks)
 			is.ItemHash = itemCombination
-			itemStats.ItemStatsValues[itemCombination] = is
+			itemStatsValues[itemCombination] = is
 			itemStatsBySampleSize[is.PickRate] = is
 		}
 	}
@@ -155,22 +145,42 @@ func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatist
 		}
 		sort.Float64s(keys)
 
-		highestItemStats := storage.ItemStats{}
-		highestItemStats.ChampionID = uint64(stats.ChampionID)
-		highestItemStats.GameVersion = gameVersion
-
-		highestItemStats.ItemStatsValues = make(storage.ItemStatsValues)
+		highestItemStatsValue := make(storage.ItemStatsValues)
 
 		cnt := uint32(0)
 		for i := len(keys) - 1; i >= 0; i-- {
-			highestItemStats.ItemStatsValues[itemStatsBySampleSize[keys[i]].ItemHash] = itemStatsBySampleSize[keys[i]]
+			highestItemStatsValue[itemStatsBySampleSize[keys[i]].ItemHash] = itemStatsBySampleSize[keys[i]]
 			cnt++
 			if cnt > (sr.config.ItemsStats.KeepOnlyNHighest - 1) {
 				break
 			}
 		}
+		return highestItemStatsValue
+	}
 
-		itemStats = highestItemStats
+	return itemStatsValues
+}
+
+func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatistics, queue string, tier string) (*storage.ItemStats, error) {
+	if stats.TotalSampleSize == 0 {
+		return nil, fmt.Errorf("No data")
+	}
+
+	gameVersion := fmt.Sprintf("%d.%d", stats.GameVersionMajor, stats.GameVersionMinor)
+
+	itemStats := storage.ItemStats{}
+	itemStats.ChampionID = uint64(stats.ChampionID)
+	itemStats.GameVersion = gameVersion
+
+	itemStats.ItemStatsValues = sr.prepareItemStatsValues(stats.Total, stats.TotalSampleSize)
+
+	itemStats.StatsPerRole = make(map[string]storage.ItemStatsValues)
+	for role, statValues := range stats.PerRole {
+		if roleSampleSize, ok := stats.PerRoleSampleSize[role]; ok {
+			itemStats.StatsPerRole[role] = sr.prepareItemStatsValues(statValues, roleSampleSize)
+		} else {
+			sr.log.Warnf("Bug! There is no PerRoleSampleSize for role %s", role)
+		}
 	}
 
 	champions := sr.storage.GetChampions(false)
