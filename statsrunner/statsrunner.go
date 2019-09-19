@@ -7,7 +7,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"git.abyle.org/hps/alolstats/api"
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
 	"git.abyle.org/hps/alolstats/storage"
@@ -49,15 +48,6 @@ func NewStatsRunner(cfg config.StatsRunner, storage *storage.Storage) (*StatsRun
 	sr.config = cfg
 
 	return sr, nil
-}
-
-// RegisterAPI registers all endpoints from StatsRunner to the RestAPI
-func (sr *StatsRunner) RegisterAPI(api *api.API) {
-	// api.AttachModuleGet("/stats/champion/byid", sr.championByIDEndpoint)
-	// api.AttachModuleGet("/stats/champion/byname", sr.championByNameEndpoint)
-
-	// api.AttachModuleGet("/stats/plots/champion/byname", sr.championByNamePlotEndpoint)
-
 }
 
 // GetHandeledRequests gets the total number of api requests handeled by the StatsRunner since creating it

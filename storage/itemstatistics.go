@@ -21,11 +21,17 @@ type ItemStats struct {
 	ChampionName   string `json:"championname"`
 	GameVersion    string `json:"gameversion"`
 
+	Tier string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
+
 	Timestamp time.Time `json:"timestamp"`
 
 	ItemStatsValues
 
 	StatsPerRole map[string]ItemStatsValues `json:"statsperrole"`
+
+	SampleSize uint64 `json:"samplesize"`
 }
 
 type ItemStatsStorage struct {
@@ -36,14 +42,18 @@ type ItemStatsStorage struct {
 	ChampionName string `json:"championname"`
 	GameVersion  string `json:"gameversion"`
 
+	Tier string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
+
 	SampleSize uint64 `json:"samplesize"`
 
 	TimeStamp time.Time `json:"timestamp"`
 }
 
 // GetItemStatsByIDGameVersion returns the Champion Item stats for a certain game version
-func (s *Storage) GetItemStatsByIDGameVersion(championID string, gameVersion string) (*ItemStats, error) {
-	stats, err := s.backend.GetItemStatsByChampionIDGameVersion(championID, gameVersion)
+func (s *Storage) GetItemStatsByIDGameVersion(championID string, gameVersion string, tier string, queue string) (*ItemStats, error) {
+	stats, err := s.backend.GetItemStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue)
 	if err != nil {
 		s.log.Warnln("Could not get data from Storage Backend:", err)
 		return nil, err
@@ -65,9 +75,13 @@ func (s *Storage) StoreItemStats(stats *ItemStats) error {
 		ChampionName: stats.ChampionName,
 		GameVersion:  stats.GameVersion,
 
+		Tier:  stats.Tier,
+		Queue: stats.Queue,
+
+		SampleSize: stats.SampleSize,
+
 		TimeStamp: time.Now(),
 	}
 
-	s.backend.StoreItemStats(&statsStorage)
-	return nil
+	return s.backend.StoreItemStats(&statsStorage)
 }

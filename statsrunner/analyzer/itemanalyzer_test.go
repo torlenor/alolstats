@@ -246,6 +246,9 @@ func TestItemAnalyzer_feedParticipant(t *testing.T) {
 		if results.Wins != 1 {
 			t.Errorf("wins are %d, want %d", results.Wins, 1)
 		}
+		if a.PerChampion[championID1].PerRoleSampleSize[lane1][role1] != 1 {
+			t.Errorf("PerRolePicks are %d, want %d", a.PerChampion[championID1].PerRoleSampleSize[lane1][role1], 1)
+		}
 	})
 
 	name = "Test 2 - Feed two participants"
@@ -276,6 +279,9 @@ func TestItemAnalyzer_feedParticipant(t *testing.T) {
 		}
 		if results.Wins != 1 {
 			t.Errorf("wins are %d, want %d", results.Wins, 1)
+		}
+		if a.PerChampion[championID1].PerRoleSampleSize[lane1][role1] != 2 {
+			t.Errorf("PerRolePicks are %d, want %d", a.PerChampion[championID1].PerRoleSampleSize[lane1][role1], 2)
 		}
 	})
 
@@ -326,6 +332,8 @@ func TestItemAnalyzer_generateTotal(t *testing.T) {
 			Picks: 43,
 			Wins:  5,
 		}
+		a.PerChampion[123].PerRoleSampleSize["SomeLane1"]["SomeRole1"] = 43
+
 		a.addNewRole(123, "SomeLane1", "SomeRole2")
 		a.PerChampion[123].PerRole["SomeLane1"]["SomeRole2"]["11_12_13_14_15_16"] = &SingleItemCombiStatistics{
 			Combi: "11_12_13_14_15_16",
@@ -333,6 +341,8 @@ func TestItemAnalyzer_generateTotal(t *testing.T) {
 			Picks: 10,
 			Wins:  2,
 		}
+		a.PerChampion[123].PerRoleSampleSize["SomeLane1"]["SomeRole2"] = 10
+
 		a.addNewRole(123, "SomeLane2", "SomeRole1")
 		a.PerChampion[123].PerRole["SomeLane2"]["SomeRole1"]["11_12_13_14_15_16"] = &SingleItemCombiStatistics{
 			Combi: "11_12_13_14_15_16",
@@ -340,11 +350,26 @@ func TestItemAnalyzer_generateTotal(t *testing.T) {
 			Picks: 20,
 			Wins:  4,
 		}
+		a.PerChampion[123].PerRole["SomeLane2"]["SomeRole1"]["11_12_13_14_15_79"] = &SingleItemCombiStatistics{
+			Combi: "11_12_13_14_15_79",
+			Items: []int{11, 12, 13, 14, 15, 79},
+			Picks: 3,
+			Wins:  1,
+		}
+		a.PerChampion[123].PerRoleSampleSize["SomeLane2"]["SomeRole1"] = 20 + 3
 
 		a.generateTotal()
 
 		if _, ok := a.PerChampion[123].Total["11_12_13_14_15_16"]; !ok {
 			t.Errorf("item combi %s not in total", "11_12_13_14_15_16")
+			return
+		}
+		if a.PerChampion[123].TotalSampleSize != 43+10+20+3 {
+			t.Errorf("Total Sample Size not %d but %d", 43+10+20+3, a.PerChampion[123].TotalSampleSize)
+			return
+		}
+		if a.PerChampion[123].PerRoleSampleSize["SomeLane2"]["SomeRole1"] != 20+3 {
+			t.Errorf("Sample Size per role/lane not %d but %d", 20+3, a.PerChampion[123].PerRoleSampleSize["SomeLane2"]["SomeRole1"])
 			return
 		}
 		result := a.PerChampion[123].Total["11_12_13_14_15_16"]

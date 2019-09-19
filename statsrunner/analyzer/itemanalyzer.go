@@ -1,6 +1,11 @@
 package analyzer
 
 import (
+	"fmt"
+
+	"github.com/sirupsen/logrus"
+
+	"git.abyle.org/hps/alolstats/logging"
 	"git.abyle.org/hps/alolstats/riotclient"
 	"git.abyle.org/hps/alolstats/utils"
 )
@@ -28,14 +33,18 @@ type ChampionItemCombiStatistics struct {
 	GameVersionMajor int
 	GameVersionMinor int
 
-	PerRole map[string]map[string]ItemCombiStatistics // [lane][role]
+	PerRole           map[string]map[string]ItemCombiStatistics // [lane][role]
+	PerRoleSampleSize map[string]map[string]uint32              // [lane][role]
 
-	Total ItemCombiStatistics
+	Total           ItemCombiStatistics
+	TotalSampleSize uint32
 }
 
 // ItemAnalyzer is used to perform analysis of best items for a given champion.
 // It holds the results and gives back the analzed results if requested.
 type ItemAnalyzer struct {
+	log *logrus.Entry
+
 	GameVersionMajor int
 	GameVersionMinor int
 
@@ -48,7 +57,10 @@ func NewItemAnalyzer(gameVersionMajor int, gameVersionMinor int) *ItemAnalyzer {
 		GameVersionMajor: gameVersionMajor,
 		GameVersionMinor: gameVersionMinor,
 		PerChampion:      make(map[int]*ChampionItemCombiStatistics),
+
+		log: logging.Get(fmt.Sprintf("ItemAnalyzer GameVersion %d.%d", gameVersionMajor, gameVersionMinor)),
 	}
+	a.log.Trace("New Item Analyzer created")
 	return &a
 }
 
@@ -85,6 +97,7 @@ func (a *ItemAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
 		perRole[itemCombiHash].Wins++
 	}
 
+	a.PerChampion[championID].PerRoleSampleSize[lane][role]++
 	a.PerChampion[championID].PerRole[lane][role] = perRole
 }
 
@@ -96,8 +109,8 @@ func (a *ItemAnalyzer) FeedMatch(m *riotclient.MatchDTO) {
 }
 
 func (a *ItemAnalyzer) generateTotal() {
-
 	for _, data := range a.PerChampion {
+		data.TotalSampleSize = 0
 		total := make(ItemCombiStatistics)
 
 		for _, laneData := range data.PerRole {
@@ -111,6 +124,8 @@ func (a *ItemAnalyzer) generateTotal() {
 					}
 					total[hash].Picks = total[hash].Picks + itemCombi.Picks
 					total[hash].Wins = total[hash].Wins + itemCombi.Wins
+
+					data.TotalSampleSize += itemCombi.Picks
 				}
 			}
 		}
@@ -119,7 +134,7 @@ func (a *ItemAnalyzer) generateTotal() {
 	}
 }
 
-// Analyze performs the final analyzis and returns the results
+// Analyze performs the final analysis and returns the results
 func (a *ItemAnalyzer) Analyze() map[int]*ChampionItemCombiStatistics {
 	a.generateTotal()
 	return a.PerChampion
@@ -128,10 +143,11 @@ func (a *ItemAnalyzer) Analyze() map[int]*ChampionItemCombiStatistics {
 func (a *ItemAnalyzer) addNewChampion(championID int) {
 	if _, ok := a.PerChampion[championID]; !ok {
 		a.PerChampion[championID] = &ChampionItemCombiStatistics{
-			ChampionID:       championID,
-			GameVersionMajor: a.GameVersionMajor,
-			GameVersionMinor: a.GameVersionMinor,
-			PerRole:          make(map[string]map[string]ItemCombiStatistics),
+			ChampionID:        championID,
+			GameVersionMajor:  a.GameVersionMajor,
+			GameVersionMinor:  a.GameVersionMinor,
+			PerRole:           make(map[string]map[string]ItemCombiStatistics),
+			PerRoleSampleSize: make(map[string]map[string]uint32),
 		}
 	}
 }
@@ -140,6 +156,9 @@ func (a *ItemAnalyzer) addNewLane(championID int, lane string) {
 	a.addNewChampion(championID)
 	if _, ok := a.PerChampion[championID].PerRole[lane]; !ok {
 		a.PerChampion[championID].PerRole[lane] = make(map[string]ItemCombiStatistics)
+	}
+	if _, ok := a.PerChampion[championID].PerRoleSampleSize[lane]; !ok {
+		a.PerChampion[championID].PerRoleSampleSize[lane] = make(map[string]uint32)
 	}
 }
 

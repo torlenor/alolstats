@@ -2,6 +2,8 @@ package statsrunner
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
 	"time"
 
 	"git.abyle.org/hps/alolstats/riotclient"
@@ -48,13 +50,13 @@ func (sr *StatsRunner) itemWinRateWorker() {
 					sr.shouldWorkersStopMutex.RUnlock()
 					version, err := utils.SplitNumericVersion(versionStr)
 					if err != nil {
-						sr.log.Warnf("Something bad happened: %s", err)
+						sr.log.Errorf("Could not get game determine requested game version: %s", err)
 						continue
 					}
 					gameVersion := fmt.Sprintf("%d.%d", version[0], version[1])
 					majorMinor := fmt.Sprintf("%d\\.%d\\.", version[0], version[1])
 
-					analyzer := analyzer.NewItemAnalyzer(int(gameVersion[0]), int(gameVersion[1]))
+					analyzer := analyzer.NewItemAnalyzer(int(version[0]), int(version[1]))
 
 					sr.log.Infof("Calculation of itemWinRateWorker for Game Version %s and Queue %s started", gameVersion, queue)
 
@@ -73,12 +75,7 @@ func (sr *StatsRunner) itemWinRateWorker() {
 						sr.shouldWorkersStopMutex.RUnlock()
 						err := cur.Decode(currentMatch)
 						if err != nil {
-							sr.log.Errorf("Error deconding match: %s", err)
-							continue
-						}
-
-						if currentMatch.MapID != 11 || currentMatch.QueueID != int(queueID) {
-							sr.log.Warnf("Found match which should not have been returned from storage, skipping...")
+							sr.log.Errorf("Error decoding match: %s", err)
 							continue
 						}
 
@@ -91,7 +88,7 @@ func (sr *StatsRunner) itemWinRateWorker() {
 
 					// Prepare results for ItemStats (ALL tiers)
 					for _, itemCombiStats := range result {
-						stats, err := sr.prepareItemStats(itemCombiStats)
+						stats, err := sr.prepareItemStats(itemCombiStats, queue, "ALL")
 						if err == nil {
 							err = sr.storage.StoreItemStats(stats)
 							if err != nil {
@@ -124,49 +121,56 @@ func (sr *StatsRunner) itemWinRateWorker() {
 	}
 }
 
-func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatistics) (*storage.ItemStats, error) {
+func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatistics, queue string, tier string) (*storage.ItemStats, error) {
+	if stats.TotalSampleSize == 0 {
+		return nil, fmt.Errorf("No data")
+	}
 
-	// gameVersion := fmt.Sprintf("%d.%d", majorVersion, minorVersion)
+	gameVersion := fmt.Sprintf("%d.%d", stats.GameVersionMajor, stats.GameVersionMinor)
 
 	itemStats := storage.ItemStats{}
-	// itemStats.ChampionID = uint64(stats.ChampionID)
-	// // itemStats.GameVersion = gameVersion
+	itemStats.ChampionID = uint64(stats.ChampionID)
+	itemStats.GameVersion = gameVersion
 
-	// itemStats.ItemStatsValues = make(storage.ItemStatsValues)
+	itemStats.ItemStatsValues = make(storage.ItemStatsValues)
 
-	// itemStatsBySampleSize := make(map[float64]storage.SingleItemStatsValues)
+	itemStatsBySampleSize := make(map[float64]storage.SingleItemStatsValues)
 
-	// for itemCombination, itemCounts := range itemCounter.SingleItemCounters {
-	// 	if itemCounts.Picks > 1 {
-	// 		is := itemStats.ItemStatsValues[itemCombination]
-	// 		is.WinRate = float64(itemCounts.Wins) / float64(itemCounts.Picks)
-	// 		sr.log.Info(itemCounts.Wins, itemCounts.Picks, is.WinRate)
-	// 		is.PickRate = float64(itemCounts.Picks) / float64(totalPicks)
-	// 		is.SampleSize = itemCounts.Picks
-	// 		is.ItemHash = itemCombination
-	// 		itemStats.ItemStatsValues[itemCombination] = is
-	// 		itemStatsBySampleSize[is.PickRate] = is
-	// 	}
-	// }
+	for itemCombination, itemCounts := range stats.Total {
+		if itemCounts.Picks > 0 {
+			is := itemStats.ItemStatsValues[itemCombination]
+			is.WinRate = float64(itemCounts.Wins) / float64(itemCounts.Picks)
+			is.PickRate = float64(itemCounts.Picks) / float64(stats.TotalSampleSize)
+			is.SampleSize = uint64(stats.TotalSampleSize)
+			is.ItemHash = itemCombination
+			itemStats.ItemStatsValues[itemCombination] = is
+			itemStatsBySampleSize[is.PickRate] = is
+		}
+	}
 
-	// var keys []float64
-	// for k := range itemStatsBySampleSize {
-	// 	keys = append(keys, k)
-	// }
-	// sort.Float64s(keys)
+	var keys []float64
+	for k := range itemStatsBySampleSize {
+		keys = append(keys, k)
+	}
+	sort.Float64s(keys)
 
-	// sr.log.Infof("Highest pick rate (%f) for Champ %d was item combination %s with a Win Rate of %f percent", itemStatsBySampleSize[keys[len(keys)-1]].PickRate, champID, itemStatsBySampleSize[keys[len(keys)-1]].ItemHash, 100*itemStatsBySampleSize[keys[len(keys)-1]].WinRate)
+	// sr.log.Infof("Highest pick rate (%f) for Champ %d was item combination %s with a Win Rate of %f percent", itemStatsBySampleSize[keys[len(keys)-1]].PickRate, stats.ChampionID, itemStatsBySampleSize[keys[len(keys)-1]].ItemHash, 100*itemStatsBySampleSize[keys[len(keys)-1]].WinRate)
 
-	// champions := sr.storage.GetChampions(false)
-	// for _, val := range champions {
-	// 	if val.Key == strconv.FormatUint(champID, 10) {
-	// 		itemStats.ChampionName = val.Name
-	// 		itemStats.ChampionRealID = val.ID
-	// 		break
-	// 	}
-	// }
+	champions := sr.storage.GetChampions(false)
+	for _, val := range champions {
+		if val.Key == strconv.FormatUint(uint64(stats.ChampionID), 10) {
+			itemStats.ChampionName = val.Name
+			itemStats.ChampionRealID = val.ID
+			break
+		}
+	}
 
-	// itemStats.Timestamp = time.Now()
+	itemStats.Queue = queue
+	itemStats.Tier = tier
+
+	itemStats.SampleSize = uint64(stats.TotalSampleSize)
+
+	itemStats.Timestamp = time.Now()
 
 	return &itemStats, nil
 }

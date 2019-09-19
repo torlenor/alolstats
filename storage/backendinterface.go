@@ -110,7 +110,7 @@ type BackendStats interface {
 	GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue string) (*ChampionStatsSummaryStorage, error)
 	StoreChampionStatsSummary(statsSummary *ChampionStatsSummaryStorage) error
 
-	GetItemStatsByChampionIDGameVersion(championID, gameVersion string) (*ItemStatsStorage, error)
+	GetItemStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*ItemStatsStorage, error)
 	StoreItemStats(statsStorage *ItemStatsStorage) error
 
 	GetSummonerSpellsStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue string) (*SummonerSpellsStatsStorage, error)

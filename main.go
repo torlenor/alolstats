@@ -165,7 +165,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error creating the StatsRunner: %s", err)
 	}
-	statsRunner.RegisterAPI(api)
 
 	var fetchRunners []*fetchrunner.FetchRunner
 	for name, fetchRunnerConfig := range cfg.FetchRunner {
