@@ -12,8 +12,8 @@ type RuneReforged struct {
 	LongDesc  string `json:"longDesc"`
 }
 
-// RunesReforgedList is used to pass around a list of Runes Reforged
-type RunesReforgedList []struct {
+// RunesReforgedSet is used to pass around a list of Runes Reforged
+type RunesReforgedSet struct {
 	ID    int    `json:"id"`
 	Key   string `json:"key"`
 	Icon  string `json:"icon"`
@@ -24,3 +24,6 @@ type RunesReforgedList []struct {
 
 	Timestamp time.Time `json:"timestamp"`
 }
+
+// RunesReforgedList is used to pass around a list of RunesReforged sets
+type RunesReforgedList map[int]RunesReforgedSet

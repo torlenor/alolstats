@@ -28,6 +28,7 @@ type ClientRunesReforged interface {
 // ClientSummonerSpells defines an interface to Summoner Spells API calls
 type ClientSummonerSpells interface {
 	SummonerSpells() (s *SummonerSpellsList, err error)
+	SummonerSpellsSpecificVersionLanguage(gameVersion, language string) (*SummonerSpellsList, error)
 }
 
 // ClientSummoner defines an interface to Summoner API calls

@@ -42,7 +42,10 @@ func (b *Backend) checkSummonerSpells() error {
 
 	err := b.createIndex("summonerspells", mongo.IndexModel{
 		Keys: bsonx.Doc{
-			{Key: "key", Value: bsonx.Int32(1)}},
+			{Key: "id", Value: bsonx.Int32(1)},
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "language", Value: bsonx.Int32(1)},
+		},
 		Options: options.Index().SetUnique(true),
 	})
 	if err != nil {

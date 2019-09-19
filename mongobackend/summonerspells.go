@@ -3,7 +3,6 @@ package mongobackend
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -11,17 +10,30 @@ import (
 	"git.abyle.org/hps/alolstats/riotclient"
 )
 
+type storedSummonerSpell struct {
+	GameVersion string
+	Language    string
+
+	ID            string
+	SummonerSpell riotclient.SummonerSpell
+}
+
 // GetSummonerSpells gets the summoner spells list from storage
-func (b *Backend) GetSummonerSpells() (*riotclient.SummonerSpellsList, error) {
+func (b *Backend) GetSummonerSpells(gameVersion, language string) (riotclient.SummonerSpellsList, error) {
 
 	c := b.client.Database(b.config.Database).Collection("summonerspells")
 
+	query := bson.D{
+		{Key: "gameVersion", Value: gameVersion},
+		{Key: "language", Value: language},
+	}
+
 	cur, err := c.Find(
 		context.Background(),
-		bson.D{{}},
+		query,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("Find error: %s", err)
+		return nil, fmt.Errorf("GetSummonerSpells find error for gameversion %s and language %s: %s", gameVersion, language, err)
 	}
 
 	defer cur.Close(context.Background())
@@ -29,67 +41,47 @@ func (b *Backend) GetSummonerSpells() (*riotclient.SummonerSpellsList, error) {
 	summonerSpellsList := make(riotclient.SummonerSpellsList)
 
 	for cur.Next(nil) {
-		summonerSpell := riotclient.SummonerSpell{}
+		summonerSpell := storedSummonerSpell{}
 		err := cur.Decode(&summonerSpell)
 		if err != nil {
-			b.log.Warnln("Decode error ", err)
+			b.log.Warnln("GetSummonerSpells decode error for gameversion %s and language %s: %s", gameVersion, language, err)
 			continue
 		}
-		summonerSpellsList[summonerSpell.ID] = summonerSpell
+		summonerSpellsList[summonerSpell.ID] = summonerSpell.SummonerSpell
 	}
 
 	if err := cur.Err(); err != nil {
-		b.log.Warnln("Cursor error ", err)
+		b.log.Warnln("GetSummonerSpells cursor error for gameversion %s and language %s: %s", gameVersion, language, err)
 	}
 
-	return &summonerSpellsList, nil
-}
-
-// GetSummonerSpellsTimeStamp gets the timestamp of the stored champions list
-func (b *Backend) GetSummonerSpellsTimeStamp() time.Time {
-	summonerSpellsList, err := b.GetSummonerSpells()
-	if err != nil {
-		b.log.Errorf("Error getting Summoner Spells for TimeStamp")
-		return time.Time{}
-	}
-
-	if len(*summonerSpellsList) == 0 {
-		return time.Time{}
-	}
-
-	// Find oldest summoner spell time
-	oldest := time.Now()
-	for _, summonerSpell := range *summonerSpellsList {
-		if oldest.Sub(summonerSpell.Timestamp) > 0 {
-			oldest = summonerSpell.Timestamp
-		}
-	}
-
-	return oldest
+	return summonerSpellsList, nil
 }
 
 // StoreSummonerSpells stores a new champions list
-func (b *Backend) StoreSummonerSpells(summnerSpellsList *riotclient.SummonerSpellsList) error {
-	b.log.Debugf("Storing Summoner Spells in storage")
-
+func (b *Backend) StoreSummonerSpells(gameVersion, language string, summonerSpellsList riotclient.SummonerSpellsList) error {
 	upsert := true
 	updateOptions := options.UpdateOptions{Upsert: &upsert}
 
-	hadErrors := false
-	for _, summonerSpell := range *summnerSpellsList {
-		query := bson.D{{Key: "key", Value: summonerSpell.Key}}
-		update := bson.D{{Key: "$set", Value: summonerSpell}}
+	for _, summonerSpell := range summonerSpellsList {
+		summonerSpellForStorage := storedSummonerSpell{
+			GameVersion:   gameVersion,
+			Language:      language,
+			ID:            summonerSpell.ID,
+			SummonerSpell: summonerSpell,
+		}
+
+		query := bson.D{
+			{Key: "gameversion", Value: gameVersion},
+			{Key: "language", Value: language},
+			{Key: "id", Value: summonerSpellForStorage.ID},
+		}
+		update := bson.D{{Key: "$set", Value: summonerSpellForStorage}}
 
 		c := b.client.Database(b.config.Database).Collection("summonerspells")
 		_, err := c.UpdateOne(context.Background(), query, update, &updateOptions)
 		if err != nil {
-			b.log.Warnf("Error saving Summoner Spells in DB: %s", err)
-			hadErrors = true
+			return fmt.Errorf("Error saving Summoner Spell %s for gameversion %s and language %s in DB: %s", summonerSpellForStorage.ID, gameVersion, language, err)
 		}
-	}
-
-	if hadErrors {
-		return fmt.Errorf("There were errors saving the Summoner Spells in DB")
 	}
 
 	return nil
