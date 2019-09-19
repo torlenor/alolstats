@@ -25,11 +25,11 @@ type StatsRunner struct {
 	log     *logrus.Entry
 	stats   stats
 
-	isStarted             bool
-	workersWG             sync.WaitGroup
-	stopWorkers           chan struct{}
-	shouldWorkersSopMutex sync.RWMutex
-	shouldWorkersStop     bool
+	isStarted              bool
+	workersWG              sync.WaitGroup
+	stopWorkers            chan struct{}
+	shouldWorkersStopMutex sync.RWMutex
+	shouldWorkersStop      bool
 
 	calculationMutex sync.Mutex
 }
@@ -69,9 +69,9 @@ func (sr *StatsRunner) GetHandeledRequests() uint64 {
 func (sr *StatsRunner) Start() {
 	if !sr.isStarted {
 		sr.log.Println("Starting StatsRunner")
-		sr.shouldWorkersSopMutex.Lock()
+		sr.shouldWorkersStopMutex.Lock()
 		sr.shouldWorkersStop = false
-		sr.shouldWorkersSopMutex.Unlock()
+		sr.shouldWorkersStopMutex.Unlock()
 		sr.stopWorkers = make(chan struct{})
 		if sr.config.RunRScripts {
 			sr.workersWG.Add(1)
@@ -107,9 +107,9 @@ func (sr *StatsRunner) Start() {
 func (sr *StatsRunner) Stop() {
 	if sr.isStarted {
 		sr.log.Println("Stopping StatsRunner")
-		sr.shouldWorkersSopMutex.Lock()
+		sr.shouldWorkersStopMutex.Lock()
 		sr.shouldWorkersStop = true
-		sr.shouldWorkersSopMutex.Unlock()
+		sr.shouldWorkersStopMutex.Unlock()
 		close(sr.stopWorkers)
 		sr.workersWG.Wait()
 		sr.isStarted = false

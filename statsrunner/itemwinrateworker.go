@@ -41,11 +41,11 @@ func (sr *StatsRunner) itemWinRateWorker() {
 
 			for queueID, queue := range queueIDtoQueue {
 				for _, versionStr := range sr.config.GameVersion {
-					sr.shouldWorkersSopMutex.RLock()
+					sr.shouldWorkersStopMutex.RLock()
 					if sr.shouldWorkersStop {
 						return
 					}
-					sr.shouldWorkersSopMutex.Unlock()
+					sr.shouldWorkersStopMutex.RUnlock()
 					version, err := utils.SplitNumericVersion(versionStr)
 					if err != nil {
 						sr.log.Warnf("Something bad happened: %s", err)
@@ -66,11 +66,11 @@ func (sr *StatsRunner) itemWinRateWorker() {
 					currentMatch := &riotclient.MatchDTO{}
 					cnt := 0
 					for cur.Next() {
-						sr.shouldWorkersSopMutex.RLock()
+						sr.shouldWorkersStopMutex.RLock()
 						if sr.shouldWorkersStop {
 							return
 						}
-						sr.shouldWorkersSopMutex.Unlock()
+						sr.shouldWorkersStopMutex.RUnlock()
 						err := cur.Decode(currentMatch)
 						if err != nil {
 							sr.log.Errorf("Error deconding match: %s", err)

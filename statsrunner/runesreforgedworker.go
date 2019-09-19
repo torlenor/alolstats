@@ -114,11 +114,11 @@ func (sr *StatsRunner) runesReforgedWorker() {
 
 			for queueID, queue := range queueIDtoQueue {
 				for _, versionStr := range sr.config.GameVersion {
-					sr.shouldWorkersSopMutex.RLock()
+					sr.shouldWorkersStopMutex.RLock()
 					if sr.shouldWorkersStop {
 						return
 					}
-					sr.shouldWorkersSopMutex.RUnlock()
+					sr.shouldWorkersStopMutex.RUnlock()
 
 					version, err := utils.SplitNumericVersion(versionStr)
 					if err != nil {
@@ -144,11 +144,11 @@ func (sr *StatsRunner) runesReforgedWorker() {
 					cnt := 0
 
 					for cur.Next() {
-						sr.shouldWorkersSopMutex.RLock()
+						sr.shouldWorkersStopMutex.RLock()
 						if sr.shouldWorkersStop {
 							return
 						}
-						sr.shouldWorkersSopMutex.RUnlock()
+						sr.shouldWorkersStopMutex.RUnlock()
 						err := cur.Decode(currentMatch)
 						if err != nil {
 							sr.log.Errorf("Error decoding match: %s", err)
