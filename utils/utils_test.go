@@ -175,7 +175,7 @@ func TestGenerateStatusResponse(t *testing.T) {
 				statusCode: 200,
 				statusText: "some text",
 			},
-			want: `{"status": { "status_code": 200, "message": "some text" } }`,
+			want: `{"error": { "code": 200, "message": "some text" } }`,
 		},
 		{
 			name: "Test 2 - Status code 404, some other text",
@@ -183,7 +183,7 @@ func TestGenerateStatusResponse(t *testing.T) {
 				statusCode: 404,
 				statusText: "some other text",
 			},
-			want: `{"status": { "status_code": 404, "message": "some other text" } }`,
+			want: `{"error": { "code": 404, "message": "some other text" } }`,
 		},
 	}
 	for _, tt := range tests {

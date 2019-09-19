@@ -87,7 +87,7 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest,
-			fmt.Sprintf("Could not get stats for champion stats summary for gameversion %s, tier %, queue %s",
+			fmt.Sprintf("Could not get stats for champion stats summary for gameversion %s, tier %s, queue %s",
 				gameVersion, tier, queue)),
 			http.StatusBadRequest)
 		return
