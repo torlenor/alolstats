@@ -87,6 +87,8 @@
     [StatsRunner.ItemsStats]
         Enabled = true    # Specifies if the ItemsStats calculation shall be activated
         UpdateInverval = 2160  # Update Interval for running the ItemsStats calculations in minutes > 0
+        KeepOnlyHighestPickRate = true # Store only the SummonerSpells combination per role/total with the highest pick rate
+        KeepOnlyNHighest = 3 # How many of the highest pick rates should be kept
 
     [StatsRunner.SummonerSpellsStats]
         Enabled = true # Specified if the SummonerSpellsStats runner shall be activated

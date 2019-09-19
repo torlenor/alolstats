@@ -148,11 +148,30 @@ func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatist
 		}
 	}
 
-	var keys []float64
-	for k := range itemStatsBySampleSize {
-		keys = append(keys, k)
+	if sr.config.ItemsStats.KeepOnlyHighestPickRate {
+		var keys []float64
+		for k := range itemStatsBySampleSize {
+			keys = append(keys, k)
+		}
+		sort.Float64s(keys)
+
+		highestItemStats := storage.ItemStats{}
+		highestItemStats.ChampionID = uint64(stats.ChampionID)
+		highestItemStats.GameVersion = gameVersion
+
+		highestItemStats.ItemStatsValues = make(storage.ItemStatsValues)
+
+		cnt := uint32(0)
+		for i := len(keys) - 1; i >= 0; i-- {
+			highestItemStats.ItemStatsValues[itemStatsBySampleSize[keys[i]].ItemHash] = itemStatsBySampleSize[keys[i]]
+			cnt++
+			if cnt > (sr.config.ItemsStats.KeepOnlyNHighest - 1) {
+				break
+			}
+		}
+
+		itemStats = highestItemStats
 	}
-	sort.Float64s(keys)
 
 	// sr.log.Infof("Highest pick rate (%f) for Champ %d was item combination %s with a Win Rate of %f percent", itemStatsBySampleSize[keys[len(keys)-1]].PickRate, stats.ChampionID, itemStatsBySampleSize[keys[len(keys)-1]].ItemHash, 100*itemStatsBySampleSize[keys[len(keys)-1]].WinRate)
 
