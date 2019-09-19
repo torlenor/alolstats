@@ -2,76 +2,54 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"sync/atomic"
 	"time"
+
+	"git.abyle.org/hps/alolstats/statstypes"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 func (s *Storage) championStatsByIDEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API championByID request from", r.RemoteAddr)
-	var champID string
-	var gameVersion string
-	var tier string
-	var queue string
 
-	if val, ok := r.URL.Query()["id"]; ok {
-		if len(val) == 0 {
-			s.log.Warnf("id parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		champID = val[0]
-	} else {
-		s.log.Warnf("id parameter was missing in request")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	id, err := extractURLStringParameter(r.URL.Query(), "id")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	if val, ok := r.URL.Query()["gameversion"]; ok {
-		if len(val) == 0 {
-			s.log.Warnf("gameversion parameter was empty in request.")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		gameVersion = val[0]
-	} else {
-		s.log.Warnf("gameversion parameter was missing in request.")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	gameVersion, err := extractURLStringParameter(r.URL.Query(), "gameversion")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
-	if val, ok := r.URL.Query()["tier"]; ok {
-		if len(val) == 0 {
-			s.log.Debugf("tier parameter was empty in request, assuming ALL.")
-			tier = "ALL"
-		}
-		tier = val[0]
-	} else {
-		tier = "ALL"
+
+	queue, err := extractURLStringParameter(r.URL.Query(), "queue")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
+		return
 	}
 
-	if val, ok := r.URL.Query()["queue"]; ok {
-		if len(val) == 0 {
-			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
-			queue = "RANKED_SOLO"
-		}
-		queue = val[0]
-	} else {
-		queue = "RANKED_SOLO"
+	tier, err := extractURLStringParameter(r.URL.Query(), "tier")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
+		return
 	}
 
-	championStats, err := s.GetChampionStatsByIDGameVersionTierQueue(champID, gameVersion, tier, queue)
+	championStats, err := s.GetChampionStatsByIDGameVersionTierQueue(id, gameVersion, tier, queue)
 	if err != nil {
 		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, fmt.Sprintf("Could not get stats for champion ID %s", id)), http.StatusBadRequest)
 		return
 	}
 
 	out, err := json.Marshal(championStats)
 	if err != nil {
-		s.log.Errorln(err)
 		s.log.Errorf("Error in championByID with request %s: %s", r.URL.String(), err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Problem converting Champion to JSON")), http.StatusInternalServerError)
 		return
 	}
 
@@ -87,48 +65,38 @@ func (s *Storage) championStats(w http.ResponseWriter, r *http.Request) {
 	var tier string
 	var queue string
 
-	if val, ok := r.URL.Query()["gameversion"]; ok {
-		if len(val) == 0 {
-			s.log.Warnf("gameversion parameter was empty in request.")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		gameVersion = val[0]
-	} else {
-		s.log.Warnf("gameversion parameter was missing in request.")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	gameVersion, err := extractURLStringParameter(r.URL.Query(), "gameversion")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
-	if val, ok := r.URL.Query()["tier"]; ok {
-		if len(val) == 0 {
-			s.log.Debugf("tier parameter was empty in request, assuming ALL.")
-			tier = "ALL"
-		}
-		tier = val[0]
-	} else {
-		tier = "ALL"
+
+	queue, err = extractURLStringParameter(r.URL.Query(), "queue")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
+		return
 	}
-	if val, ok := r.URL.Query()["queue"]; ok {
-		if len(val) == 0 {
-			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
-			queue = "RANKED_SOLO"
-		}
-		queue = val[0]
-	} else {
-		queue = "RANKED_SOLO"
+
+	tier, err = extractURLStringParameter(r.URL.Query(), "tier")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
+		return
 	}
 
 	statsSummary, err := s.GetChampionStatsSummaryByGameVersionTierQueue(gameVersion, tier, queue)
 	if err != nil {
 		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest,
+			fmt.Sprintf("Could not get stats for champion stats summary for gameversion %s, tier %, queue %s",
+				gameVersion, tier, queue)),
+			http.StatusBadRequest)
 		return
 	}
 
 	out, err := json.Marshal(statsSummary.ChampionsStatsSummary)
 	if err != nil {
 		s.log.Errorf("Error in ChampionsStats with request %s: %s", r.URL.String(), err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Problem converting Champion to JSON")), http.StatusInternalServerError)
 		return
 	}
 
@@ -144,48 +112,33 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 	var tier string
 	var queue string
 
-	if val, ok := r.URL.Query()["id"]; ok {
-		if len(val) == 0 {
-			s.log.Warnf("id parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		champID = val[0]
-	} else {
-		s.log.Warnf("id parameter was missing in request")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	champID, err := extractURLStringParameter(r.URL.Query(), "id")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	if val, ok := r.URL.Query()["tier"]; ok {
-		if len(val) == 0 {
-			s.log.Debugf("tier parameter was empty in request, assuming ALL.")
-			tier = "ALL"
-		}
-		tier = val[0]
-	} else {
-		tier = "ALL"
+	queue, err = extractURLStringParameter(r.URL.Query(), "queue")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
+		return
 	}
 
-	if val, ok := r.URL.Query()["queue"]; ok {
-		if len(val) == 0 {
-			s.log.Debugf("queue parameter was empty in request, assuming ALL.")
-			queue = "RANKED_SOLO"
-		}
-		queue = val[0]
-	} else {
-		queue = "RANKED_SOLO"
+	tier, err = extractURLStringParameter(r.URL.Query(), "tier")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
+		return
 	}
 
 	gameVersions, err := s.GetKnownGameVersions()
 	if err != nil {
-		s.log.Errorf("Error in championStatsHistoryByID with request %s: %s", r.URL.String(), err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		s.log.Errorf("Error in Champion Stats History request %s: %s", r.URL.String(), err)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Server error")), http.StatusInternalServerError)
 		return
 	}
 
-	championStatsHistory := ChampionStatsHistory{}
-	championStatsHistory.HistoryPeRrole = make(map[string]ChampionStatsPerRoleSingleHistory)
+	championStatsHistory := statstypes.ChampionStatsHistory{}
+	championStatsHistory.HistoryPeRrole = make(map[string]statstypes.ChampionStatsPerRoleSingleHistory)
 
 	hasHistory := false
 	for _, gameVersion := range gameVersions.Versions {
@@ -195,7 +148,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 		}
 
 		if championStats.SampleSize == 0 {
-			s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s and Queue %s: Skipping Game Version %s, no data", champID, tier, queue, gameVersion)
+			s.log.Debugf("ChampionStatsHistoryByID for Champion ID %s, Tier %s and Queue %s: Skipping Game Version %s, no data", champID, tier, queue, gameVersion)
 			continue
 		}
 
@@ -214,7 +167,7 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 			currentRoleStatsHistory := championStatsHistory.HistoryPeRrole[role]
 
 			if stats.SampleSize == 0 {
-				s.log.Infof("ChampionStatsHistoryByID for Champion ID %s, Tier %s and Queue %s: Skipping Role %s, no data", champID, tier, queue, role)
+				s.log.Debugf("ChampionStatsHistoryByID for Champion ID %s, Tier %s and Queue %s: Skipping Role %s, no data", champID, tier, queue, role)
 				continue
 			}
 
@@ -242,14 +195,17 @@ func (s *Storage) championStatsHistoryByIDEndpoint(w http.ResponseWriter, r *htt
 
 	if !hasHistory {
 		s.log.Errorf("Error in championStatsHistoryByID with request %s: No History Data available", r.URL.String())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest,
+			fmt.Sprintf("No History Data available for gameversion %s, tier %s, queue %s",
+				gameVersions, tier, queue)),
+			http.StatusBadRequest)
 		return
 	}
 
 	out, err := json.Marshal(championStatsHistory)
 	if err != nil {
-		s.log.Errorf("Error in championStatsHistoryByID with request %s: %s", r.URL.String(), err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		s.log.Errorf("Error in Champion Stats History request %s: %s", r.URL.String(), err)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Server error, try again later")), http.StatusInternalServerError)
 		return
 	}
 

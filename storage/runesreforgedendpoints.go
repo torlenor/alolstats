@@ -10,7 +10,7 @@ import (
 	"git.abyle.org/hps/alolstats/utils"
 )
 
-func (s *Storage) summonerSpellsEndpoint(w http.ResponseWriter, r *http.Request) {
+func (s *Storage) getRunesReforgedEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API Summoner Spells request from", r.RemoteAddr)
 	atomic.AddUint64(&s.stats.handledRequests, 1)
 
@@ -26,16 +26,16 @@ func (s *Storage) summonerSpellsEndpoint(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	summonerSpells, err := s.GetSummonerSpells(gameVersion, language)
+	items, err := s.GetRunesReforged(gameVersion, language)
 	if err != nil {
-		s.log.Errorf("Could not get Summoner Spells for gameversion %s, language %s: %s", gameVersion, language, err)
+		s.log.Errorf("Could not get RunesReforged for gameversion %s, language %s: %s", gameVersion, language, err)
 		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Server error, try again later")), http.StatusInternalServerError)
 		return
 	}
 
-	out, err := json.Marshal(summonerSpells)
+	out, err := json.Marshal(items)
 	if err != nil {
-		s.log.Errorf("Could not marshal Summoner data to JSON: %s", err)
+		s.log.Errorln(err)
 		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Server error, try again later")), http.StatusInternalServerError)
 		return
 	}

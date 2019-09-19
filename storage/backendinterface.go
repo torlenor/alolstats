@@ -14,7 +14,7 @@ type BackendChampion interface {
 	StoreChampions(championsList riotclient.ChampionsList) error
 }
 
-// BackendFreeRotation defines an interfce to store/retrieve the Champions Free Rotation from Storage Backend
+// BackendFreeRotation defines an interface to store/retrieve the Champions Free Rotation from Storage Backend
 type BackendFreeRotation interface {
 	GetFreeRotation() (*riotclient.FreeRotation, error)
 	GetFreeRotationTimeStamp() time.Time
@@ -24,18 +24,23 @@ type BackendFreeRotation interface {
 
 // BackendSummonerSpells defines an interface to store/retrieve Summoner Spells data from Storage Backend
 type BackendSummonerSpells interface {
-	GetSummonerSpells() (*riotclient.SummonerSpellsList, error)
-	GetSummonerSpellsTimeStamp() time.Time
+	GetSummonerSpells(gameVersion, language string) (riotclient.SummonerSpellsList, error)
 
-	StoreSummonerSpells(summonerSpellsList *riotclient.SummonerSpellsList) error
+	StoreSummonerSpells(gameVersion, language string, summonerSpellsList riotclient.SummonerSpellsList) error
 }
 
 // BackendRunesReforged defines an interface to store/retrieve Summoner Spells data from Storage Backend
 type BackendRunesReforged interface {
-	GetRunesReforged() (*riotclient.RunesReforgedList, error)
-	GetRunesReforgedTimeStamp() time.Time
+	GetRunesReforged(gameVersion, language string) (riotclient.RunesReforgedList, error)
 
-	StoreRunesReforged(runesReforgedList *riotclient.RunesReforgedList) error
+	StoreRunesReforged(gameVersion, language string, runesReforgedList riotclient.RunesReforgedList) error
+}
+
+// BackendItems defines an interface to store/retrieve Items data from Storage Backend
+type BackendItems interface {
+	GetItems(gameVersion, language string) (riotclient.ItemList, error)
+
+	StoreItems(gameVersion, language string, itemsList riotclient.ItemList) error
 }
 
 // BackendLeague defines an interface to store/retrieve League data from Storage Backend
@@ -129,6 +134,9 @@ type Backend interface {
 	BackendFreeRotation
 	BackendMatch
 	BackendSummoner
+
+	BackendItems
+	BackendRunesReforged
 	BackendSummonerSpells
 
 	BackendLeague

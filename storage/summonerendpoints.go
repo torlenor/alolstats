@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"git.abyle.org/hps/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/utils"
 )
 
 // SummonerResponse contains summary informations of a summoner
@@ -49,30 +50,21 @@ func (s *Storage) prepareSummonerResponse(summonerName string, forceUpdate bool)
 func (s *Storage) summonerByNameEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.log.Debugln("Received Rest API SummonerByName request from", r.RemoteAddr)
 
-	var summonerName string
-	if val, ok := r.URL.Query()["name"]; ok {
-		if len(val[0]) == 0 {
-			s.log.Warnf("name parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		summonerName = val[0]
-	} else {
-		s.log.Warnf("There was no name parameter in request")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	summonerName, err := extractURLStringParameter(r.URL.Query(), "name")
+	if err != nil {
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	summonerResponse, err := s.prepareSummonerResponse(summonerName, checkParamterForceUpdate(r.URL.Query()))
+	summonerResponse, err := s.prepareSummonerResponse(summonerName, false)
 	if err != nil {
-		s.log.Warnf("Error preparing Summoner Response: %s", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, err.Error()), http.StatusBadRequest)
 	}
 
 	out, err := json.Marshal(summonerResponse)
 	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		s.log.Errorf("Could not marshal Summoner data to JSON: %s", err)
+		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Server error, try again later")), http.StatusInternalServerError)
 		return
 	}
 

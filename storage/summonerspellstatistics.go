@@ -3,15 +3,13 @@ package storage
 import (
 	"fmt"
 	"time"
-
-	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // SingleSummonerSpellsStatsValues contains Summoner Spells statistics for one unique spell combination
 type SingleSummonerSpellsStatsValues struct {
 	SampleSize uint64 `json:"samplesize"`
 
-	SummonerSpells []riotclient.SummonerSpell `json:"summonerspells"`
+	SummonerSpellIDs []int `json:"summonerspellids"`
 
 	PickRate float64 `json:"pickrate"`
 	WinRate  float64 `json:"winrate"`

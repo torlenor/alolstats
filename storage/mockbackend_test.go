@@ -364,15 +364,11 @@ func (b *mockBackend) StoreSummonerSpellsStats(data *SummonerSpellsStatsStorage)
 	return fmt.Errorf("Not implemented")
 }
 
-func (b *mockBackend) GetSummonerSpells() (*riotclient.SummonerSpellsList, error) {
+func (b *mockBackend) GetSummonerSpells(gameVersion, language string) (riotclient.SummonerSpellsList, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
-func (b *mockBackend) GetSummonerSpellsTimeStamp() time.Time {
-	return time.Time{}
-}
-
-func (b *mockBackend) StoreSummonerSpells(summonerSpellsList *riotclient.SummonerSpellsList) error {
+func (b *mockBackend) StoreSummonerSpells(gameVersion, language string, summonerSpellsList riotclient.SummonerSpellsList) error {
 	return fmt.Errorf("Not implemented")
 }
 
@@ -381,5 +377,21 @@ func (b *mockBackend) GetRunesReforgedStatsByChampionIDGameVersionTierQueue(cham
 }
 
 func (b *mockBackend) StoreRunesReforgedStats(data *RunesReforgedStatsStorage) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetItems(gameVersion, language string) (riotclient.ItemList, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) StoreItems(gameVersion, language string, itemsList riotclient.ItemList) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) GetRunesReforged(gameVersion, language string) (riotclient.RunesReforgedList, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
+func (b *mockBackend) StoreRunesReforged(gameVersion, language string, runesReforgedList riotclient.RunesReforgedList) error {
 	return fmt.Errorf("Not implemented")
 }

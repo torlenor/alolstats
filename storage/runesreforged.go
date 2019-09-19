@@ -1,47 +1,34 @@
 package storage
 
 import (
+	"fmt"
+
 	"git.abyle.org/hps/alolstats/riotclient"
 )
 
 // GetRunesReforged returns a list of all currently known summoner spells
-// forceUpdate will try to update the champion, if it is false the config settings will be considered if update is required
-func (s *Storage) GetRunesReforged(forceUpdate bool) *riotclient.RunesReforgedList {
-	// duration := time.Since(s.backend.GetRunesReforgedTimeStamp())
-	// if (duration.Minutes() > float64(s.config.MaxAgeRunesReforged)) || forceUpdate {
-	summonerSpells, err := s.riotClient.RunesReforged()
+// gameVersion is the game version we want to have
+// language is the langauge that we want to have
+func (s *Storage) GetRunesReforged(gameVersion, language string) (riotclient.RunesReforgedList, error) {
+	runesReforgedList, err := s.backend.GetRunesReforged(gameVersion, language)
 	if err != nil {
-		return nil
+		runesReforgedList, errClient := s.riotClient.RunesReforgedSpecificVersionLanguage(gameVersion, language)
+		if errClient != nil {
+			s.log.Warnln(errClient)
+			return nil, fmt.Errorf("Could not get Runes Reforged from Backend or Client: %s", err)
+		}
+		s.log.Warnln("Could not get Summoner Spells from storage backend, returning from Client instead:", err)
+		err = s.backend.StoreRunesReforged(gameVersion, language, *runesReforgedList)
+		if err != nil {
+			s.log.Warnln("Could not store Summoner Spells in storage backend:", err)
+		}
+		return *runesReforgedList, nil
 	}
-	// 	if err != nil {
-	// 		s.log.Warnln(err)
-	// 		summonerSpells, err := s.backend.GetRunesReforged()
-	// 		if err != nil {
-	// 			s.log.Warnln(err)
-	// 			return nil
-	// 		}
-	// 		s.log.Debugf("Could not get Summoner Spells from Client, returning from Storage Backend instead")
-	// 		return summonerSpells
-	// 	}
-	// 	err = s.backend.StoreRunesReforged(summonerSpells)
-	// 	if err != nil {
-	// 		s.log.Warnln("Could not store Summoner Spells in storage backend:", err)
-	// 	}
-	// 	return summonerSpells
-	// }
-	// summonerSpells, err := s.backend.GetRunesReforged()
-	// if err != nil {
-	// 	summonerSpells, errClient := s.riotClient.RunesReforged()
-	// 	if errClient != nil {
-	// 		s.log.Warnln(errClient)
-	// 		return nil
-	// 	}
-	// 	s.log.Warnln("Could not get Summoner Spells from storage backend, returning from Client instead:", err)
-	// 	err = s.backend.StoreRunesReforged(summonerSpells)
-	// 	if err != nil {
-	// 		s.log.Warnln("Could not store Summoner Spells in storage backend:", err)
-	// 	}
-	// 	return summonerSpells
-	// }
-	return summonerSpells
+
+	return runesReforgedList, nil
+}
+
+//StoreRunesReforged stores a new list of Runes Reforged for the given game version and language in the backend
+func (s *Storage) StoreRunesReforged(gameVersion, language string, runesReforgedList riotclient.RunesReforgedList) error {
+	return s.backend.StoreRunesReforged(gameVersion, language, runesReforgedList)
 }

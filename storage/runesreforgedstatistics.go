@@ -6,10 +6,7 @@ import (
 )
 
 type Rune struct {
-	ID   int
-	Key  string
-	Icon string
-	Name string
+	ID int
 }
 
 type RunesReforgedPicks struct {
