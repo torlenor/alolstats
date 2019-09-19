@@ -2,6 +2,8 @@ package analyzer
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -33,8 +35,9 @@ type ChampionItemCombiStatistics struct {
 	GameVersionMajor int
 	GameVersionMinor int
 
-	PerRole           map[string]map[string]ItemCombiStatistics // [lane][role]
-	PerRoleSampleSize map[string]map[string]uint32              // [lane][role]
+	// PerRole is the role in sense of TOP, ..., CARRY, SUPPORT, BOT_UNKNOWN, UNKNOWN
+	PerRole           map[string]ItemCombiStatistics // [role]
+	PerRoleSampleSize map[string]uint32              // [role]
 
 	Total           ItemCombiStatistics
 	TotalSampleSize uint32
@@ -75,16 +78,16 @@ func (a *ItemAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
 			return
 		}
 	}
+	sort.Ints(items)
 	itemCombiHash := utils.HashSortedInt(items)
 
-	role := p.Timeline.Role
-	lane := p.Timeline.Lane
 	championID := p.ChampionID
+	role := determineRole(p.Timeline.Lane, p.Timeline.Role)
 
 	// this function will do nothing if it already exists so it should be cheap
-	a.addNewRole(championID, lane, role)
+	a.addNewRole(championID, role)
 
-	perRole := a.PerChampion[championID].PerRole[lane][role]
+	perRole := a.PerChampion[championID].PerRole[role]
 	if _, ok := perRole[itemCombiHash]; !ok {
 		perRole[itemCombiHash] = &SingleItemCombiStatistics{
 			Combi: itemCombiHash,
@@ -97,8 +100,34 @@ func (a *ItemAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
 		perRole[itemCombiHash].Wins++
 	}
 
-	a.PerChampion[championID].PerRoleSampleSize[lane][role]++
-	a.PerChampion[championID].PerRole[lane][role] = perRole
+	a.PerChampion[championID].PerRoleSampleSize[role]++
+	a.PerChampion[championID].PerRole[role] = perRole
+}
+
+func determineRole(lane, role string) string {
+	switch strings.ToUpper(lane) {
+	case "TOP":
+		return "TOP"
+	case "MID":
+		fallthrough
+	case "MIDDLE":
+		return "MIDDLE"
+	case "JUNGLE":
+		return "JUNGLE"
+	case "BOT":
+		fallthrough
+	case "BOTTOM":
+		switch strings.ToUpper(role) {
+		case "DUO_CARRY":
+			return "CARRY"
+		case "DUO_SUPPORT":
+			return "SUPPORT"
+		default:
+			return "BOTTOM_UNKNOWN"
+		}
+	default:
+		return "UNKNOWN"
+	}
 }
 
 // FeedMatch is used to feed a new match to add to the analysis to the Analyzer
@@ -113,20 +142,18 @@ func (a *ItemAnalyzer) generateTotal() {
 		data.TotalSampleSize = 0
 		total := make(ItemCombiStatistics)
 
-		for _, laneData := range data.PerRole {
-			for _, roleData := range laneData {
-				for hash, itemCombi := range roleData {
-					if _, ok := total[hash]; !ok {
-						total[hash] = &SingleItemCombiStatistics{
-							Combi: itemCombi.Combi,
-							Items: itemCombi.Items,
-						}
+		for _, roleData := range data.PerRole {
+			for hash, itemCombi := range roleData {
+				if _, ok := total[hash]; !ok {
+					total[hash] = &SingleItemCombiStatistics{
+						Combi: itemCombi.Combi,
+						Items: itemCombi.Items,
 					}
-					total[hash].Picks = total[hash].Picks + itemCombi.Picks
-					total[hash].Wins = total[hash].Wins + itemCombi.Wins
-
-					data.TotalSampleSize += itemCombi.Picks
 				}
+				total[hash].Picks = total[hash].Picks + itemCombi.Picks
+				total[hash].Wins = total[hash].Wins + itemCombi.Wins
+
+				data.TotalSampleSize += itemCombi.Picks
 			}
 		}
 
@@ -146,27 +173,18 @@ func (a *ItemAnalyzer) addNewChampion(championID int) {
 			ChampionID:        championID,
 			GameVersionMajor:  a.GameVersionMajor,
 			GameVersionMinor:  a.GameVersionMinor,
-			PerRole:           make(map[string]map[string]ItemCombiStatistics),
-			PerRoleSampleSize: make(map[string]map[string]uint32),
+			PerRole:           make(map[string]ItemCombiStatistics),
+			PerRoleSampleSize: make(map[string]uint32),
 		}
 	}
 }
 
-func (a *ItemAnalyzer) addNewLane(championID int, lane string) {
+func (a *ItemAnalyzer) addNewRole(championID int, role string) {
 	a.addNewChampion(championID)
-	if _, ok := a.PerChampion[championID].PerRole[lane]; !ok {
-		a.PerChampion[championID].PerRole[lane] = make(map[string]ItemCombiStatistics)
+	if _, ok := a.PerChampion[championID].PerRole[role]; !ok {
+		a.PerChampion[championID].PerRole[role] = make(ItemCombiStatistics)
 	}
-	if _, ok := a.PerChampion[championID].PerRoleSampleSize[lane]; !ok {
-		a.PerChampion[championID].PerRoleSampleSize[lane] = make(map[string]uint32)
+	if _, ok := a.PerChampion[championID].PerRoleSampleSize[role]; !ok {
+		a.PerChampion[championID].PerRoleSampleSize[role] = 0
 	}
-}
-
-func (a *ItemAnalyzer) addNewRole(championID int, lane string, role string) {
-	a.addNewLane(championID, lane)
-	laneEntry := a.PerChampion[championID].PerRole[lane]
-	if _, ok := laneEntry[role]; !ok {
-		laneEntry[role] = ItemCombiStatistics{}
-	}
-
 }

@@ -173,8 +173,6 @@ func (sr *StatsRunner) prepareItemStats(stats *analyzer.ChampionItemCombiStatist
 		itemStats = highestItemStats
 	}
 
-	// sr.log.Infof("Highest pick rate (%f) for Champ %d was item combination %s with a Win Rate of %f percent", itemStatsBySampleSize[keys[len(keys)-1]].PickRate, stats.ChampionID, itemStatsBySampleSize[keys[len(keys)-1]].ItemHash, 100*itemStatsBySampleSize[keys[len(keys)-1]].WinRate)
-
 	champions := sr.storage.GetChampions(false)
 	for _, val := range champions {
 		if val.Key == strconv.FormatUint(uint64(stats.ChampionID), 10) {
