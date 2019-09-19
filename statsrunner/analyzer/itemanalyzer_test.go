@@ -401,7 +401,23 @@ func Test_determineRole(t *testing.T) {
 			want: "CARRY",
 		},
 		{
-			name: "Test 8 - Determine BOTTOM_UNKNOWN",
+			name: "Test 8 - Determine SUPPORT from BOT - DUO_SUPPORT",
+			args: args{
+				lane: "BOT",
+				role: "DUO_SUPPORT",
+			},
+			want: "SUPPORT",
+		},
+		{
+			name: "Test 9 - Determine SUPPORT from BOTTOM - DUO_support",
+			args: args{
+				lane: "BOTTOM",
+				role: "DUO_support",
+			},
+			want: "SUPPORT",
+		},
+		{
+			name: "Test 10 - Determine BOTTOM_UNKNOWN",
 			args: args{
 				lane: "BOTTOM",
 				role: "whatever",
@@ -409,7 +425,7 @@ func Test_determineRole(t *testing.T) {
 			want: "BOTTOM_UNKNOWN",
 		},
 		{
-			name: "Test 9 - Determine UNKNOWN - everything else must be unknown",
+			name: "Test 11 - Determine UNKNOWN - everything else must be unknown",
 			args: args{
 				lane: "something",
 				role: "whatever",
