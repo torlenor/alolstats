@@ -62,7 +62,7 @@ func hashRunesReforged(summonerSpells []int) (string, []int) {
 	return strings.TrimSuffix(s, "_"), summonerSpells
 }
 
-func (sr *StatsRunner) fillRunesReforgedPicks(runesReforgedDesc *riotclient.RunesReforgedList, stats *riotclient.ParticipantStatsDTO) storage.RunesReforgedPicks {
+func (sr *StatsRunner) fillRunesReforgedPicks(stats *riotclient.ParticipantStatsDTO) storage.RunesReforgedPicks {
 	runesReforgedPicks := storage.RunesReforgedPicks{}
 	runesReforgedPicks.SlotPrimary.ID = stats.PerkPrimaryStyle
 	runesReforgedPicks.SlotPrimary.Rune0.ID = stats.Perk0
@@ -70,69 +70,9 @@ func (sr *StatsRunner) fillRunesReforgedPicks(runesReforgedDesc *riotclient.Rune
 	runesReforgedPicks.SlotPrimary.Rune2.ID = stats.Perk2
 	runesReforgedPicks.SlotPrimary.Rune3.ID = stats.Perk3
 
-	for _, primary := range *runesReforgedDesc {
-		if primary.ID == runesReforgedPicks.SlotPrimary.ID {
-			runesReforgedPicks.SlotPrimary.Key = primary.Key
-			runesReforgedPicks.SlotPrimary.Icon = primary.Icon
-			runesReforgedPicks.SlotPrimary.Name = primary.Name
-			for _, slot := range primary.Slots {
-				for _, rune := range slot.Runes {
-					if rune.ID == runesReforgedPicks.SlotPrimary.Rune0.ID {
-						runesReforgedPicks.SlotPrimary.Rune0.Icon = rune.Icon
-						runesReforgedPicks.SlotPrimary.Rune0.Key = rune.Key
-						runesReforgedPicks.SlotPrimary.Rune0.Name = rune.Name
-						continue
-					}
-					if rune.ID == runesReforgedPicks.SlotPrimary.Rune1.ID {
-						runesReforgedPicks.SlotPrimary.Rune1.Icon = rune.Icon
-						runesReforgedPicks.SlotPrimary.Rune1.Key = rune.Key
-						runesReforgedPicks.SlotPrimary.Rune1.Name = rune.Name
-						continue
-					}
-					if rune.ID == runesReforgedPicks.SlotPrimary.Rune2.ID {
-						runesReforgedPicks.SlotPrimary.Rune2.Icon = rune.Icon
-						runesReforgedPicks.SlotPrimary.Rune2.Key = rune.Key
-						runesReforgedPicks.SlotPrimary.Rune2.Name = rune.Name
-						continue
-					}
-					if rune.ID == runesReforgedPicks.SlotPrimary.Rune3.ID {
-						runesReforgedPicks.SlotPrimary.Rune3.Icon = rune.Icon
-						runesReforgedPicks.SlotPrimary.Rune3.Key = rune.Key
-						runesReforgedPicks.SlotPrimary.Rune3.Name = rune.Name
-						continue
-					}
-				}
-			}
-		}
-	}
-
 	runesReforgedPicks.SlotSecondary.ID = stats.PerkSubStyle
 	runesReforgedPicks.SlotSecondary.Rune0.ID = stats.Perk4
 	runesReforgedPicks.SlotSecondary.Rune1.ID = stats.Perk5
-
-	for _, secondary := range *runesReforgedDesc {
-		if secondary.ID == runesReforgedPicks.SlotSecondary.ID {
-			runesReforgedPicks.SlotSecondary.Key = secondary.Key
-			runesReforgedPicks.SlotSecondary.Icon = secondary.Icon
-			runesReforgedPicks.SlotSecondary.Name = secondary.Name
-			for _, slot := range secondary.Slots {
-				for _, rune := range slot.Runes {
-					if rune.ID == runesReforgedPicks.SlotSecondary.Rune0.ID {
-						runesReforgedPicks.SlotSecondary.Rune0.Icon = rune.Icon
-						runesReforgedPicks.SlotSecondary.Rune0.Key = rune.Key
-						runesReforgedPicks.SlotSecondary.Rune0.Name = rune.Name
-						continue
-					}
-					if rune.ID == runesReforgedPicks.SlotSecondary.Rune1.ID {
-						runesReforgedPicks.SlotSecondary.Rune1.Icon = rune.Icon
-						runesReforgedPicks.SlotSecondary.Rune1.Key = rune.Key
-						runesReforgedPicks.SlotSecondary.Rune1.Name = rune.Name
-						continue
-					}
-				}
-			}
-		}
-	}
 
 	runesReforgedPicks.StatPerks.Perk0.ID = stats.StatPerk0
 	runesReforgedPicks.StatPerks.Perk1.ID = stats.StatPerk1
@@ -169,12 +109,6 @@ func (sr *StatsRunner) runesReforgedWorker() {
 			start := time.Now()
 
 			champions := sr.storage.GetChampions(false)
-			runesReforgedDesc := sr.storage.GetRunesReforged(false)
-			if runesReforgedDesc == nil {
-				sr.log.Errorf("Could not get Runes Reforged from Storage, canceling runesReforgedWorker run")
-				nextUpdate = time.Minute * time.Duration(sr.config.RunesReforgedStats.UpdateInverval)
-				continue
-			}
 
 			mapID := uint64(11)
 
@@ -247,7 +181,7 @@ func (sr *StatsRunner) runesReforgedWorker() {
 							}
 							runesReforgedHash, _ := hashRunesReforged(runesReforged)
 
-							runesReforgedPicks := sr.fillRunesReforgedPicks(runesReforgedDesc, &participant.Stats)
+							runesReforgedPicks := sr.fillRunesReforgedPicks(&participant.Stats)
 
 							role := participant.Timeline.Role
 							lane := participant.Timeline.Lane
