@@ -17,10 +17,10 @@ func (s *Storage) GetRunesReforged(gameVersion, language string) (riotclient.Run
 			s.log.Warnln(errClient)
 			return nil, fmt.Errorf("Could not get Runes Reforged from Backend or Client: %s", err)
 		}
-		s.log.Warnln("Could not get Summoner Spells from storage backend, returning from Client instead:", err)
+		s.log.Warnln("Could not get Runes Reforged from storage backend, returning from Client instead:", err)
 		err = s.backend.StoreRunesReforged(gameVersion, language, *runesReforgedList)
 		if err != nil {
-			s.log.Warnln("Could not store Summoner Spells in storage backend:", err)
+			s.log.Warnln("Could not store Runes Reforged in storage backend:", err)
 		}
 		return *runesReforgedList, nil
 	}
