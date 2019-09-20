@@ -9,11 +9,13 @@ type SingleItemStatsValues struct {
 	SampleSize uint64 `json:"samplesize"`
 	ItemHash   string `json:"itemHash"`
 
+	Items []int `json:"items"`
+
 	PickRate float64 `json:"pickrate"`
 	WinRate  float64 `json:"winrate"`
 }
 
-type ItemStatsValues map[string]SingleItemStatsValues
+type ItemStatsValues []SingleItemStatsValues
 
 type ItemStats struct {
 	ChampionID     uint64 `json:"championid"`

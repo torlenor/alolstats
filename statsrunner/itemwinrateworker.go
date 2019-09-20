@@ -122,18 +122,18 @@ func (sr *StatsRunner) itemWinRateWorker() {
 }
 
 func (sr *StatsRunner) prepareItemStatsValues(itemCombiStats analyzer.ItemCombiStatistics, totalSampleSize uint32) storage.ItemStatsValues {
-	itemStatsValues := make(storage.ItemStatsValues)
-
 	itemStatsBySampleSize := make(map[float64]storage.SingleItemStatsValues)
 
+	var itemStatsValues storage.ItemStatsValues
 	for itemCombination, itemCounts := range itemCombiStats {
 		if itemCounts.Picks > 0 {
-			is := itemStatsValues[itemCombination]
+			is := storage.SingleItemStatsValues{}
 			is.WinRate = float64(itemCounts.Wins) / float64(itemCounts.Picks)
 			is.PickRate = float64(itemCounts.Picks) / float64(totalSampleSize)
 			is.SampleSize = uint64(itemCounts.Picks)
 			is.ItemHash = itemCombination
-			itemStatsValues[itemCombination] = is
+			is.Items = itemCounts.Items
+			itemStatsValues = append(itemStatsValues, is)
 			itemStatsBySampleSize[is.PickRate] = is
 		}
 	}
@@ -145,11 +145,11 @@ func (sr *StatsRunner) prepareItemStatsValues(itemCombiStats analyzer.ItemCombiS
 		}
 		sort.Float64s(keys)
 
-		highestItemStatsValue := make(storage.ItemStatsValues)
+		var highestItemStatsValue storage.ItemStatsValues
 
 		cnt := uint32(0)
 		for i := len(keys) - 1; i >= 0; i-- {
-			highestItemStatsValue[itemStatsBySampleSize[keys[i]].ItemHash] = itemStatsBySampleSize[keys[i]]
+			highestItemStatsValue = append(highestItemStatsValue, itemStatsBySampleSize[keys[i]])
 			cnt++
 			if cnt > (sr.config.ItemsStats.KeepOnlyNHighest - 1) {
 				break
