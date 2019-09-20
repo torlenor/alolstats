@@ -99,4 +99,4 @@
         Enabled = true # Specified if the RunesReforgedStats runner shall be activated
         UpdateInverval = 2160 # Update Interval for running the RunesReforgedStats calculations in minutes > 0
         KeepOnlyHighestPickRate = true # Store only the Runes Reforged combination per role/total with the highest pick rate
-        
+        KeepOnlyNHighest = 5 # How many of the highest pick rates should be kept

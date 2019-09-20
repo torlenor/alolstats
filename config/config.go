@@ -100,7 +100,7 @@ type ChampionsStats struct {
 type ItemsStats struct {
 	Enabled                 bool   // Specifies if the ItemsStats calculation shall be activated
 	UpdateInverval          uint32 // Update Interval for running the ItemsStats calculations in minutes > 0
-	KeepOnlyHighestPickRate bool   // Store only the SummonerSpells combination per role/total with the highest pick rate
+	KeepOnlyHighestPickRate bool   // Store only the Item combination per role/total with the highest pick rate
 	KeepOnlyNHighest        uint32 // How many of the highest pick rates should be kept
 }
 
@@ -116,6 +116,7 @@ type RunesReforgedStats struct {
 	Enabled                 bool   // Specifies if the RunesReforgedStats calculation shall be activated
 	UpdateInverval          uint32 // Update Interval for running the RunesReforgedStats calculations in minutes > 0
 	KeepOnlyHighestPickRate bool   // Store only the Runes Reforged combination per role/total with the highest pick rate
+	KeepOnlyNHighest        uint32 // How many of the highest pick rates should be kept
 }
 
 // StatsRunner holds the settings for the StatsRunner

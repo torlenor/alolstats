@@ -2,8 +2,6 @@ package analyzer
 
 import (
 	"fmt"
-	"sort"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -78,7 +76,6 @@ func (a *ItemAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
 			return
 		}
 	}
-	sort.Ints(items)
 	itemCombiHash := utils.HashSortedInt(items)
 
 	championID := p.ChampionID
@@ -102,32 +99,6 @@ func (a *ItemAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
 
 	a.PerChampion[championID].PerRoleSampleSize[role]++
 	a.PerChampion[championID].PerRole[role] = perRole
-}
-
-func determineRole(lane, role string) string {
-	switch strings.ToUpper(lane) {
-	case "TOP":
-		return "TOP"
-	case "MID":
-		fallthrough
-	case "MIDDLE":
-		return "MIDDLE"
-	case "JUNGLE":
-		return "JUNGLE"
-	case "BOT":
-		fallthrough
-	case "BOTTOM":
-		switch strings.ToUpper(role) {
-		case "DUO_CARRY":
-			return "CARRY"
-		case "DUO_SUPPORT":
-			return "SUPPORT"
-		default:
-			return "BOTTOM_UNKNOWN"
-		}
-	default:
-		return "UNKNOWN"
-	}
 }
 
 // FeedMatch is used to feed a new match to add to the analysis to the Analyzer

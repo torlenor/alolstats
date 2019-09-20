@@ -17,24 +17,27 @@ type RunesReforgedPicks struct {
 		Rune1 Rune
 		Rune2 Rune
 		Rune3 Rune
-	}
+	} `json:"slotprimary"`
 
 	SlotSecondary struct {
 		Rune
 
 		Rune0 Rune
 		Rune1 Rune
-	}
+	} `json:"slotsecondary"`
 
 	StatPerks struct {
 		Perk0 Rune
 		Perk1 Rune
 		Perk2 Rune
-	}
+	} `json:"statperks"`
 }
 
+// SingleRunesReforgedStatsValues is one stat entry for a given
+// Runes Reforged combination identified by Hash.
 type SingleRunesReforgedStatsValues struct {
 	SampleSize uint64 `json:"samplesize"`
+	Hash       string `json:"hash"`
 
 	RunesReforged RunesReforgedPicks `json:"runesreforged"`
 
@@ -42,8 +45,12 @@ type SingleRunesReforgedStatsValues struct {
 	WinRate  float64 `json:"winrate"`
 }
 
-type RunesReforgedStatsValues map[string]SingleRunesReforgedStatsValues
+// RunesReforgedStatsValues holds a set of different Runes Reforged
+// combinations.
+type RunesReforgedStatsValues []SingleRunesReforgedStatsValues
 
+// RunesReforgedStats holds one particular stat entry for
+// the given champion, game version, tier and queue.
 type RunesReforgedStats struct {
 	ChampionID     uint64 `json:"championid"`
 	ChampionRealID string `json:"championrealid"`
@@ -58,13 +65,18 @@ type RunesReforgedStats struct {
 
 	Timestamp time.Time `json:"timestamp"`
 
-	Stats RunesReforgedStatsValues `json:"stats"`
+	RunesReforgedStatsValues
 
 	StatsPerRole map[string]RunesReforgedStatsValues `json:"statsperrole"`
 }
 
+// RunesReforgedStatsStorage is the struct which is used to store/retreive
+// data to/from the storage backend.
+//
+// It contains all the necessary fields to distinguishe this special
+// stat from the other ones.
 type RunesReforgedStatsStorage struct {
-	RunesReforgedStats RunesReforgedStats `json:"summonerspellsstats"`
+	RunesReforgedStats RunesReforgedStats `json:"runesreforgedstats"`
 
 	ChampionID   string `json:"championid"`
 	ChampionKey  string `json:"championkey"`

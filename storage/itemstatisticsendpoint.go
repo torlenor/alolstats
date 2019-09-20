@@ -10,8 +10,8 @@ import (
 	"git.abyle.org/hps/alolstats/utils"
 )
 
-func (s *Storage) summonerSpellsStatsByIDEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API summonerSpellsStatsByIDEndpoint request from", r.RemoteAddr)
+func (s *Storage) itemStatsByIDEndpoint(w http.ResponseWriter, r *http.Request) {
+	s.log.Debugln("Received Rest API itemStatsByIDEndpoint request from", r.RemoteAddr)
 
 	id, err := extractURLStringParameter(r.URL.Query(), "id")
 	if err != nil {
@@ -37,14 +37,14 @@ func (s *Storage) summonerSpellsStatsByIDEndpoint(w http.ResponseWriter, r *http
 		return
 	}
 
-	summonerSpellsStats, err := s.GetSummonerSpellsStatsByIDGameVersionTierQueue(id, gameVersion, tier, queue)
+	itemStats, err := s.GetItemStatsByIDGameVersionTierQueue(id, gameVersion, tier, queue)
 	if err != nil {
 		s.log.Errorf("Error in championByID with request %s: %s", r.URL.String(), err)
 		http.Error(w, utils.GenerateStatusResponse(http.StatusBadRequest, fmt.Sprintf("No data")), http.StatusBadRequest)
 		return
 	}
 
-	out, err := json.Marshal(summonerSpellsStats)
+	out, err := json.Marshal(itemStats)
 	if err != nil {
 		s.log.Errorf("Error in championByID with request %s: %s", r.URL.String(), err)
 		http.Error(w, utils.GenerateStatusResponse(http.StatusInternalServerError, fmt.Sprintf("Problem converting Champion to JSON")), http.StatusInternalServerError)

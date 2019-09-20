@@ -37,6 +37,8 @@ func (s *Storage) registerAPIStats(api *api.API) {
 	api.AttachModuleGet("/stats/championhistory/byid", s.championStatsHistoryByIDEndpoint)
 	api.AttachModuleGet("/stats/champions", s.championStats)
 
+	api.AttachModuleGet("/stats/items/byid", s.itemStatsByIDEndpoint)
+	api.AttachModuleGet("/stats/runesreforged/byid", s.runesReforgedStatsByIDEndpoint)
 	api.AttachModuleGet("/stats/summonerspells/byid", s.summonerSpellsStatsByIDEndpoint)
 
 	api.AttachModuleGet("/stats/versions", s.getKnownVersionsEndpoint)

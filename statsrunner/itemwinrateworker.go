@@ -131,7 +131,7 @@ func (sr *StatsRunner) prepareItemStatsValues(itemCombiStats analyzer.ItemCombiS
 			is.WinRate = float64(itemCounts.Wins) / float64(itemCounts.Picks)
 			is.PickRate = float64(itemCounts.Picks) / float64(totalSampleSize)
 			is.SampleSize = uint64(itemCounts.Picks)
-			is.ItemHash = itemCombination
+			is.Hash = itemCombination
 			is.Items = itemCounts.Items
 			itemStatsValues = append(itemStatsValues, is)
 			itemStatsBySampleSize[is.PickRate] = is
