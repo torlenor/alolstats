@@ -11,16 +11,16 @@ import (
 // language is the langauge that we want to have
 func (s *Storage) GetItems(gameVersion, language string) (riotclient.ItemList, error) {
 	itemsList, err := s.backend.GetItems(gameVersion, language)
-	if err != nil {
+	if err != nil || len(itemsList) == 0 {
 		itemsList, errClient := s.riotClient.ItemsSpecificVersionLanguage(gameVersion, language)
 		if errClient != nil {
 			s.log.Warnln(errClient)
 			return nil, fmt.Errorf("Could not get Items from Backend or Client")
 		}
-		s.log.Warnln("Could not get Summoner Spells from storage backend, returning from Client instead:", err)
+		s.log.Warnln("Could not get Items from storage backend, returning from Client instead:", err)
 		err = s.backend.StoreItems(gameVersion, language, *itemsList)
 		if err != nil {
-			s.log.Warnln("Could not store Summoner Spells in storage backend:", err)
+			s.log.Warnln("Could not store Items in storage backend:", err)
 		}
 		return *itemsList, nil
 	}
