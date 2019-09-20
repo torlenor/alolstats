@@ -57,7 +57,7 @@ func TestItemAnalyzer_addNewChampion(t *testing.T) {
 	})
 }
 
-func TestItemAnalyzer_addNewLane(t *testing.T) {
+func TestItemAnalyzer_addNewRole(t *testing.T) {
 	type args struct {
 		championID int
 		role       string
