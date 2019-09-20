@@ -85,20 +85,24 @@ func fillRunesReforgedPicks(stats riotclient.ParticipantStatsDTO) storage.RunesR
 	return runesReforgedPicks
 }
 
-func (a *RunesReforgedAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
-	runesReforgedForHash := []int{
-		p.Stats.PerkPrimaryStyle,
-		p.Stats.Perk0,
-		p.Stats.Perk1,
-		p.Stats.Perk2,
-		p.Stats.Perk3,
-		p.Stats.PerkSubStyle,
-		p.Stats.Perk4,
-		p.Stats.Perk5,
-		p.Stats.StatPerk0,
-		p.Stats.StatPerk1,
-		p.Stats.StatPerk2,
+func getRunesReforgedInts(stats riotclient.ParticipantStatsDTO) []int {
+	return []int{
+		stats.PerkPrimaryStyle,
+		stats.Perk0,
+		stats.Perk1,
+		stats.Perk2,
+		stats.Perk3,
+		stats.PerkSubStyle,
+		stats.Perk4,
+		stats.Perk5,
+		stats.StatPerk0,
+		stats.StatPerk1,
+		stats.StatPerk2,
 	}
+}
+
+func (a *RunesReforgedAnalyzer) feedParticipant(p *riotclient.ParticipantDTO) {
+	runesReforgedForHash := getRunesReforgedInts(p.Stats)
 	runesReforgedHash := utils.HashInt(runesReforgedForHash)
 
 	runesReforgedPicks := fillRunesReforgedPicks(p.Stats)
