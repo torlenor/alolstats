@@ -14,17 +14,31 @@ type summonerSpellsData struct {
 	Data    riotclient.SummonerSpellsList `json:"data"`
 }
 
-// SummonerSpells gets all Summoner Spells from Data Dragon
-func (c *RiotClientV4) SummonerSpells() (s *riotclient.SummonerSpellsList, err error) {
+// SummonerSpells gets all items from Data Dragon
+func (c *RiotClientV4) SummonerSpells() (*riotclient.SummonerSpellsList, error) {
 	data, err := c.ddragon.GetDataDragonSummonerSpells()
 	if err != nil {
-		return nil, fmt.Errorf("Error getting Summoner Spells from Data Dragon: %s", err)
+		return nil, fmt.Errorf("Error getting SummonerSpells from Data Dragon: %s", err)
 	}
 
-	summonerSpellsDat := summonerSpellsData{}
-	err = json.Unmarshal(data, &summonerSpellsDat)
+	return c.parseSummonerSpells(data)
+}
+
+// SummonerSpellsSpecificVersionLanguage gets all items for a specific gameVersion and language from Data Dragon
+func (c *RiotClientV4) SummonerSpellsSpecificVersionLanguage(gameVersion, language string) (*riotclient.SummonerSpellsList, error) {
+	data, err := c.ddragon.GetDataDragonSummonerSpellsSpecificVersionLanguage(gameVersion, language)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error getting SummonerSpells for gameversion %s and language %s from Data Dragon: %s", gameVersion, language, err)
+	}
+
+	return c.parseSummonerSpells(data)
+}
+
+func (c *RiotClientV4) parseSummonerSpells(data []byte) (*riotclient.SummonerSpellsList, error) {
+	summonerSpellsDat := summonerSpellsData{}
+	err := json.Unmarshal(data, &summonerSpellsDat)
+	if err != nil {
+		return nil, fmt.Errorf("parseSummonerSpells failed with error: %s, data was: %s", err, data)
 	}
 
 	summonerSpells := summonerSpellsDat.Data

@@ -7,11 +7,10 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/sirupsen/logrus"
-	"git.abyle.org/hps/alolstats/api"
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
 	"git.abyle.org/hps/alolstats/storage"
+	"github.com/sirupsen/logrus"
 )
 
 type stats struct {
@@ -25,10 +24,11 @@ type StatsRunner struct {
 	log     *logrus.Entry
 	stats   stats
 
-	isStarted         bool
-	workersWG         sync.WaitGroup
-	stopWorkers       chan struct{}
-	shouldWorkersStop bool
+	isStarted              bool
+	workersWG              sync.WaitGroup
+	stopWorkers            chan struct{}
+	shouldWorkersStopMutex sync.RWMutex
+	shouldWorkersStop      bool
 
 	calculationMutex sync.Mutex
 }
@@ -50,15 +50,6 @@ func NewStatsRunner(cfg config.StatsRunner, storage *storage.Storage) (*StatsRun
 	return sr, nil
 }
 
-// RegisterAPI registers all endpoints from StatsRunner to the RestAPI
-func (sr *StatsRunner) RegisterAPI(api *api.API) {
-	// api.AttachModuleGet("/stats/champion/byid", sr.championByIDEndpoint)
-	// api.AttachModuleGet("/stats/champion/byname", sr.championByNameEndpoint)
-
-	// api.AttachModuleGet("/stats/plots/champion/byname", sr.championByNamePlotEndpoint)
-
-}
-
 // GetHandeledRequests gets the total number of api requests handeled by the StatsRunner since creating it
 func (sr *StatsRunner) GetHandeledRequests() uint64 {
 	return atomic.LoadUint64(&sr.stats.handledRequests)
@@ -68,24 +59,31 @@ func (sr *StatsRunner) GetHandeledRequests() uint64 {
 func (sr *StatsRunner) Start() {
 	if !sr.isStarted {
 		sr.log.Println("Starting StatsRunner")
+		sr.shouldWorkersStopMutex.Lock()
 		sr.shouldWorkersStop = false
+		sr.shouldWorkersStopMutex.Unlock()
 		sr.stopWorkers = make(chan struct{})
 		if sr.config.RunRScripts {
+			sr.workersWG.Add(1)
 			go sr.rScriptWorker()
 		} else {
 			sr.log.Info("Not running R scripts (deactivated in config)")
 		}
 
 		if sr.config.ChampionsStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.matchAnalysisWorker()
 		}
 		if sr.config.ItemsStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.itemWinRateWorker()
 		}
 		if sr.config.SummonerSpellsStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.summonerSpellsWorker()
 		}
 		if sr.config.RunesReforgedStats.Enabled {
+			sr.workersWG.Add(1)
 			go sr.runesReforgedWorker()
 		}
 
@@ -99,7 +97,9 @@ func (sr *StatsRunner) Start() {
 func (sr *StatsRunner) Stop() {
 	if sr.isStarted {
 		sr.log.Println("Stopping StatsRunner")
+		sr.shouldWorkersStopMutex.Lock()
 		sr.shouldWorkersStop = true
+		sr.shouldWorkersStopMutex.Unlock()
 		close(sr.stopWorkers)
 		sr.workersWG.Wait()
 		sr.isStarted = false

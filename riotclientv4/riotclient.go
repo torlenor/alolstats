@@ -14,7 +14,7 @@ import (
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
 
-	"git.abyle.org/hps/alolstats/riotclient/ratelimit"
+	riotclientrl "git.abyle.org/hps/alolstats/riotclient/ratelimit"
 )
 
 type httpClient interface {
@@ -101,6 +101,7 @@ func (c *RiotClientV4) Start() {
 		c.log.Println("Starting Riot Client")
 		c.stopWorkers = make(chan struct{})
 		c.workQueue = make(workQueue)
+		c.workersWG.Add(1)
 		go c.worker(c.workQueue)
 		c.isStarted = true
 	} else {
@@ -133,7 +134,7 @@ func (c *RiotClientV4) checkResponseCodeOK(response *http.Response) error {
 	case 400:
 		return fmt.Errorf("Status code 400 (Bad Request)")
 	case 401:
-		return fmt.Errorf("Status code 401 (Unauthoritzed)")
+		return fmt.Errorf("Status code 401 (Unauthorized)")
 	case 403:
 		return fmt.Errorf("Status code 403 (Forbidden)")
 	case 404:
@@ -188,7 +189,7 @@ func (c *RiotClientV4) realAPICall(path string, method string, body string) (r [
 			c.log.Debugln("ApiCall: Error from worker:", res.err)
 			return nil, res.err
 		}
-		c.log.Debugln("ApiCall: Succesfully finished Api Call")
+		c.log.Debugln("ApiCall: Successfully finished Api Call")
 		return ioutil.ReadAll(res.response.Body)
 	case <-time.After(180 * time.Second):
 		c.log.Debugln("ApiCall: API call timed out")

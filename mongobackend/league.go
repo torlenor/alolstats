@@ -8,18 +8,22 @@ import (
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
 	"git.abyle.org/hps/alolstats/riotclient"
 	"git.abyle.org/hps/alolstats/storage"
 )
 
+// GetLeagueByQueue is not implemented, yet
 func (b *Backend) GetLeagueByQueue(league string, queue string) (*riotclient.LeagueListDTO, error) {
 	return nil, fmt.Errorf("Not implemented")
 }
 
+// GetLeagueByQueueTimeStamp is not implemented, yet
 func (b *Backend) GetLeagueByQueueTimeStamp(league string, queue string) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("Not implemented")
 }
 
+// StoreLeague is not implemented, yet
 func (b *Backend) StoreLeague(*riotclient.LeagueListDTO) error {
 	return fmt.Errorf("Not implemented")
 }

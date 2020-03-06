@@ -2,6 +2,16 @@ package riotclient
 
 import "time"
 
+type SummonerSpellImage struct {
+	Full   string `json:"full"`
+	Sprite string `json:"sprite"`
+	Group  string `json:"group"`
+	X      int    `json:"x"`
+	Y      int    `json:"y"`
+	W      int    `json:"w"`
+	H      int    `json:"h"`
+}
+
 // SummonerSpell contains Summoner Spell information from Riot API
 type SummonerSpell struct {
 	ID            string             `json:"id"`
@@ -28,13 +38,3 @@ type SummonerSpell struct {
 
 // SummonerSpellsList is used to pass around a list of summoner spells
 type SummonerSpellsList map[string]SummonerSpell
-
-type SummonerSpellImage struct {
-	Full   string `json:"full"`
-	Sprite string `json:"sprite"`
-	Group  string `json:"group"`
-	X      int    `json:"x"`
-	Y      int    `json:"y"`
-	W      int    `json:"w"`
-	H      int    `json:"h"`
-}

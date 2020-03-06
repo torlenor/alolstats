@@ -3,6 +3,7 @@ package statsrunner
 import (
 	"time"
 
+	"git.abyle.org/hps/alolstats/statstypes"
 	"git.abyle.org/hps/alolstats/storage"
 )
 
@@ -16,7 +17,7 @@ func (sr *StatsRunner) generateChampionsSummary(gameVersion, league, queue strin
 			continue
 		}
 		if championStats.SampleSize > 0 {
-			summary := storage.ChampionStatsSummary{}
+			summary := statstypes.ChampionStatsSummary{}
 
 			summary.ChampionID = championStats.ChampionID
 			summary.ChampionName = championStats.ChampionName

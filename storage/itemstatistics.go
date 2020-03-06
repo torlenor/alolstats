@@ -5,21 +5,35 @@ import (
 	"time"
 )
 
+// SingleItemStatsValues is one stat entry for a given
+// Runes Reforged combination identified by Hash.
 type SingleItemStatsValues struct {
 	SampleSize uint64 `json:"samplesize"`
-	ItemHash   string `json:"itemHash"`
+	Hash       string `json:"hash"`
+
+	Items []int `json:"items"`
 
 	PickRate float64 `json:"pickrate"`
 	WinRate  float64 `json:"winrate"`
 }
 
-type ItemStatsValues map[string]SingleItemStatsValues
+// ItemStatsValues holds a set of different Item
+// combinations.
+type ItemStatsValues []SingleItemStatsValues
 
+// ItemStats holds one particular stat entry for
+// the given champion, game version, tier and queue.
 type ItemStats struct {
 	ChampionID     uint64 `json:"championid"`
 	ChampionRealID string `json:"championrealid"`
 	ChampionName   string `json:"championname"`
 	GameVersion    string `json:"gameversion"`
+
+	Tier string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
+
+	SampleSize uint64 `json:"samplesize"`
 
 	Timestamp time.Time `json:"timestamp"`
 
@@ -28,6 +42,11 @@ type ItemStats struct {
 	StatsPerRole map[string]ItemStatsValues `json:"statsperrole"`
 }
 
+// ItemStatsStorage is the struct which is used to store/retreive
+// data to/from the storage backend.
+//
+// It contains all the necessary fields to distinguishe this special
+// stat from the other ones.
 type ItemStatsStorage struct {
 	ItemStats ItemStats `json:"itemstats"`
 
@@ -36,21 +55,24 @@ type ItemStatsStorage struct {
 	ChampionName string `json:"championname"`
 	GameVersion  string `json:"gameversion"`
 
+	Tier string `json:"tier"`
+	// Queue is the Queue the analysis takes into account, e.g., ALL, NORMAL_DRAFT, NORMAL_BLIND, RANKED_SOLO, RANKED_FLEX, ARAM
+	Queue string `json:"queue"`
+
 	SampleSize uint64 `json:"samplesize"`
 
 	TimeStamp time.Time `json:"timestamp"`
 }
 
-// GetItemStatsByIDGameVersion returns the Champion Item stats for a certain game version
-func (s *Storage) GetItemStatsByIDGameVersion(championID string, gameVersion string) (*ItemStats, error) {
-	stats, err := s.backend.GetItemStatsByChampionIDGameVersion(championID, gameVersion)
+// GetItemStatsByIDGameVersionTierQueue returns the Champion Item stats for a certain game version
+func (s *Storage) GetItemStatsByIDGameVersionTierQueue(championID string, gameVersion string, tier string, queue string) (*ItemStats, error) {
+	stats, err := s.backend.GetItemStatsByChampionIDGameVersionTierQueue(championID, gameVersion, tier, queue)
 	if err != nil {
 		s.log.Warnln("Could not get data from Storage Backend:", err)
 		return nil, err
 	}
 
-	returnStats := &stats.ItemStats
-	return returnStats, nil
+	return &stats.ItemStats, nil
 }
 
 // StoreItemStats stores the Champion Item stats for a certain game version
@@ -65,9 +87,13 @@ func (s *Storage) StoreItemStats(stats *ItemStats) error {
 		ChampionName: stats.ChampionName,
 		GameVersion:  stats.GameVersion,
 
+		Tier:  stats.Tier,
+		Queue: stats.Queue,
+
+		SampleSize: stats.SampleSize,
+
 		TimeStamp: time.Now(),
 	}
 
-	s.backend.StoreItemStats(&statsStorage)
-	return nil
+	return s.backend.StoreItemStats(&statsStorage)
 }

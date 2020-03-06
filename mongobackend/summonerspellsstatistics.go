@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"git.abyle.org/hps/alolstats/storage"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"git.abyle.org/hps/alolstats/storage"
 )
 
 // GetSummonerSpellsStatsByChampionIDGameVersionTierQueue returns all stats specific to a certain game version, champion id and tier and queue
@@ -23,7 +23,7 @@ func (b *Backend) GetSummonerSpellsStatsByChampionIDGameVersionTierQueue(champio
 	doc := c.FindOne(
 		context.Background(), query)
 	if doc == nil {
-		return nil, fmt.Errorf("No Summoner Spells Stats found for Champion ID %s, GameVersion %s and Tier %s", championID, gameVersion, tier)
+		return nil, fmt.Errorf("No Summoner Spells Stats found for Champion ID %s, GameVersion %s, Tier %s and Queue %s", championID, gameVersion, tier, queue)
 	}
 
 	stat := storage.SummonerSpellsStatsStorage{}

@@ -1,12 +1,8 @@
 package storage
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strconv"
-	"sync/atomic"
 
 	"git.abyle.org/hps/alolstats/riotclient"
 )
@@ -121,40 +117,4 @@ func (s *Storage) GetRegionalMatchesByAccountID(region string, accountID string,
 		return s.getMatchesByAccountIDFromClient(client, accountID, beginIndex, endIndex)
 	}
 	return nil, fmt.Errorf("Invalid region specified: %s", region)
-}
-
-func (s *Storage) getMatchEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API Match request from", r.RemoteAddr)
-	if val, ok := r.URL.Query()["id"]; ok {
-		if len(val) == 0 {
-			s.log.Warnf("id parameter was empty in request")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-		id, err := strconv.ParseUint(val[0], 10, 32)
-		if err != nil {
-			s.log.Warnf("Could not convert value %s to GameID", val)
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-
-		match, err := s.GetMatch(id)
-		if err != nil {
-			s.log.Warnf("Could not get match for id=%d", id)
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-
-		out, err := json.Marshal(match)
-		if err != nil {
-			s.log.Errorln(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
-		io.WriteString(w, string(out))
-	}
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
 }

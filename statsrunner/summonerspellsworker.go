@@ -13,9 +13,10 @@ import (
 )
 
 type summonerSpellsSinglePickWinCounter struct {
-	Picks          uint64
-	Wins           uint64
-	SummonerSpells []riotclient.SummonerSpell
+	Picks uint64
+	Wins  uint64
+
+	SummonerSpellIDs []int
 }
 type summonerSpellsSinglePickWinCounters map[string]summonerSpellsSinglePickWinCounter // [summonerSpellsHash]
 
@@ -63,7 +64,6 @@ func hashSummonerSpells(summonerSpells []int) (string, []int) {
 }
 
 func (sr *StatsRunner) summonerSpellsWorker() {
-	sr.workersWG.Add(1)
 	defer sr.workersWG.Done()
 
 	var nextUpdate time.Duration
@@ -91,21 +91,16 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 			start := time.Now()
 
 			champions := sr.storage.GetChampions(false)
-			summonerSpellsDesc := sr.storage.GetSummonerSpells(false)
-			if summonerSpellsDesc == nil {
-				sr.log.Errorf("Could not get Summoner Spells from Storage, canceling summonerSpellsWorker run")
-				nextUpdate = time.Minute * time.Duration(sr.config.SummonerSpellsStats.UpdateInverval)
-				continue
-			}
 
 			mapID := uint64(11)
 
 			for queueID, queue := range queueIDtoQueue {
 				for _, versionStr := range sr.config.GameVersion {
+					sr.shouldWorkersStopMutex.RLock()
 					if sr.shouldWorkersStop {
 						return
 					}
-
+					sr.shouldWorkersStopMutex.RUnlock()
 					version, err := utils.SplitNumericVersion(versionStr)
 					if err != nil {
 						sr.log.Warnf("Something bad happened: %s", err)
@@ -130,9 +125,11 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 					cnt := 0
 
 					for cur.Next() {
+						sr.shouldWorkersStopMutex.RLock()
 						if sr.shouldWorkersStop {
 							return
 						}
+						sr.shouldWorkersStopMutex.RUnlock()
 						err := cur.Decode(currentMatch)
 						if err != nil {
 							sr.log.Errorf("Error decoding match: %s", err)
@@ -158,15 +155,6 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 							role := participant.Timeline.Role
 							lane := participant.Timeline.Lane
 							cid := participant.ChampionID
-
-							summonerSpellsList := []riotclient.SummonerSpell{}
-							for _, spell := range sortedSummonerSpells {
-								for _, val := range *summonerSpellsDesc {
-									if strconv.Itoa(spell) == val.Key {
-										summonerSpellsList = append(summonerSpellsList, val)
-									}
-								}
-							}
 
 							// Get structs for counting
 							if _, ok := summonerSpellsCountersPerTier[matchTier]; !ok {
@@ -198,14 +186,14 @@ func (sr *StatsRunner) summonerSpellsWorker() {
 							cc.TotalPicks++
 
 							ccSpellsCTier.Picks++
-							ccSpellsCTier.SummonerSpells = summonerSpellsList
+							ccSpellsCTier.SummonerSpellIDs = sortedSummonerSpells
 							ccSpellsTierPerRole.Picks++
-							ccSpellsTierPerRole.SummonerSpells = summonerSpellsList
+							ccSpellsTierPerRole.SummonerSpellIDs = sortedSummonerSpells
 
 							ccSpellsCAll.Picks++
-							ccSpellsCAll.SummonerSpells = summonerSpellsList
+							ccSpellsCAll.SummonerSpellIDs = sortedSummonerSpells
 							ccSpellsAllPerRole.Picks++
-							ccSpellsAllPerRole.SummonerSpells = summonerSpellsList
+							ccSpellsAllPerRole.SummonerSpellIDs = sortedSummonerSpells
 
 							if participant.Stats.Win {
 								ccSpellsCTier.Wins++
@@ -300,7 +288,7 @@ func (sr *StatsRunner) prepareSummonerSpellsStats(champID uint64, majorVersion u
 		is.WinRate = float64(counters.Wins) / float64(counters.Picks)
 		is.PickRate = float64(counters.Picks) / float64(totalPicks)
 		is.SampleSize = counters.Picks
-		is.SummonerSpells = counters.SummonerSpells
+		is.SummonerSpellIDs = counters.SummonerSpellIDs
 		summonerSpellsStats.Stats[summonerSpellsHash] = is
 	}
 
@@ -397,7 +385,7 @@ func sumSinglePickWinCounters(summedCounters *summonerSpellsSinglePickWinCounter
 		count := (*summedCounters)[key]
 		count.Picks += counter.Picks
 		count.Wins += counter.Wins
-		count.SummonerSpells = counter.SummonerSpells
+		count.SummonerSpellIDs = counter.SummonerSpellIDs
 		(*summedCounters)[key] = count
 	}
 }
@@ -414,7 +402,7 @@ func (sr *StatsRunner) calcSummonerSpellsStatsFromCounters(counters *summonerSpe
 		stats := statsValues[summonerSpellsHash]
 		if count.Picks > 0 {
 			stats.SampleSize = count.Picks
-			stats.SummonerSpells = count.SummonerSpells
+			stats.SummonerSpellIDs = count.SummonerSpellIDs
 			stats.WinRate = float64(count.Wins) / float64(count.Picks)
 			stats.PickRate = float64(count.Picks) / float64(totalCount)
 		}

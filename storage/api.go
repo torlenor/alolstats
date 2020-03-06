@@ -24,6 +24,10 @@ func (s *Storage) registerAPISummoner(api *api.API) {
 	api.AttachModuleGet("/summoner/byname", s.summonerByNameEndpoint)
 }
 
+func (s *Storage) registerAPIItems(api *api.API) {
+	api.AttachModuleGet("/items", s.getItemsEndpoint)
+}
+
 func (s *Storage) registerAPISummonerSpells(api *api.API) {
 	api.AttachModuleGet("/summonerspells", s.summonerSpellsEndpoint)
 }
@@ -37,6 +41,8 @@ func (s *Storage) registerAPIStats(api *api.API) {
 	api.AttachModuleGet("/stats/championhistory/byid", s.championStatsHistoryByIDEndpoint)
 	api.AttachModuleGet("/stats/champions", s.championStats)
 
+	api.AttachModuleGet("/stats/items/byid", s.itemStatsByIDEndpoint)
+	api.AttachModuleGet("/stats/runesreforged/byid", s.runesReforgedStatsByIDEndpoint)
 	api.AttachModuleGet("/stats/summonerspells/byid", s.summonerSpellsStatsByIDEndpoint)
 
 	api.AttachModuleGet("/stats/versions", s.getKnownVersionsEndpoint)
@@ -51,6 +57,7 @@ func (s *Storage) RegisterAPI(api *api.API) {
 	s.registerAPISpectator(api)
 	s.registerAPISummoner(api)
 	s.registerAPISummonerSpells(api)
+	s.registerAPIItems(api)
 	s.registerAPIStorage(api)
 	s.registerAPIStats(api)
 }

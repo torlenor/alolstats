@@ -3,10 +3,7 @@
 package storage
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"path/filepath"
 	"sync/atomic"
 
@@ -89,96 +86,7 @@ func (s *Storage) GetHandeledRequests() uint64 {
 	return atomic.LoadUint64(&s.stats.handledRequests)
 }
 
-func (s *Storage) storageSummaryEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API StorageSummary request from", r.RemoteAddr)
-
-	storageSummary, err := s.backend.GetStorageSummary()
-	if err != nil {
-		s.log.Warn("Could not get Storage Summary")
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	out, err := json.Marshal(storageSummary)
-	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	io.WriteString(w, string(out))
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
-}
-
 // GameVersions struct is a list of game versions in the format major.minor, e.g., 8.24 or 9.1.
 type GameVersions struct {
 	Versions []string `json:"versions"`
-}
-
-func (s *Storage) getKnownVersionsEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API Known Versions request from", r.RemoteAddr)
-
-	ver, err := s.backend.GetKnownGameVersions()
-	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	out, err := json.Marshal(ver)
-	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
-	io.WriteString(w, string(out))
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
-}
-
-func (s *Storage) getStatLeaguesEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API StatLeagues request from", r.RemoteAddr)
-
-	type leagues struct {
-		Leagues []string `json:"leagues"`
-	}
-
-	lea := leagues{Leagues: []string{"All", "Master", "Diamond", "Platinum", "Gold", "Silver", "Bronze"}}
-
-	out, err := json.Marshal(lea)
-	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
-	io.WriteString(w, string(out))
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
-}
-
-func (s *Storage) getStatQueuesEndpoint(w http.ResponseWriter, r *http.Request) {
-	s.log.Debugln("Received Rest API StatQueues request from", r.RemoteAddr)
-
-	type queues struct {
-		Queues []string `json:"queues"`
-	}
-
-	que := queues{Queues: []string{"RANKED_SOLO", "RANKED_FLEX", "NORMAL_BLIND", "NORMAL_DRAFT"}}
-
-	out, err := json.Marshal(que)
-	if err != nil {
-		s.log.Errorln(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Cache-Control", s.getHTTPGetResponseHeader("Cache-Control"))
-	io.WriteString(w, string(out))
-
-	atomic.AddUint64(&s.stats.handledRequests, 1)
 }

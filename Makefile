@@ -32,6 +32,12 @@ build:
 	go build -o ./bin/$(NAME) -ldflags '${LDFLAGS}'
 	@echo Done.
 
+race:
+	@echo Building...
+	# go build -v -o ./bin/$(NAME) -ldflags '${LDFLAGS}' ${SRCPATH}/*.go
+	go build -o ./bin/$(NAME) -ldflags '${LDFLAGS}' -race
+	@echo Done.
+
 build-static:
 	@echo Building...
 	# CGO_ENABLED=0 go build -v -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ${SRCPATH}/*.go

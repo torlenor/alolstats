@@ -1,7 +1,9 @@
 package api
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -18,6 +20,9 @@ type API struct {
 	router *mux.Router
 	log    *logrus.Entry
 	prefix string
+
+	server *http.Server
+	quit   chan interface{}
 }
 
 // NewAPI creates a new Rest API instance
@@ -44,8 +49,10 @@ func (a *API) AttachModulePost(path string, f func(http.ResponseWriter, *http.Re
 	a.router.HandleFunc(a.prefix+path, f).Methods("POST")
 }
 
-func (a *API) run(listenAddress string) {
-	a.log.Fatal(http.ListenAndServe(listenAddress, handlers.CORS()(a.router)))
+func (a *API) run() {
+	if err := a.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		a.log.Fatalf("Could not start http server: %v\n", err)
+	}
 }
 
 // Start the REST API
@@ -60,11 +67,23 @@ func (a *API) Start() {
 	}
 
 	a.log.Infof("Starting REST API on %s", listenAddress)
-	go a.run(listenAddress)
+
+	a.server = &http.Server{
+		Addr:    listenAddress,
+		Handler: handlers.CORS()(a.router),
+	}
+
+	go a.run()
 }
 
 // Stop the REST API
 func (a *API) Stop() {
 	a.log.Println("Stopping REST API")
-	// TODO
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	a.server.SetKeepAlivesEnabled(false)
+	if err := a.server.Shutdown(ctx); err != nil {
+		a.log.Fatalf("Could not gracefully shutdown the server: %v\n", err)
+	}
 }

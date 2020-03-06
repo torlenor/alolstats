@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"git.abyle.org/hps/alolstats/config"
 	"git.abyle.org/hps/alolstats/logging"
+	"github.com/sirupsen/logrus"
 )
 
 // N holds the actual versions
@@ -79,6 +79,10 @@ func (c *RiotClientDD) downloadFile(url string) ([]byte, error) {
 		return nil, err
 	}
 	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("downloadFile failed, got status code %d", response.StatusCode)
+	}
 
 	return ioutil.ReadAll(response.Body)
 }
@@ -174,7 +178,7 @@ func (c *RiotClientDD) GetDataDragonSummonerSpells() ([]byte, error) {
 func (c *RiotClientDD) GetDataDragonSummonerSpellsSpecificVersionLanguage(gameVersion, language string) ([]byte, error) {
 	versions, err := c.getVersions()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Unable to get versions from data dragon: %s", err)
 	}
 
 	championsURL := versions.Cdn + "/" + gameVersion + "/data/" + language + "/summoner.json"

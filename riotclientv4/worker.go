@@ -22,10 +22,9 @@ type workOrder struct {
 type workQueue = chan workOrder
 
 func (c *RiotClientV4) worker(workQueue workQueue) {
-	c.log.Debugln("Worker: Starting")
-
-	c.workersWG.Add(1)
 	defer c.workersWG.Done()
+
+	c.log.Debugln("Worker: Starting")
 
 	for {
 		select {

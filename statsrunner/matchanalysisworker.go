@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"git.abyle.org/hps/alolstats/riotclient"
+	"git.abyle.org/hps/alolstats/statstypes"
 	"git.abyle.org/hps/alolstats/storage"
 
 	"git.abyle.org/hps/alolstats/utils"
@@ -210,7 +211,6 @@ func doPerRoleCounts(stats *riotclient.ParticipantStatsDTO, rCounters *roleCount
 }
 
 func (sr *StatsRunner) matchAnalysisWorker() {
-	sr.workersWG.Add(1)
 	defer sr.workersWG.Done()
 
 	var nextUpdate time.Duration
@@ -243,9 +243,11 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 
 			for queueID, queue := range queueIDtoQueue {
 				for _, versionStr := range sr.config.GameVersion {
+					sr.shouldWorkersStopMutex.RLock()
 					if sr.shouldWorkersStop {
 						return
 					}
+					sr.shouldWorkersStopMutex.RUnlock()
 					version, err := utils.SplitNumericVersion(versionStr)
 					if err != nil {
 						sr.log.Warnf("Something bad happened: %s", err)
@@ -270,12 +272,14 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 					currentMatch := &riotclient.MatchDTO{}
 					cnt := 0
 					for cur.Next() {
+						sr.shouldWorkersStopMutex.RLock()
 						if sr.shouldWorkersStop {
 							return
 						}
+						sr.shouldWorkersStopMutex.RUnlock()
 						err := cur.Decode(currentMatch)
 						if err != nil {
-							sr.log.Errorf("Error deconding match: %s", err)
+							sr.log.Errorf("Error decoding match: %s", err)
 							continue
 						}
 
@@ -422,12 +426,12 @@ func (sr *StatsRunner) matchAnalysisWorker() {
 	}
 }
 
-func (sr *StatsRunner) combineChampionStats(champID string, gameVersion string, league string, inputQueue []string, outputQueue string) (*storage.ChampionStats, error) {
+func (sr *StatsRunner) combineChampionStats(champID string, gameVersion string, league string, inputQueue []string, outputQueue string) (*statstypes.ChampionStats, error) {
 
 	champions := sr.storage.GetChampions(false)
 	for _, champ := range champions {
 		for _, queue := range inputQueue {
-			statsPerTier := make(map[string]storage.ChampionStats)
+			statsPerTier := make(map[string]statstypes.ChampionStats)
 			championStats, err := sr.storage.GetChampionStatsByIDGameVersionTierQueue(champ.ID, gameVersion, league, queue)
 			if err != nil {
 				continue
@@ -458,11 +462,11 @@ func doMeanStdDevCalcUint16(values []uint16) (mean, stdDev float64) {
 	return
 }
 
-func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32, minorVersion uint32, totalGamesForGameVersion uint64, champCounters *championCounters) (*storage.ChampionStats, error) {
+func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32, minorVersion uint32, totalGamesForGameVersion uint64, champCounters *championCounters) (*statstypes.ChampionStats, error) {
 
 	gameVersion := fmt.Sprintf("%d.%d", majorVersion, minorVersion)
 
-	championStats := storage.ChampionStats{}
+	championStats := statstypes.ChampionStats{}
 	championStats.ChampionID = champID
 	championStats.GameVersion = gameVersion
 	championStats.SampleSize = champCounters.TotalPicks
@@ -605,14 +609,14 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	championStats.Roles = roles
 
 	// Calculation of stats per Role
-	championStats.StatsPerRole = make(map[string]storage.StatsValues)
+	championStats.StatsPerRole = make(map[string]statstypes.StatsValues)
 	for _, role := range []string{"Top", "Mid", "Jungle", "Carry", "Support"} {
 		statsValues := sr.calculateRoleStats(champCounters, role)
 		championStats.StatsPerRole[role] = statsValues
 	}
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		storage.LaneRolePercentage{
+		statstypes.LaneRolePercentage{
 			Lane: "TOP",
 			Role: "Solo",
 
@@ -623,7 +627,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		storage.LaneRolePercentage{
+		statstypes.LaneRolePercentage{
 			Lane: "MIDDLE",
 			Role: "Solo",
 
@@ -634,7 +638,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		storage.LaneRolePercentage{
+		statstypes.LaneRolePercentage{
 			Lane: "JUNGLE",
 			Role: "Solo",
 
@@ -645,7 +649,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		storage.LaneRolePercentage{
+		statstypes.LaneRolePercentage{
 			Lane: "BOT",
 			Role: "Carry",
 
@@ -656,7 +660,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		storage.LaneRolePercentage{
+		statstypes.LaneRolePercentage{
 			Lane: "BOT",
 			Role: "Support",
 
@@ -667,7 +671,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		storage.LaneRolePercentage{
+		statstypes.LaneRolePercentage{
 			Lane: "BOT",
 			Role: "Unknown",
 
@@ -678,7 +682,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentage = append(championStats.LaneRolePercentage,
-		storage.LaneRolePercentage{
+		statstypes.LaneRolePercentage{
 			Lane: "UNKNOWN",
 			Role: "Unknown",
 
@@ -698,7 +702,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	}
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		storage.LaneRolePercentagePlotly{
+		statstypes.LaneRolePercentagePlotly{
 			Name: "Uknown",
 			Type: "bar",
 
@@ -716,7 +720,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		storage.LaneRolePercentagePlotly{
+		statstypes.LaneRolePercentagePlotly{
 			Name: "Support",
 			Type: "bar",
 
@@ -734,7 +738,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		storage.LaneRolePercentagePlotly{
+		statstypes.LaneRolePercentagePlotly{
 			Name: "Carry",
 			Type: "bar",
 
@@ -752,7 +756,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	)
 
 	championStats.LaneRolePercentagePlotly = append(championStats.LaneRolePercentagePlotly,
-		storage.LaneRolePercentagePlotly{
+		statstypes.LaneRolePercentagePlotly{
 			Name: "Solo",
 			Type: "bar",
 
@@ -774,7 +778,7 @@ func (sr *StatsRunner) prepareChampionStats(champID uint64, majorVersion uint32,
 	return &championStats, nil
 }
 
-func (sr *StatsRunner) calculateRoleStats(champCounters *championCounters, role string) storage.StatsValues {
+func (sr *StatsRunner) calculateRoleStats(champCounters *championCounters, role string) statstypes.StatsValues {
 	summedCounters := roleCounters{}
 
 	switch role {
@@ -806,8 +810,8 @@ func (sr *StatsRunner) calculateRoleStats(champCounters *championCounters, role 
 
 	return sr.calcStatsFromCounters(&summedCounters)
 }
-func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) storage.StatsValues {
-	statsValues := storage.StatsValues{}
+func (sr *StatsRunner) calcStatsFromCounters(counters *roleCounters) statstypes.StatsValues {
+	statsValues := statstypes.StatsValues{}
 
 	statsValues.SampleSize = counters.Picks
 
