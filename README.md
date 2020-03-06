@@ -32,8 +32,6 @@ The Riot API client is implemented from scratch for this project, including regi
 
 In combination with this backend a frontend called [ALoLstats-web](https://git.abyle.org/hps/alolstats-web) is also beeing developed.
 
-These projects are used to power [fuu.la](https://fuu.la).
-
 ## How to run it
 
 Probably the easiest way to try out ALoLstats is using Docker. Currently no official images are provided in a public registry, but it can be easily built using
