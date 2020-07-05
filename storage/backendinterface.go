@@ -66,7 +66,7 @@ type BackendMatch interface {
 	StoreMatch(data *riotclient.MatchDTO) error
 
 	GetMatchTimeLine(matchID uint64) (*riotclient.MatchTimelineDTO, error)
-	StoreMatchTimeLine(data *riotclient.MatchTimelineDTO) error
+	StoreMatchTimeLine(match *riotclient.MatchDTO, data *riotclient.MatchTimelineDTO) error
 
 	// Specialized fetching functions
 	GetMatchesByGameVersionAndChampionID(gameVersion string, championID uint64) (*riotclient.Matches, error)

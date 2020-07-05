@@ -59,6 +59,12 @@ func (f *FetchRunner) fetchSummonerMatchesByAccountID(accountID string, number u
 					}
 				}
 			}
+			if f.config.FetchTimeLines && match != nil && err == nil {
+				_, err := f.storage.RegionalFetchAndStoreMatchTimeLine(match)
+				if err != nil {
+					f.log.Errorf("Error fetching or storing timeline data: %s", err)
+				}
+			}
 			if f.config.FetchOnlyLatestGameVersion && match != nil && err == nil {
 				if !f.checkGameVersionsEqual(match.GameVersion, knownLatestVersion) {
 					f.log.Debugf("Skipping remaining matches for Summoner %s because we encountered a game version not beeing the latest (latest: %s, seen %s)", accountID, knownLatestVersion, match.GameVersion)

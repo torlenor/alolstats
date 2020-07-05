@@ -52,6 +52,8 @@
         FetchOnlyLatestGameVersion = true # If true stops fetching matches for a summoner if it encounters a game version != latest known game version
         LatestGameVersionForFetching = "9.5.1" # Specify what the latest game version for fetching is, see config parameter below for details
 
+        FetchTimeLines =  true # FetchTimeLines specifies if also timelines for the matches should be fetched
+
     [FetchRunner.eun1]
         Region = "eun1" # Specified the RiotAPI region to use (must exist as RiotAPI defined above)
         UpdateIntervalSummonerMatches = 60 # Specified the update interval for fetching Summoner Matches in minutes > 0

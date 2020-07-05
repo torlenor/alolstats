@@ -257,13 +257,3 @@ func (b *Backend) GetMatchesByGameVersionChampionIDMapBetweenQueueIDs(gameVersio
 
 	return &matches, nil
 }
-
-// GetMatchTimeLine is not implemented, yet
-func (b *Backend) GetMatchTimeLine(matchID uint64) (*riotclient.MatchTimelineDTO, error) {
-	return nil, fmt.Errorf("Not implemented")
-}
-
-// StoreMatchTimeLine is not implemented, yet
-func (b *Backend) StoreMatchTimeLine(data *riotclient.MatchTimelineDTO) error {
-	return fmt.Errorf("Not implemented")
-}

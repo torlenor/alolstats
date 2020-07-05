@@ -93,6 +93,44 @@ func (b *Backend) checkMatches() error {
 	return nil
 }
 
+// checkTimelines checks the timelines collection and sets the correct indices
+func (b *Backend) checkTimelines() error {
+	err := b.createIndex("timelines", mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "gameid", Value: bsonx.Int32(1)},
+			{Key: "platformid", Value: bsonx.Int32(1)},
+		},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex("timelines", mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+			{Key: "mapid", Value: bsonx.Int32(1)},
+			{Key: "queueid", Value: bsonx.Int32(1)},
+		},
+		Options: options.Index().SetUnique(false),
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	err = b.createIndex("timelines", mongo.IndexModel{
+		Keys: bsonx.Doc{
+			{Key: "gameversion", Value: bsonx.Int32(1)},
+		},
+		Options: options.Index().SetUnique(false),
+	})
+	if err != nil {
+		return fmt.Errorf("Error creating MongoDB indices: %s", err)
+	}
+
+	return nil
+}
+
 // checkSummoners checks the summoners collection and sets the correct indices
 func (b *Backend) checkSummoners() error {
 	err := b.createIndex("summoners", mongo.IndexModel{
@@ -312,6 +350,11 @@ func (b *Backend) checkCollections() error {
 	}
 
 	err = b.checkMatches()
+	if err != nil {
+		return err
+	}
+
+	err = b.checkTimelines()
 	if err != nil {
 		return err
 	}

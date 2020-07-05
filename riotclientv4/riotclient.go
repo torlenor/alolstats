@@ -168,7 +168,7 @@ func (c *RiotClientV4) realAPICall(path string, method string, body string) (r [
 		return nil, fmt.Errorf("Riot Client not started. Start by calling the Start() function")
 	}
 
-	c.log.Debugln("ApiCall: Got new Api Call:", path)
+	c.log.Traceln("ApiCall: Got new Api Call:", path)
 
 	req, err := http.NewRequest(method, path, strings.NewReader(body))
 	if err != nil {
@@ -189,7 +189,7 @@ func (c *RiotClientV4) realAPICall(path string, method string, body string) (r [
 			c.log.Debugln("ApiCall: Error from worker:", res.err)
 			return nil, res.err
 		}
-		c.log.Debugln("ApiCall: Successfully finished Api Call")
+		c.log.Traceln("ApiCall: Successfully finished Api Call")
 		return ioutil.ReadAll(res.response.Body)
 	case <-time.After(180 * time.Second):
 		c.log.Debugln("ApiCall: API call timed out")

@@ -288,11 +288,11 @@ func (b *mockBackend) GetLeaguesForSummonerBySummonerIDTimeStamp(summonerID stri
 	return time.Time{}, nil
 }
 
-func (b *mockBackend) GetMatchTimeLine(matchID uint64) (*riotclient.MatchTimelineDTO, error) {
+func (b *mockBackend) GetMatchTimeLine(id uint64) (*riotclient.MatchTimelineDTO, error) {
 	return &riotclient.MatchTimelineDTO{}, nil
 }
 
-func (b *mockBackend) StoreMatchTimeLine(data *riotclient.MatchTimelineDTO) error {
+func (b *mockBackend) StoreMatchTimeLine(match *riotclient.MatchDTO, data *riotclient.MatchTimelineDTO) error {
 	return nil
 }
 

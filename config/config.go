@@ -87,6 +87,9 @@ type FetchRunner struct {
 
 	// Specify what the latest game version for fetching is, see config parameter below for details
 	LatestGameVersionForFetching string
+
+	// FetchTimeLines specifies if also timelines for the matches should be fetched
+	FetchTimeLines bool
 }
 
 // ChampionsStats holds the settings for the Champions analysis of the StatsRunner
